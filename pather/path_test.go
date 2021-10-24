@@ -1,0 +1,204 @@
+package pather
+
+import (
+	"encoding/json"
+	"testing"
+
+	"github.com/brensch/snake/generator"
+	"github.com/brensch/snake/rules"
+)
+
+var (
+	tests = [][]byte{
+		[]byte(`{"Turn":0,"Height":11,"Width":11,"Food":[{"X":0,"Y":8},{"X":6,"Y":10},{"X":5,"Y":5}],"Snakes":[{"ID":"you","Body":[{"X":1,"Y":9},{"X":1,"Y":8},{"X":1,"Y":7}],"Health":100,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""},{"ID":"7dd375fc-c66e-413e-aa11-bd13d32bbef4","Body":[{"X":3,"Y":7},{"X":3,"Y":8},{"X":3,"Y":9},{"X":2,"Y":9},{"X":2,"Y":8}],"Health":100,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""}],"Hazards":null}`),
+		[]byte(`{"Turn":179,"Height":11,"Width":11,"Food":[{"X":3,"Y":8},{"X":10,"Y":8},{"X":3,"Y":7},{"X":1,"Y":2}],"Snakes":[{"ID":"you","Body":[{"X":4,"Y":6},{"X":5,"Y":6},{"X":6,"Y":6},{"X":7,"Y":6},{"X":7,"Y":5},{"X":6,"Y":5},{"X":6,"Y":4},{"X":7,"Y":4},{"X":8,"Y":4},{"X":8,"Y":5},{"X":8,"Y":6},{"X":9,"Y":6},{"X":9,"Y":5},{"X":9,"Y":4},{"X":9,"Y":3},{"X":8,"Y":3},{"X":7,"Y":3},{"X":6,"Y":3},{"X":5,"Y":3}],"Health":87,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""},{"ID":"dcf675fe-12ca-40d3-9268-07a2cc747866","Body":[{"X":3,"Y":5},{"X":2,"Y":5},{"X":2,"Y":4},{"X":3,"Y":4},{"X":4,"Y":4},{"X":4,"Y":3},{"X":4,"Y":2},{"X":5,"Y":2},{"X":6,"Y":2},{"X":7,"Y":2},{"X":8,"Y":2},{"X":9,"Y":2},{"X":10,"Y":2},{"X":10,"Y":1},{"X":9,"Y":1},{"X":8,"Y":1},{"X":7,"Y":1},{"X":6,"Y":1}],"Health":98,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""}],"Hazards":null}`),
+		[]byte(`{"Turn":203,"Height":11,"Width":11,"Food":[{"X":10,"Y":3},{"X":0,"Y":1}],"Snakes":[{"ID":"you","Body":[{"X":9,"Y":3},{"X":8,"Y":3},{"X":8,"Y":4},{"X":7,"Y":4},{"X":6,"Y":4},{"X":6,"Y":5},{"X":7,"Y":5},{"X":8,"Y":5},{"X":8,"Y":6},{"X":8,"Y":7},{"X":8,"Y":8},{"X":8,"Y":9},{"X":8,"Y":10},{"X":9,"Y":10},{"X":9,"Y":9},{"X":9,"Y":8},{"X":9,"Y":7},{"X":9,"Y":6},{"X":9,"Y":5},{"X":9,"Y":4}],"Health":98,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""},{"ID":"a2f84b19-fe62-4c7c-b7a6-7c301c1b20ff","Body":[{"X":7,"Y":3},{"X":6,"Y":3},{"X":5,"Y":3},{"X":5,"Y":4},{"X":4,"Y":4},{"X":4,"Y":3},{"X":3,"Y":3},{"X":2,"Y":3},{"X":1,"Y":3},{"X":1,"Y":2},{"X":1,"Y":1},{"X":1,"Y":0},{"X":2,"Y":0},{"X":3,"Y":0},{"X":4,"Y":0},{"X":5,"Y":0},{"X":6,"Y":0},{"X":7,"Y":0},{"X":8,"Y":0},{"X":8,"Y":1},{"X":7,"Y":1}],"Health":80,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""}],"Hazards":null}`),
+		[]byte(`{"Turn":117,"Height":11,"Width":11,"Food":[{"X":10,"Y":10},{"X":7,"Y":10}],"Snakes":[{"ID":"you","Body":[{"X":7,"Y":9},{"X":8,"Y":9},{"X":9,"Y":9},{"X":10,"Y":9},{"X":10,"Y":8},{"X":10,"Y":7},{"X":10,"Y":6},{"X":10,"Y":5},{"X":10,"Y":4},{"X":9,"Y":4},{"X":9,"Y":5},{"X":8,"Y":5},{"X":8,"Y":6}],"Health":98,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""},{"ID":"8f58be28-81aa-4046-b6f0-3b530d9fc4b6","Body":[{"X":5,"Y":9},{"X":5,"Y":8},{"X":6,"Y":8},{"X":7,"Y":8},{"X":7,"Y":7},{"X":7,"Y":6},{"X":6,"Y":6},{"X":6,"Y":7},{"X":5,"Y":7},{"X":4,"Y":7},{"X":4,"Y":8},{"X":3,"Y":8},{"X":3,"Y":9}],"Health":78,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""}],"Hazards":null}`),
+		[]byte(`{
+			"Hazards": null,
+			"Food": [
+			  {
+				"X": 10,
+				"Y": 0
+			  },
+			  {
+				"Y": 8,
+				"X": 0
+			  },
+			  {
+				"X": 6,
+				"Y": 10
+			  }
+			],
+			"Turn": 125,
+			"Snakes": [
+			  {
+				"EliminatedBy": "",
+				"Health": 84,
+				"ID": "you",
+				"EliminatedOnTurn": 0,
+				"Body": [
+				  {
+					"X": 9,
+					"Y": 0
+				  },
+				  {
+					"Y": 0,
+					"X": 8
+				  },
+				  {
+					"Y": 0,
+					"X": 7
+				  },
+				  {
+					"Y": 1,
+					"X": 7
+				  },
+				  {
+					"Y": 1,
+					"X": 6
+				  },
+				  {
+					"X": 5,
+					"Y": 1
+				  },
+				  {
+					"Y": 2,
+					"X": 5
+				  },
+				  {
+					"Y": 2,
+					"X": 6
+				  },
+				  {
+					"Y": 2,
+					"X": 7
+				  },
+				  {
+					"X": 8,
+					"Y": 2
+				  },
+				  {
+					"X": 8,
+					"Y": 1
+				  }
+				],
+				"EliminatedCause": ""
+			  },
+			  {
+				"EliminatedBy": "",
+				"ID": "gs_d8XdgWyYJQ37ddytQMhDGvh4",
+				"EliminatedOnTurn": 0,
+				"EliminatedCause": "",
+				"Body": [
+				  {
+					"Y": 7,
+					"X": 6
+				  },
+				  {
+					"X": 5,
+					"Y": 7
+				  },
+				  {
+					"Y": 7,
+					"X": 4
+				  },
+				  {
+					"X": 3,
+					"Y": 7
+				  },
+				  {
+					"Y": 7,
+					"X": 2
+				  },
+				  {
+					"X": 2,
+					"Y": 8
+				  },
+				  {
+					"X": 3,
+					"Y": 8
+				  },
+				  {
+					"Y": 8,
+					"X": 4
+				  },
+				  {
+					"Y": 8,
+					"X": 5
+				  },
+				  {
+					"X": 6,
+					"Y": 8
+				  },
+				  {
+					"Y": 8,
+					"X": 7
+				  },
+				  {
+					"X": 8,
+					"Y": 8
+				  },
+				  {
+					"Y": 7,
+					"X": 8
+				  },
+				  {
+					"X": 8,
+					"Y": 6
+				  }
+				],
+				"Health": 93
+			  }
+			],
+			"Width": 11,
+			"Height": 11
+		  }`),
+	}
+)
+
+func TestAddObstacles(t *testing.T) {
+	youID := "you"
+
+	for _, test := range tests {
+
+		var s *rules.BoardState
+		err := json.Unmarshal(test, &s)
+		if err != nil {
+			t.Error(err)
+			t.FailNow()
+		}
+
+		generator.PrintMap(s)
+
+		you, err := generator.GetYou(s, youID)
+		if err != nil {
+			t.Error(err)
+			t.FailNow()
+		}
+
+		grid := initPathGrid(s, you.Body[0])
+		grid.AddObstacles(s, you.Body[0], you.Body[0])
+
+		grid.PrintBlocked()
+
+		// p.DebugPrint(you.Body[0], you.Body[len(you.Body)-1])
+
+	}
+
+}
+
+// func TestAddObstacles(t *testing.T) {
+
+// 	var state *rules.BoardState
+// 	err := json.Unmarshal(start, &state)
+// 	if err != nil {
+// 		t.Error(err)
+// 		t.FailNow()
+// 	}
+
+// 	generator.PrintMap(state)
+
+// 	p := MakePathgrid(state, you.Body[0])
+
+// }
