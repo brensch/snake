@@ -25,16 +25,21 @@ type AStarCost struct {
 	Origin           bool
 	Explored         bool // we have already calculate this square
 	Blocked          bool // This is an impassable square (ie snake)
+	Hazard           bool
 }
 
-func (p PathGrid) ScoreNeighbours(current rules.Point) {
+func (p PathGrid) ScoreNeighbours(current rules.Point, hazardCost int) {
 	neighbours := generator.NeighboursSafe(len(p[0]), len(p), current)
 	currentDistanceToTarget := p[current.X][current.Y].DistanceToTarget
 	for _, neighbour := range neighbours {
 		if p[neighbour.X][neighbour.Y].Blocked || p[neighbour.X][neighbour.Y].Explored {
 			continue
 		}
-		p[neighbour.X][neighbour.Y].DistanceToTarget = currentDistanceToTarget + CostFactor
+		cost := CostFactor
+		if p[neighbour.X][neighbour.Y].Hazard {
+			cost += hazardCost
+		}
+		p[neighbour.X][neighbour.Y].DistanceToTarget = currentDistanceToTarget + cost
 	}
 }
 
@@ -125,7 +130,7 @@ func (p PathGrid) AddObstacles(s *rules.BoardState, origin, yourHead rules.Point
 	}
 
 	for _, hazard := range s.Hazards {
-		p[hazard.X][hazard.Y].Blocked = true
+		p[hazard.X][hazard.Y].Hazard = true
 	}
 }
 
@@ -207,7 +212,7 @@ func (p PathGrid) NextStepTowardsTarget(current, target rules.Point) (rules.Poin
 
 }
 
-func GetRoutesFromOrigin(state *rules.BoardState, origin, yourHead rules.Point) [][]rules.Point {
+func GetRoutesFromOrigin(state *rules.BoardState, origin, yourHead rules.Point, hazardCost int) [][]rules.Point {
 	p := MakePathgrid(state, origin, yourHead)
 	var routes [][]rules.Point
 
@@ -218,7 +223,7 @@ func GetRoutesFromOrigin(state *rules.BoardState, origin, yourHead rules.Point) 
 				continue
 			}
 
-			route, err := p.GetRoute(origin, target)
+			route, err := p.GetRoute(origin, target, hazardCost)
 			if err != nil {
 				continue
 			}
@@ -298,14 +303,14 @@ func (p PathGrid) CalculateDistancesToOrigin(origin rules.Point) {
 }
 
 // CalculateDistancesToOrigin returns the shortest path from origin to target
-func (p PathGrid) CalculateDistancesToTarget(origin, target rules.Point) {
+func (p PathGrid) CalculateDistancesToTarget(origin, target rules.Point, hazardCost int) {
 
 	var err error
 	nextSquare := target
 
 	for {
 		p[nextSquare.X][nextSquare.Y].Explored = true
-		p.ScoreNeighbours(nextSquare)
+		p.ScoreNeighbours(nextSquare, hazardCost)
 
 		nextSquare, err = p.GetNextLowestSquare()
 		if err != nil {
@@ -325,8 +330,8 @@ func (p PathGrid) ResetDistancesToTarget() {
 	}
 }
 
-func (p PathGrid) GetRoute(origin, target rules.Point) ([]rules.Point, error) {
-	p.CalculateDistancesToTarget(origin, target)
+func (p PathGrid) GetRoute(origin, target rules.Point, hazardCost int) ([]rules.Point, error) {
+	p.CalculateDistancesToTarget(origin, target, hazardCost)
 	defer p.ResetDistancesToTarget()
 	return p.TraceWeightedGridToTarget(origin, target)
 }

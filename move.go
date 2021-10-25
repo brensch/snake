@@ -19,10 +19,18 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 
 	p := pather.MakePathgrid(state, you.Body[0], you.Body[0])
 	freeSquares := p.FreeSquares(state)
+	hazardCost := 0
+
+	if ruleset.Name() == "royale" {
+		royaleRules, ok := ruleset.(*rules.RoyaleRuleset)
+		if ok {
+			hazardCost += int(royaleRules.HazardDamagePerTurn) * pather.CostFactor
+		}
+	}
 
 	for _, snack := range state.Food {
 
-		route, err := p.GetRoute(you.Body[0], snack)
+		route, err := p.GetRoute(you.Body[0], snack, hazardCost)
 		if err != nil {
 			continue
 		}
@@ -59,7 +67,7 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 
 		}
 
-		routesFromSnackOnwards := pather.GetRoutesFromOrigin(nextState, route[len(route)-1], route[len(route)-1])
+		routesFromSnackOnwards := pather.GetRoutesFromOrigin(nextState, route[len(route)-1], route[len(route)-1], hazardCost)
 
 		if len(routesFromSnackOnwards) < freeSquares/2 {
 			// if len(routesFromSnackOnwards) < len(you.Body) {
@@ -97,13 +105,13 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 		return generator.DirectionToPoint(you.Body[0], tastiestSnackPath[0]), "chasing snack"
 	}
 
-	route, err := p.GetRoute(you.Body[0], you.Body[len(you.Body)-1])
+	route, err := p.GetRoute(you.Body[0], you.Body[len(you.Body)-1], hazardCost)
 	if err == nil {
 		return generator.DirectionToPoint(you.Body[0], route[0]), "chasing tail"
 	}
 
 	// if we can't reach our own tail, get all points and calculate longest route
-	allAvailableRoutes := pather.GetRoutesFromOrigin(state, you.Body[0], you.Body[0])
+	allAvailableRoutes := pather.GetRoutesFromOrigin(state, you.Body[0], you.Body[0], hazardCost)
 
 	var longestRouteLength int
 	var longestRoute []rules.Point

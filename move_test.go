@@ -67,7 +67,7 @@ var (
 		{
 			explanation: "check don't chase snack into small space",
 			state:       []byte(`{"Height":11,"Food":[{"X":7,"Y":10}],"Snakes":[{"EliminatedOnTurn":0,"EliminatedCause":"","Body":[{"X":5,"Y":6},{"Y":7,"X":5},{"Y":8,"X":5},{"Y":9,"X":5},{"Y":10,"X":5},{"Y":10,"X":4},{"X":3,"Y":10},{"X":2,"Y":10},{"Y":10,"X":1},{"X":1,"Y":9},{"X":1,"Y":8},{"Y":8,"X":2},{"X":2,"Y":7},{"Y":6,"X":2},{"X":3,"Y":6}],"Health":89,"EliminatedBy":"","ID":"gs_W8T9gFYgRqhmwpbGMBXKmVHR"},{"Health":73,"ID":"you","Body":[{"X":6,"Y":9},{"X":7,"Y":9},{"X":7,"Y":8},{"Y":8,"X":8},{"X":9,"Y":8},{"Y":8,"X":10},{"Y":7,"X":10},{"Y":6,"X":10},{"Y":5,"X":10},{"X":9,"Y":5},{"X":9,"Y":6},{"X":9,"Y":7},{"Y":7,"X":8},{"X":8,"Y":6},{"X":7,"Y":6},{"Y":7,"X":7},{"X":6,"Y":7},{"X":6,"Y":8}],"EliminatedBy":"","EliminatedCause":"","EliminatedOnTurn":0}],"Width":11,"Hazards":null,"Turn":169}`),
-			okMoves:     []generator.Direction{},
+			okMoves:     []generator.Direction{generator.DirectionDown},
 		},
 	}
 )
@@ -125,3 +125,6 @@ func TestMove(t *testing.T) {
 }
 
 // https://play.battlesnake.com/g/3f16d94d-b6a4-4c6d-940b-e6137db33789/
+
+// kill test:
+// https://play.battlesnake.com/g/44a88512-6fb6-4f8b-a0ae-4531441258d5/
