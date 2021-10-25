@@ -123,3 +123,5 @@ func TestMove(t *testing.T) {
 	}
 
 }
+
+// https://play.battlesnake.com/g/3f16d94d-b6a4-4c6d-940b-e6137db33789/

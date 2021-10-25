@@ -89,9 +89,12 @@ func (p PathGrid) AddObstacles(s *rules.BoardState, origin, yourHead rules.Point
 		for pointPosition, point := range snake.Body {
 			distanceToOrigin := Abs(origin.X-point.X) + Abs(origin.Y-point.Y)
 
-			if len(snake.Body)-pointPosition > int(distanceToOrigin) {
-				p[point.X][point.Y].Blocked = true
+			if generator.OffBoard(s, point) ||
+				len(snake.Body)-pointPosition <= int(distanceToOrigin) {
+				continue
 			}
+
+			p[point.X][point.Y].Blocked = true
 		}
 	}
 

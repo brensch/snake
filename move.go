@@ -59,8 +59,6 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 
 		}
 
-		// pSnack := pather.MakePathgrid(nextState, route[len(route)-1], route[len(route)-1])
-
 		routesFromSnackOnwards := pather.GetRoutesFromOrigin(nextState, route[len(route)-1], route[len(route)-1])
 
 		if len(routesFromSnackOnwards) < freeSquares/2 {
