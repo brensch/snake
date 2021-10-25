@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/brensch/snake/rules"
@@ -135,7 +136,10 @@ func (r EngineRequest) ToState() (*rules.BoardState, rules.Ruleset, rules.Snake)
 			StandardRuleset: *baseRules,
 		}
 	default:
-		log.WithField("ruleset", r.Game.Ruleset.Name).Warn("got unknown ruleset name")
+		log.WithFields(logrus.Fields{
+			"ruleset": r.Game.Ruleset.Name,
+			"game":    r.Game.ID,
+		}).Warn("got unknown ruleset name")
 		ruleset = baseRules
 	}
 
