@@ -211,6 +211,10 @@ func GetRoutesFromOrigin(state *rules.BoardState, origin, yourHead rules.Point) 
 	for x := int32(0); x < state.Width; x++ {
 		for y := int32(0); y < state.Height; y++ {
 			target := rules.Point{X: x, Y: y}
+			if p[x][y].Blocked {
+				continue
+			}
+
 			route, err := p.GetRoute(origin, target)
 			if err != nil {
 				continue

@@ -93,41 +93,10 @@ func move(ctx context.Context, req EngineRequest) EngineResponse {
 
 	state, ruleset, you := req.ToState()
 
-	galaxyBrain, reason := Move(ctx, state, ruleset, you, req.Turn)
-	safestMoves := SafestMoves(state, ruleset, you)
-
-	finalMove := galaxyBrain
-
-	galaxyBrainSafe := false
-	for _, smoothBrain := range safestMoves {
-		if galaxyBrain == smoothBrain {
-			galaxyBrainSafe = true
-			break
-		}
-	}
-
-	if len(safestMoves) != 0 && !galaxyBrainSafe {
-		finalMove = safestMoves[0]
-	}
-
-	safeMoveStrings := []string{}
-	for _, move := range safestMoves {
-		safeMoveStrings = append(safeMoveStrings, move.String())
-	}
-
-	log.WithFields(log.Fields{
-		"game":        req.Game.ID,
-		"action":      "move",
-		"galaxy":      galaxyBrain.String(),
-		"galaxy_safe": galaxyBrainSafe,
-		"safe":        safeMoveStrings,
-		"actual":      finalMove.String(),
-		"reason":      reason,
-		"state":       state,
-	}).Info("moved")
+	move, reason := Move(ctx, state, ruleset, you, req.Turn, req.Game.ID)
 
 	return EngineResponse{
-		Move:  finalMove.String(),
+		Move:  move.String(),
 		Shout: reason,
 	}
 

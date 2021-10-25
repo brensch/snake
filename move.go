@@ -12,7 +12,7 @@ import (
 
 const LargestCost = 10000
 
-func Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, turn int32) (generator.Direction, string) {
+func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, turn int32) (generator.Direction, string) {
 
 	var tastiestSnackPath []rules.Point
 	foundSnack := false
@@ -27,7 +27,41 @@ func Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, y
 			continue
 		}
 
-		routesFromSnackOnwards := pather.GetRoutesFromOrigin(state, snack, you.Body[0])
+		// to find the routes from this point on, fastforward your position to what it would be
+		// given this route, and make everyone else do their safest move
+		// TODO: actually try and assume that they make good moves here
+		nextState := state.Clone()
+
+		previousHead := you.Body[0]
+
+		for _, pointInRoute := range route {
+
+			moves := []rules.SnakeMove{
+				{ID: you.ID, Move: generator.DirectionToPoint(previousHead, pointInRoute).String()},
+			}
+			previousHead = pointInRoute
+
+			for _, snake := range nextState.Snakes {
+				if snake.ID == you.ID {
+					continue
+				}
+
+				safestMoves := SafestMoves(nextState, ruleset, snake)
+				if len(safestMoves) == 0 {
+					moves = append(moves, rules.SnakeMove{ID: snake.ID, Move: generator.DirectionDown.String()})
+					continue
+				}
+				moves = append(moves, rules.SnakeMove{ID: snake.ID, Move: safestMoves[0].String()})
+
+			}
+
+			nextState, err = ruleset.CreateNextBoardState(nextState, moves)
+
+		}
+
+		// pSnack := pather.MakePathgrid(nextState, route[len(route)-1], route[len(route)-1])
+
+		routesFromSnackOnwards := pather.GetRoutesFromOrigin(nextState, route[len(route)-1], route[len(route)-1])
 
 		if len(routesFromSnackOnwards) < freeSquares/2 {
 			// if len(routesFromSnackOnwards) < len(you.Body) {
@@ -169,4 +203,42 @@ func MoveIsSafe(state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake,
 	}
 
 	return false
+}
+
+func Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, turn int32, gameID string) (generator.Direction, string) {
+	galaxyBrain, reason := GalaxyBrain(ctx, state, ruleset, you, turn)
+	safestMoves := SafestMoves(state, ruleset, you)
+
+	finalMove := galaxyBrain
+
+	galaxyBrainSafe := false
+	for _, smoothBrain := range safestMoves {
+		if galaxyBrain == smoothBrain {
+			galaxyBrainSafe = true
+			break
+		}
+	}
+
+	if len(safestMoves) != 0 && !galaxyBrainSafe {
+		finalMove = safestMoves[0]
+	}
+
+	safeMoveStrings := []string{}
+	for _, move := range safestMoves {
+		safeMoveStrings = append(safeMoveStrings, move.String())
+	}
+
+	log.WithFields(log.Fields{
+		"game":        gameID,
+		"action":      "move",
+		"galaxy":      galaxyBrain.String(),
+		"galaxy_safe": galaxyBrainSafe,
+		"safe":        safeMoveStrings,
+		"actual":      finalMove.String(),
+		"reason":      reason,
+		"state":       state,
+	}).Info("moved")
+
+	return finalMove, reason
+
 }

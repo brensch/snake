@@ -57,7 +57,7 @@ func TestAvoidWalls(t *testing.T) {
 			return
 		}
 
-		move, _ := Move(context.Background(), state, standardGame, you, turn)
+		move, _ := Move(context.Background(), state, standardGame, you, turn, "challenges_test")
 
 		nextMove := rules.SnakeMove{
 			ID:   snakeID,
@@ -159,7 +159,7 @@ func TestAvoidBattleSnakes(t *testing.T) {
 			return
 		}
 
-		move, _ := Move(context.Background(), state, standardGame, you, turn)
+		move, _ := Move(context.Background(), state, standardGame, you, turn, "challenges_test")
 
 		nextMove := rules.SnakeMove{
 			ID:   snakeID,
