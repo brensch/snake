@@ -128,3 +128,6 @@ func TestMove(t *testing.T) {
 
 // kill test:
 // https://play.battlesnake.com/g/44a88512-6fb6-4f8b-a0ae-4531441258d5/
+
+// got stuck in hazard sauce:
+// https://play.battlesnake.com/g/533cd7bf-390e-427c-851b-d5d8e0bc1bb6/

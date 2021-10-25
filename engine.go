@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/brensch/snake/rules"
 )
 
@@ -128,7 +130,13 @@ func (r EngineRequest) ToState() (*rules.BoardState, rules.Ruleset, rules.Snake)
 		ruleset = &rules.SquadRuleset{
 			StandardRuleset: *baseRules,
 		}
-
+	case "constrictor":
+		ruleset = &rules.ConstrictorRuleset{
+			StandardRuleset: *baseRules,
+		}
+	default:
+		log.WithField("ruleset", r.Game.Ruleset.Name).Warn("got unknown ruleset name")
+		ruleset = baseRules
 	}
 
 	// r.Game.Ruleset.Name
