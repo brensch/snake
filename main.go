@@ -62,7 +62,7 @@ func start(req EngineRequest) {
 }
 
 func end(req EngineRequest) {
-	state, _, you := req.ToState()
+	state, ruleset, you := req.ToState()
 	victoryStatus := "LOST"
 	if len(state.Snakes) == 0 {
 		victoryStatus = "DRAW"
@@ -73,11 +73,18 @@ func end(req EngineRequest) {
 		}
 	}
 
+	var names []string
+	for _, snake := range req.Board.Snakes {
+		names = append(names, snake.Name)
+	}
+
 	entry := log.WithFields(log.Fields{
-		"game":   req.Game.ID,
-		"action": "end",
-		"result": victoryStatus,
-		"state":  state,
+		"game":    req.Game.ID,
+		"action":  "end",
+		"result":  victoryStatus,
+		"state":   state,
+		"ruleset": ruleset.Name(),
+		"players": names,
 	})
 
 	if victoryStatus == "LOST" {
