@@ -128,6 +128,15 @@ func TestMove(t *testing.T) {
 
 // kill test:
 // https://play.battlesnake.com/g/44a88512-6fb6-4f8b-a0ae-4531441258d5/
+// turn 89
 
 // got stuck in hazard sauce:
 // https://play.battlesnake.com/g/533cd7bf-390e-427c-851b-d5d8e0bc1bb6/
+
+// should chase tail because kill is imminent left
+// https://play.battlesnake.com/g/bfd4133d-1e7b-4e05-90a9-27fe220c0984/
+// turn 102
+
+// should get health when low...
+// https://play.battlesnake.com/g/67e1fe80-2a45-4a68-932c-3c03b1118320/
+// turn 543
