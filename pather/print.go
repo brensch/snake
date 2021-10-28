@@ -15,12 +15,12 @@ func (p PathGrid) PrintBlocked() {
 	for y := height - 1; y >= 0; y-- {
 		for x := 0; x < width; x++ {
 
-			if p[x][y].Blocked {
-				fmt.Printf("1 ")
-				continue
-			}
+			fmt.Printf("%2d ", p[x][y].BlockedForTurns)
+			// if p[x][y].BlockedForTurns {
+			// 	continue
+			// }
 
-			fmt.Printf("0 ")
+			// fmt.Printf("0 ")
 		}
 		fmt.Println()
 	}

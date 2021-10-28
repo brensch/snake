@@ -22,9 +22,11 @@ type PathGrid [][]*AStarCost
 type AStarCost struct {
 	DistanceToTarget int // the cost of the best current route between this point and the target
 	DistanceToOrigin int // this is static and calculated for all points. it's pythag * cost factor.
+	TurnsToSquare    int // counts the current best number of turns to the square
 	Origin           bool
 	Explored         bool // we have already calculate this square
 	Blocked          bool // This is an impassable square (ie snake)
+	BlockedForTurns  int
 	Hazard           bool
 }
 
@@ -32,11 +34,12 @@ func (p PathGrid) ScoreNeighbours(current rules.Point, hazardCost int) {
 	neighbours := generator.NeighboursSafe(len(p[0]), len(p), current)
 	currentDistanceToTarget := p[current.X][current.Y].DistanceToTarget
 	for _, neighbour := range neighbours {
-		if p[neighbour.X][neighbour.Y].Blocked || p[neighbour.X][neighbour.Y].Explored {
+		point := p[neighbour.X][neighbour.Y]
+		if (!point.Origin && point.Blocked) || point.Explored {
 			continue
 		}
 		cost := CostFactor
-		if p[neighbour.X][neighbour.Y].Hazard {
+		if point.Hazard {
 			cost += hazardCost
 		}
 		p[neighbour.X][neighbour.Y].DistanceToTarget = currentDistanceToTarget + cost
@@ -94,6 +97,8 @@ func (p PathGrid) AddObstacles(s *rules.BoardState, origin, yourHead rules.Point
 		for pointPosition, point := range snake.Body {
 			distanceToOrigin := Abs(origin.X-point.X) + Abs(origin.Y-point.Y)
 
+			p[point.X][point.Y].BlockedForTurns = len(snake.Body) - pointPosition
+
 			if generator.OffBoard(s, point) ||
 				len(snake.Body)-pointPosition <= int(distanceToOrigin) {
 				continue
@@ -103,46 +108,46 @@ func (p PathGrid) AddObstacles(s *rules.BoardState, origin, yourHead rules.Point
 		}
 	}
 
-	// check every point for proximity to origin and a snake head
-	for x := int32(0); x < s.Width; x++ {
-		for y := int32(0); y < s.Height; y++ {
-			distanceToOrigin := Abs(origin.X-x) + Abs(origin.Y-y)
+	// // check every point for proximity to origin and a snake head
+	// for x := int32(0); x < s.Width; x++ {
+	// 	for y := int32(0); y < s.Height; y++ {
+	// 		distanceToOrigin := Abs(origin.X-x) + Abs(origin.Y-y)
 
-			// anything more than 5 is too uncertain to be blocking squares because of it
-			// TODO: actually subtly weight the path rather than just a binary good/bad
-			if distanceToOrigin > 5 {
-				continue
-			}
+	// 		// anything more than 5 is too uncertain to be blocking squares because of it
+	// 		// TODO: actually subtly weight the path rather than just a binary good/bad
+	// 		if distanceToOrigin > 5 {
+	// 			continue
+	// 		}
 
-			for _, snake := range s.Snakes {
-				// use yourhead here to check if this is us
-				if generator.SamePoint(snake.Body[0], yourHead) {
-					continue
-				}
-				distanceToOtherSnake := Abs(snake.Body[0].X-x) + Abs(snake.Body[0].Y-y)
-				if distanceToOtherSnake < distanceToOrigin {
-					p[x][y].Blocked = true
+	// 		for _, snake := range s.Snakes {
+	// 			// use yourhead here to check if this is us
+	// 			if generator.SamePoint(snake.Body[0], yourHead) {
+	// 				continue
+	// 			}
+	// 			distanceToOtherSnake := Abs(snake.Body[0].X-x) + Abs(snake.Body[0].Y-y)
+	// 			if distanceToOtherSnake < distanceToOrigin {
+	// 				p[x][y].Blocked = true
 
-				}
-			}
+	// 			}
+	// 		}
 
-		}
-	}
+	// 	}
+	// }
 
 	for _, hazard := range s.Hazards {
 		p[hazard.X][hazard.Y].Hazard = true
 	}
 }
 
-func (p PathGrid) AddFogOfUncertainty(head rules.Point, distance int32) {
+// func (p PathGrid) AddFogOfUncertainty(head rules.Point, distance int32) {
 
-	neighbours := generator.NeighboursSafe(len(p[0]), len(p), head)
-	for _, neighbour := range neighbours {
-		p[neighbour.X][neighbour.Y].Blocked = true
-		p.AddFogOfUncertainty(neighbour, distance-1)
-	}
+// 	neighbours := generator.NeighboursSafe(len(p[0]), len(p), head)
+// 	for _, neighbour := range neighbours {
+// 		p[neighbour.X][neighbour.Y].Blocked = true
+// 		p.AddFogOfUncertainty(neighbour, distance-1)
+// 	}
 
-}
+// }
 
 func (p PathGrid) GetNextLowestSquare() (rules.Point, error) {
 
@@ -223,7 +228,7 @@ func GetRoutesFromOrigin(state *rules.BoardState, origin, yourHead rules.Point, 
 				continue
 			}
 
-			route, err := p.GetRoute(origin, target, hazardCost)
+			route, _, err := p.GetRoute(origin, target, hazardCost)
 			if err != nil {
 				continue
 			}
@@ -330,8 +335,11 @@ func (p PathGrid) ResetDistancesToTarget() {
 	}
 }
 
-func (p PathGrid) GetRoute(origin, target rules.Point, hazardCost int) ([]rules.Point, error) {
+func (p PathGrid) GetRoute(origin, target rules.Point, hazardCost int) ([]rules.Point, int, error) {
 	p.CalculateDistancesToTarget(origin, target, hazardCost)
+	healthCostToGetToSnack := p[origin.X][origin.Y]
+
 	defer p.ResetDistancesToTarget()
-	return p.TraceWeightedGridToTarget(origin, target)
+	route, err := p.TraceWeightedGridToTarget(origin, target)
+	return route, healthCostToGetToSnack.DistanceToTarget, err
 }

@@ -54,11 +54,12 @@ var (
 			state:       []byte(`{"Turn":180,"Height":11,"Width":11,"Food":[{"X":0,"Y":10}],"Snakes":[{"EliminatedBy":"","Health":100,"ID":"gs_dKfSHcdGFSktdPbvqHRDPHb3","Body":[{"Y":1,"X":9},{"X":9,"Y":0},{"X":8,"Y":0},{"X":7,"Y":0},{"Y":0,"X":6},{"X":5,"Y":0},{"Y":0,"X":4},{"Y":0,"X":3},{"Y":0,"X":2},{"X":1,"Y":0},{"Y":1,"X":1},{"Y":1,"X":2},{"Y":1,"X":3},{"X":4,"Y":1},{"Y":1,"X":5},{"Y":1,"X":5}],"EliminatedCause":"","EliminatedOnTurn":0},{"EliminatedCause":"","EliminatedOnTurn":0,"ID":"you","Health":91,"EliminatedBy":"","Body":[{"Y":8,"X":10},{"Y":8,"X":9},{"Y":8,"X":8},{"Y":8,"X":7},{"Y":8,"X":6},{"Y":8,"X":5},{"X":5,"Y":7},{"X":4,"Y":7},{"Y":7,"X":3},{"Y":7,"X":2},{"X":2,"Y":8},{"X":2,"Y":9},{"Y":9,"X":1},{"X":0,"Y":9},{"Y":8,"X":0},{"Y":7,"X":0},{"Y":6,"X":0},{"Y":6,"X":1},{"X":2,"Y":6},{"Y":6,"X":3},{"X":4,"Y":6},{"X":5,"Y":6},{"X":6,"Y":6},{"X":7,"Y":6},{"X":8,"Y":6},{"Y":6,"X":9},{"Y":6,"X":10},{"X":10,"Y":5}]}],"Hazards":null}`),
 			okMoves:     []generator.Direction{generator.DirectionDown},
 		},
-		{
-			explanation: "check you don't cut your available space into two too small chunks if there's food there",
-			state:       []byte(`{"Width":11,"Turn":225,"Snakes":[{"EliminatedOnTurn":0,"EliminatedBy":"","EliminatedCause":"","Body":[{"Y":1,"X":6},{"X":5,"Y":1},{"X":5,"Y":2},{"Y":3,"X":5},{"Y":3,"X":4},{"Y":3,"X":3},{"X":2,"Y":3},{"X":1,"Y":3},{"X":0,"Y":3},{"Y":4,"X":0},{"X":0,"Y":5},{"X":0,"Y":6},{"X":0,"Y":7},{"X":0,"Y":8},{"Y":9,"X":0},{"Y":9,"X":1},{"X":2,"Y":9},{"X":3,"Y":9},{"X":3,"Y":8},{"X":3,"Y":7},{"Y":7,"X":4},{"Y":8,"X":4},{"Y":8,"X":5},{"Y":8,"X":6},{"X":6,"Y":7},{"X":5,"Y":7},{"Y":6,"X":5},{"X":4,"Y":6}],"Health":99,"ID":"you"},{"EliminatedBy":"","Health":92,"EliminatedOnTurn":0,"Body":[{"X":8,"Y":9},{"Y":9,"X":9},{"X":9,"Y":8},{"X":8,"Y":8},{"X":7,"Y":8},{"Y":7,"X":7},{"X":7,"Y":6},{"Y":6,"X":8},{"X":9,"Y":6},{"X":9,"Y":5},{"Y":4,"X":9},{"Y":4,"X":8},{"Y":4,"X":7},{"X":6,"Y":4},{"X":6,"Y":3},{"X":7,"Y":3},{"Y":3,"X":8},{"Y":3,"X":9},{"X":10,"Y":3},{"Y":4,"X":10},{"Y":5,"X":10},{"Y":6,"X":10},{"X":10,"Y":7},{"Y":8,"X":10},{"X":10,"Y":9},{"Y":10,"X":10},{"Y":10,"X":9}],"EliminatedCause":"","ID":"gs_gKDv4JhPCrKd4VvfvPXfrtQQ"}],"Hazards":null,"Height":11,"Food":[{"Y":0,"X":6},{"X":7,"Y":5}]}`),
-			okMoves:     []generator.Direction{generator.DirectionRight, generator.DirectionUp},
-		},
+		// TODO: add longest path algorithm done properly
+		// {
+		// 	explanation: "check you don't cut your available space into two too small chunks if there's food there",
+		// 	state:       []byte(`{"Width":11,"Turn":225,"Snakes":[{"EliminatedOnTurn":0,"EliminatedBy":"","EliminatedCause":"","Body":[{"Y":1,"X":6},{"X":5,"Y":1},{"X":5,"Y":2},{"Y":3,"X":5},{"Y":3,"X":4},{"Y":3,"X":3},{"X":2,"Y":3},{"X":1,"Y":3},{"X":0,"Y":3},{"Y":4,"X":0},{"X":0,"Y":5},{"X":0,"Y":6},{"X":0,"Y":7},{"X":0,"Y":8},{"Y":9,"X":0},{"Y":9,"X":1},{"X":2,"Y":9},{"X":3,"Y":9},{"X":3,"Y":8},{"X":3,"Y":7},{"Y":7,"X":4},{"Y":8,"X":4},{"Y":8,"X":5},{"Y":8,"X":6},{"X":6,"Y":7},{"X":5,"Y":7},{"Y":6,"X":5},{"X":4,"Y":6}],"Health":99,"ID":"you"},{"EliminatedBy":"","Health":92,"EliminatedOnTurn":0,"Body":[{"X":8,"Y":9},{"Y":9,"X":9},{"X":9,"Y":8},{"X":8,"Y":8},{"X":7,"Y":8},{"Y":7,"X":7},{"X":7,"Y":6},{"Y":6,"X":8},{"X":9,"Y":6},{"X":9,"Y":5},{"Y":4,"X":9},{"Y":4,"X":8},{"Y":4,"X":7},{"X":6,"Y":4},{"X":6,"Y":3},{"X":7,"Y":3},{"Y":3,"X":8},{"Y":3,"X":9},{"X":10,"Y":3},{"Y":4,"X":10},{"Y":5,"X":10},{"Y":6,"X":10},{"X":10,"Y":7},{"Y":8,"X":10},{"X":10,"Y":9},{"Y":10,"X":10},{"Y":10,"X":9}],"EliminatedCause":"","ID":"gs_gKDv4JhPCrKd4VvfvPXfrtQQ"}],"Hazards":null,"Height":11,"Food":[{"Y":0,"X":6},{"X":7,"Y":5}]}`),
+		// 	okMoves:     []generator.Direction{generator.DirectionRight, generator.DirectionUp},
+		// },
 		{
 			explanation: "check don't chase snack into dead end",
 			state:       []byte(`{"Width":11,"Snakes":[{"Body":[{"Y":8,"X":2},{"Y":8,"X":1},{"X":1,"Y":7},{"Y":7,"X":0},{"Y":6,"X":0},{"X":0,"Y":5},{"X":0,"Y":4},{"Y":3,"X":0},{"X":0,"Y":2},{"X":0,"Y":1},{"Y":1,"X":1},{"X":2,"Y":1},{"X":3,"Y":1},{"Y":1,"X":4},{"X":5,"Y":1},{"Y":2,"X":5},{"Y":3,"X":5},{"X":5,"Y":4},{"X":4,"Y":4}],"ID":"gs_Y9vVWDmfP3whjb6pGqFJrVH9","Health":91,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""},{"Body":[{"X":6,"Y":0},{"X":6,"Y":1},{"X":6,"Y":2},{"Y":3,"X":6},{"X":6,"Y":4},{"X":6,"Y":5},{"Y":5,"X":7},{"Y":5,"X":8},{"Y":6,"X":8},{"X":9,"Y":6},{"X":9,"Y":5},{"X":9,"Y":4},{"X":9,"Y":3},{"X":9,"Y":2},{"X":9,"Y":1},{"Y":0,"X":9},{"Y":0,"X":8}],"ID":"you","EliminatedBy":"","Health":84,"EliminatedCause":"","EliminatedOnTurn":0}],"Turn":128,"Hazards":null,"Height":11,"Food":[{"Y":0,"X":1}]}`),
@@ -67,6 +68,13 @@ var (
 		{
 			explanation: "check don't chase snack into small space",
 			state:       []byte(`{"Height":11,"Food":[{"X":7,"Y":10}],"Snakes":[{"EliminatedOnTurn":0,"EliminatedCause":"","Body":[{"X":5,"Y":6},{"Y":7,"X":5},{"Y":8,"X":5},{"Y":9,"X":5},{"Y":10,"X":5},{"Y":10,"X":4},{"X":3,"Y":10},{"X":2,"Y":10},{"Y":10,"X":1},{"X":1,"Y":9},{"X":1,"Y":8},{"Y":8,"X":2},{"X":2,"Y":7},{"Y":6,"X":2},{"X":3,"Y":6}],"Health":89,"EliminatedBy":"","ID":"gs_W8T9gFYgRqhmwpbGMBXKmVHR"},{"Health":73,"ID":"you","Body":[{"X":6,"Y":9},{"X":7,"Y":9},{"X":7,"Y":8},{"Y":8,"X":8},{"X":9,"Y":8},{"Y":8,"X":10},{"Y":7,"X":10},{"Y":6,"X":10},{"Y":5,"X":10},{"X":9,"Y":5},{"X":9,"Y":6},{"X":9,"Y":7},{"Y":7,"X":8},{"X":8,"Y":6},{"X":7,"Y":6},{"Y":7,"X":7},{"X":6,"Y":7},{"X":6,"Y":8}],"EliminatedBy":"","EliminatedCause":"","EliminatedOnTurn":0}],"Width":11,"Hazards":null,"Turn":169}`),
+			okMoves:     []generator.Direction{generator.DirectionDown},
+		},
+		// https://play.battlesnake.com/g/67e1fe80-2a45-4a68-932c-3c03b1118320/
+		// turn 543
+		{
+			explanation: "should seek food when hungry",
+			state:       []byte(`{"Height":11,"Turn":543,"Snakes":[{"EliminatedOnTurn":0,"Health":4,"EliminatedBy":"","ID":"you","Body":[{"Y":1,"X":8},{"X":7,"Y":1},{"Y":1,"X":6},{"X":5,"Y":1},{"Y":1,"X":4},{"X":3,"Y":1},{"Y":1,"X":2},{"Y":1,"X":1},{"Y":1,"X":0},{"Y":2,"X":0},{"Y":2,"X":1},{"Y":3,"X":1},{"Y":3,"X":0},{"Y":4,"X":0},{"Y":4,"X":1},{"X":2,"Y":4},{"Y":5,"X":2},{"Y":5,"X":1},{"X":1,"Y":6},{"X":1,"Y":7},{"X":1,"Y":8},{"Y":9,"X":1},{"Y":10,"X":1},{"X":2,"Y":10},{"Y":9,"X":2},{"X":2,"Y":8},{"Y":7,"X":2},{"X":2,"Y":6},{"Y":6,"X":3},{"Y":5,"X":3},{"Y":4,"X":3},{"Y":4,"X":4},{"Y":4,"X":5},{"Y":3,"X":5},{"X":4,"Y":3},{"X":4,"Y":2},{"Y":2,"X":5},{"Y":2,"X":6},{"Y":2,"X":7},{"X":8,"Y":2},{"X":9,"Y":2},{"X":10,"Y":2},{"X":10,"Y":1},{"Y":1,"X":9}],"EliminatedCause":""},{"Health":89,"EliminatedCause":"","Body":[{"Y":8,"X":5},{"Y":8,"X":4},{"X":4,"Y":9},{"X":4,"Y":10},{"X":3,"Y":10},{"Y":9,"X":3},{"X":3,"Y":8},{"Y":7,"X":3},{"Y":7,"X":4},{"Y":6,"X":4},{"Y":6,"X":5},{"X":6,"Y":6},{"Y":5,"X":6},{"X":6,"Y":4},{"Y":4,"X":7},{"Y":4,"X":8},{"Y":3,"X":8},{"X":9,"Y":3},{"X":10,"Y":3},{"X":10,"Y":4},{"Y":5,"X":10},{"X":10,"Y":6},{"X":10,"Y":7},{"X":10,"Y":8},{"Y":9,"X":10},{"X":9,"Y":9},{"Y":8,"X":9},{"X":9,"Y":7},{"X":8,"Y":7},{"X":8,"Y":6},{"X":7,"Y":6},{"Y":7,"X":7},{"Y":7,"X":6},{"Y":8,"X":6},{"X":6,"Y":9},{"X":7,"Y":9},{"Y":8,"X":7},{"X":8,"Y":8},{"Y":9,"X":8},{"Y":10,"X":8}],"ID":"gs_JS7rvSbPKG9wmcmT7cScMKdX","EliminatedBy":"","EliminatedOnTurn":0}],"Food":[{"Y":8,"X":0},{"X":0,"Y":5},{"X":2,"Y":2},{"X":0,"Y":9},{"Y":0,"X":10},{"Y":7,"X":0},{"X":8,"Y":0},{"X":4,"Y":0},{"Y":3,"X":2},{"Y":2,"X":3}],"Hazards":null,"Width":11}`),
 			okMoves:     []generator.Direction{generator.DirectionDown},
 		},
 	}
@@ -140,3 +148,15 @@ func TestMove(t *testing.T) {
 // should get health when low...
 // https://play.battlesnake.com/g/67e1fe80-2a45-4a68-932c-3c03b1118320/
 // turn 543
+
+// should have chased tail to freedom
+// https://play.battlesnake.com/g/bf7ae65f-fc87-425f-888d-32f8d4de1e80/
+// turn 163
+
+// should try and kill in corner, plus needs to know about length after eating snack
+// https://play.battlesnake.com/g/bfc75d0a-c92d-4d10-a75c-e73d2fdf8bd4
+// turn 90
+
+// should adjust weightings according to heads of snakes that are longer than you
+// https://play.battlesnake.com/g/d85697ea-d661-4e3a-9bf6-66264a20d4be/
+// turn 25

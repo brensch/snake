@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	log "github.com/sirupsen/logrus"
 
@@ -30,9 +31,13 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 
 	for _, snack := range state.Food {
 
-		route, err := p.GetRoute(you.Body[0], snack, hazardCost)
+		route, healthCost, err := p.GetRoute(you.Body[0], snack, hazardCost)
 		if err != nil {
 			continue
+		}
+
+		if healthCost/pather.CostFactor > int(you.Health) {
+			fmt.Println("too hungry for dat boy")
 		}
 
 		// to find the routes from this point on, fastforward your position to what it would be
@@ -105,7 +110,7 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 		return generator.DirectionToPoint(you.Body[0], tastiestSnackPath[0]), "chasing snack"
 	}
 
-	route, err := p.GetRoute(you.Body[0], you.Body[len(you.Body)-1], hazardCost)
+	route, _, err := p.GetRoute(you.Body[0], you.Body[len(you.Body)-1], hazardCost)
 	if err == nil {
 		return generator.DirectionToPoint(you.Body[0], route[0]), "chasing tail"
 	}
