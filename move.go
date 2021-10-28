@@ -18,25 +18,28 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 	var tastiestSnackPath []rules.Point
 	foundSnack := false
 
-	p := pather.MakePathgrid(state, you.Body[0], you.Body[0])
-	freeSquares := p.FreeSquares(state)
-	hazardCost := 0
+	// p := pather.MakePathgrid(state, you.Body[0], you.Body[0])
+	// freeSquares := p.FreeSquares(state)
+	// hazardCost := 0
 
-	if ruleset.Name() == "royale" {
-		royaleRules, ok := ruleset.(*rules.RoyaleRuleset)
-		if ok {
-			hazardCost += int(royaleRules.HazardDamagePerTurn) * pather.CostFactor
-		}
-	}
+	// if ruleset.Name() == "royale" {
+	// 	royaleRules, ok := ruleset.(*rules.RoyaleRuleset)
+	// 	if ok {
+	// 		hazardCost += int(royaleRules.HazardDamagePerTurn) * pather.CostFactor
+	// 	}
+	// }
 
 	for _, snack := range state.Food {
+		// fmt.Println("checking snack", snack)
 
-		route, healthCost, err := p.GetRoute(you.Body[0], snack, hazardCost)
+		route, healthCost, err := pather.GetRoute(state, ruleset, you.Body[0], snack)
 		if err != nil {
+			// fmt.Println(err)
 			continue
 		}
+		// fmt.Println(route)
 
-		if healthCost/pather.CostFactor > int(you.Health) {
+		if healthCost/pather.CostFactor > you.Health {
 			fmt.Println("too hungry for dat boy")
 		}
 
@@ -47,7 +50,9 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 
 		previousHead := you.Body[0]
 
-		for _, pointInRoute := range route {
+		// need to traverse route backwards
+		for routePosition := range route {
+			pointInRoute := route[len(route)-routePosition-1]
 
 			moves := []rules.SnakeMove{
 				{ID: you.ID, Move: generator.DirectionToPoint(previousHead, pointInRoute).String()},
@@ -72,13 +77,14 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 
 		}
 
-		routesFromSnackOnwards := pather.GetRoutesFromOrigin(nextState, route[len(route)-1], route[len(route)-1], hazardCost)
+		squaresFromSnackOnwards := pather.CountSquaresReachableFromOrigin(nextState, route[len(route)-1])
 
-		if len(routesFromSnackOnwards) < freeSquares/2 {
+		if squaresFromSnackOnwards < int32(len(you.Body)) {
 			// if len(routesFromSnackOnwards) < len(you.Body) {
 			log.WithFields(log.Fields{
-				"reachable": len(routesFromSnackOnwards),
-				"total":     freeSquares,
+				"reachable": squaresFromSnackOnwards,
+				"total":     len(you.Body),
+				"snack":     snack,
 			}).Debug("not enough room to fit ya boi if i chase that snack")
 			continue
 		}
@@ -107,34 +113,35 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 	// chase food if we just ate, think we aren't girthy enough, or are going to starve.
 	// if foundSnack && (justFed || needMoreGirth || (int(you.Health)-10 < len(tastiestSnackPath))) {
 	if foundSnack {
-		return generator.DirectionToPoint(you.Body[0], tastiestSnackPath[0]), "chasing snack"
+		return generator.DirectionToPoint(you.Body[0], tastiestSnackPath[len(tastiestSnackPath)-1]), "chasing snack"
 	}
 
-	route, _, err := p.GetRoute(you.Body[0], you.Body[len(you.Body)-1], hazardCost)
+	route, _, err := pather.GetRoute(state, ruleset, you.Body[0], you.Body[len(you.Body)-1])
 	if err == nil {
 		return generator.DirectionToPoint(you.Body[0], route[0]), "chasing tail"
 	}
 
-	// if we can't reach our own tail, get all points and calculate longest route
-	allAvailableRoutes := pather.GetRoutesFromOrigin(state, you.Body[0], you.Body[0], hazardCost)
+	// TODO: redo this
+	// // if we can't reach our own tail, get all points and calculate longest route
+	// allAvailableRoutes := pather.GetRoutesFromOrigin(state, you.Body[0], you.Body[0], hazardCost)
 
-	var longestRouteLength int
-	var longestRoute []rules.Point
-	for _, route := range allAvailableRoutes {
-		if len(route) <= longestRouteLength {
-			continue
-		}
-		longestRouteLength = len(route)
-		longestRoute = route
-	}
+	// var longestRouteLength int
+	// var longestRoute []rules.Point
+	// for _, route := range allAvailableRoutes {
+	// 	if len(route) <= longestRouteLength {
+	// 		continue
+	// 	}
+	// 	longestRouteLength = len(route)
+	// 	longestRoute = route
+	// }
 
-	if len(longestRoute) == 0 {
-		return generator.DirectionDown, "no safe routes. GG"
-
-	}
+	// if len(longestRoute) == 0 {
+	// 	return generator.DirectionDown, "no safe routes. GG"
+	// }
 
 	// TODO: make this longest route wind around into the space we have.
-	return generator.DirectionToPoint(you.Body[0], longestRoute[0]), "doing longest route"
+	// return generator.DirectionToPoint(you.Body[0], longestRoute), "doing longest route"
+	return generator.DirectionDown, "yeet todo logic"
 
 }
 

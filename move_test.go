@@ -25,7 +25,7 @@ var (
 			okMoves:     []generator.Direction{generator.DirectionLeft},
 		},
 		{
-			explanation: "check going for safe kill and snack",
+			explanation: "check going for safe kill and snack - should turn into opponent path to snack",
 			state:       []byte(`{"Turn":179,"Height":11,"Width":11,"Food":[{"X":3,"Y":8},{"X":10,"Y":8},{"X":3,"Y":7},{"X":1,"Y":2}],"Snakes":[{"ID":"you","Body":[{"X":4,"Y":6},{"X":5,"Y":6},{"X":6,"Y":6},{"X":7,"Y":6},{"X":7,"Y":5},{"X":6,"Y":5},{"X":6,"Y":4},{"X":7,"Y":4},{"X":8,"Y":4},{"X":8,"Y":5},{"X":8,"Y":6},{"X":9,"Y":6},{"X":9,"Y":5},{"X":9,"Y":4},{"X":9,"Y":3},{"X":8,"Y":3},{"X":7,"Y":3},{"X":6,"Y":3},{"X":5,"Y":3}],"Health":87,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""},{"ID":"dcf675fe-12ca-40d3-9268-07a2cc747866","Body":[{"X":3,"Y":5},{"X":2,"Y":5},{"X":2,"Y":4},{"X":3,"Y":4},{"X":4,"Y":4},{"X":4,"Y":3},{"X":4,"Y":2},{"X":5,"Y":2},{"X":6,"Y":2},{"X":7,"Y":2},{"X":8,"Y":2},{"X":9,"Y":2},{"X":10,"Y":2},{"X":10,"Y":1},{"X":9,"Y":1},{"X":8,"Y":1},{"X":7,"Y":1},{"X":6,"Y":1}],"Health":98,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""}],"Hazards":null}`),
 			okMoves:     []generator.Direction{generator.DirectionLeft},
 		},
@@ -112,6 +112,11 @@ func TestMove(t *testing.T) {
 		}
 
 		move, reason := Move(context.Background(), s, ruleset, you, s.Turn, "test")
+		if reason == "yeet todo logic" {
+			t.Fail()
+			continue
+		}
+
 		moveOk := false
 		for _, okMove := range test.okMoves {
 			if move == okMove {
@@ -124,8 +129,9 @@ func TestMove(t *testing.T) {
 			continue
 		}
 
-		t.Logf("got %s because %s. ok moves: %+v", move.String(), reason, test.okMoves)
 		generator.PrintMap(s)
+
+		t.Logf("got %s because %s. ok moves: %+v", move.String(), reason, test.okMoves)
 		t.Fail()
 
 	}

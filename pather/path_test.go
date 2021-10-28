@@ -39,10 +39,10 @@ func TestAddObstacles(t *testing.T) {
 			t.FailNow()
 		}
 
-		grid := initPathGrid(s, you.Body[0])
-		grid.AddObstacles(s, you.Body[0], you.Body[0])
+		grid := initPathGrid(s)
+		grid.AddObstacles(s, you.Body[0])
 
-		grid.PrintBlocked()
+		grid.DebugPrint()
 
 		// p.DebugPrint(you.Body[0], you.Body[len(you.Body)-1])
 
