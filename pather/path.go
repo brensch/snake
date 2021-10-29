@@ -181,6 +181,9 @@ func (p PathGrid) AddObstacles(s *rules.BoardState, origin rules.Point) {
 	// }
 
 	for _, hazard := range s.Hazards {
+		if p[hazard.X][hazard.Y] == nil {
+			p[hazard.X][hazard.Y] = &AStarCost{}
+		}
 		p[hazard.X][hazard.Y].Hazard = true
 	}
 }
