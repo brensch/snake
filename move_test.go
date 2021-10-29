@@ -77,6 +77,22 @@ var (
 			state:       []byte(`{"Height":11,"Turn":543,"Snakes":[{"EliminatedOnTurn":0,"Health":4,"EliminatedBy":"","ID":"you","Body":[{"Y":1,"X":8},{"X":7,"Y":1},{"Y":1,"X":6},{"X":5,"Y":1},{"Y":1,"X":4},{"X":3,"Y":1},{"Y":1,"X":2},{"Y":1,"X":1},{"Y":1,"X":0},{"Y":2,"X":0},{"Y":2,"X":1},{"Y":3,"X":1},{"Y":3,"X":0},{"Y":4,"X":0},{"Y":4,"X":1},{"X":2,"Y":4},{"Y":5,"X":2},{"Y":5,"X":1},{"X":1,"Y":6},{"X":1,"Y":7},{"X":1,"Y":8},{"Y":9,"X":1},{"Y":10,"X":1},{"X":2,"Y":10},{"Y":9,"X":2},{"X":2,"Y":8},{"Y":7,"X":2},{"X":2,"Y":6},{"Y":6,"X":3},{"Y":5,"X":3},{"Y":4,"X":3},{"Y":4,"X":4},{"Y":4,"X":5},{"Y":3,"X":5},{"X":4,"Y":3},{"X":4,"Y":2},{"Y":2,"X":5},{"Y":2,"X":6},{"Y":2,"X":7},{"X":8,"Y":2},{"X":9,"Y":2},{"X":10,"Y":2},{"X":10,"Y":1},{"Y":1,"X":9}],"EliminatedCause":""},{"Health":89,"EliminatedCause":"","Body":[{"Y":8,"X":5},{"Y":8,"X":4},{"X":4,"Y":9},{"X":4,"Y":10},{"X":3,"Y":10},{"Y":9,"X":3},{"X":3,"Y":8},{"Y":7,"X":3},{"Y":7,"X":4},{"Y":6,"X":4},{"Y":6,"X":5},{"X":6,"Y":6},{"Y":5,"X":6},{"X":6,"Y":4},{"Y":4,"X":7},{"Y":4,"X":8},{"Y":3,"X":8},{"X":9,"Y":3},{"X":10,"Y":3},{"X":10,"Y":4},{"Y":5,"X":10},{"X":10,"Y":6},{"X":10,"Y":7},{"X":10,"Y":8},{"Y":9,"X":10},{"X":9,"Y":9},{"Y":8,"X":9},{"X":9,"Y":7},{"X":8,"Y":7},{"X":8,"Y":6},{"X":7,"Y":6},{"Y":7,"X":7},{"Y":7,"X":6},{"Y":8,"X":6},{"X":6,"Y":9},{"X":7,"Y":9},{"Y":8,"X":7},{"X":8,"Y":8},{"Y":9,"X":8},{"Y":10,"X":8}],"ID":"gs_JS7rvSbPKG9wmcmT7cScMKdX","EliminatedBy":"","EliminatedOnTurn":0}],"Food":[{"Y":8,"X":0},{"X":0,"Y":5},{"X":2,"Y":2},{"X":0,"Y":9},{"Y":0,"X":10},{"Y":7,"X":0},{"X":8,"Y":0},{"X":4,"Y":0},{"Y":3,"X":2},{"Y":2,"X":3}],"Hazards":null,"Width":11}`),
 			okMoves:     []generator.Direction{generator.DirectionDown},
 		},
+		{
+			explanation: "should not smoothbrain into corner",
+			state:       []byte(`{"Height":11,"Hazards":null,"Snakes":[{"ID":"you","EliminatedOnTurn":0,"EliminatedBy":"","Body":[{"Y":0,"X":1},{"X":1,"Y":1},{"X":0,"Y":1},{"X":0,"Y":2},{"X":1,"Y":2},{"Y":2,"X":2},{"X":3,"Y":2},{"Y":2,"X":4},{"X":5,"Y":2},{"X":6,"Y":2},{"X":7,"Y":2},{"X":8,"Y":2},{"X":8,"Y":3},{"Y":4,"X":8}],"Health":96,"EliminatedCause":""},{"ID":"gs_wc78BfCt3r9cDHHwpGKm7Ypd","EliminatedCause":"","Health":100,"EliminatedOnTurn":0,"EliminatedBy":"","Body":[{"X":2,"Y":3},{"Y":4,"X":2},{"X":2,"Y":5},{"X":2,"Y":6},{"X":2,"Y":7},{"X":1,"Y":7},{"Y":8,"X":1},{"Y":8,"X":2},{"X":3,"Y":8},{"X":4,"Y":8},{"X":5,"Y":8},{"X":6,"Y":8},{"X":7,"Y":8},{"X":8,"Y":8},{"X":9,"Y":8},{"Y":8,"X":10},{"X":10,"Y":7},{"X":10,"Y":7}]}],"Turn":147,"Width":11,"Food":[{"X":6,"Y":5}]}`),
+			okMoves:     []generator.Direction{generator.DirectionRight},
+		},
+		{
+			explanation: "avoid an awkward corner when i'm shorter going for snack",
+			state:       []byte(`{"Width":11,"Height":11,"Snakes":[{"Health":85,"EliminatedCause":"","Body":[{"X":10,"Y":4},{"Y":3,"X":10},{"X":10,"Y":2},{"X":9,"Y":2},{"Y":2,"X":8},{"Y":2,"X":7}],"EliminatedBy":"","ID":"you","EliminatedOnTurn":0},{"ID":"gs_VymmYHMkQVwqDy3BP8Pv6hWR","Health":95,"EliminatedCause":"","Body":[{"X":8,"Y":6},{"Y":6,"X":7},{"X":7,"Y":7},{"Y":8,"X":7},{"X":7,"Y":9},{"Y":10,"X":7},{"Y":10,"X":6},{"X":5,"Y":10}],"EliminatedOnTurn":0,"EliminatedBy":""}],"Turn":52,"Food":[{"Y":6,"X":10}],"Hazards":null}`),
+			okMoves:     []generator.Direction{generator.DirectionLeft},
+		},
+		// todo: add snack in top left corner. current failure mode is trivial mispath followed by unsafe move
+		{
+			explanation: "avoid entering a space where i could be easily cut off",
+			state:       []byte(`{"Food":[{"Y":7,"X":9},{"X":10,"Y":0}],"Hazards":null,"Snakes":[{"EliminatedBy":"","Body":[{"Y":5,"X":3},{"Y":6,"X":3},{"X":3,"Y":7},{"X":3,"Y":8},{"X":3,"Y":9},{"Y":9,"X":4},{"X":5,"Y":9},{"X":5,"Y":10},{"Y":10,"X":6},{"Y":9,"X":6},{"Y":9,"X":7},{"X":8,"Y":9},{"Y":9,"X":9},{"X":10,"Y":9},{"X":10,"Y":8},{"X":9,"Y":8},{"X":8,"Y":8},{"X":7,"Y":8}],"EliminatedOnTurn":0,"Health":92,"ID":"you","EliminatedCause":""},{"EliminatedCause":"","Health":98,"ID":"gs_XXp6TM7X8QXRBmXycrTVk7SP","Body":[{"X":1,"Y":7},{"Y":6,"X":1},{"X":0,"Y":6},{"Y":5,"X":0},{"Y":4,"X":0},{"Y":4,"X":1},{"X":2,"Y":4},{"Y":4,"X":3},{"Y":3,"X":3},{"X":3,"Y":2},{"X":3,"Y":1},{"Y":1,"X":2},{"Y":0,"X":2},{"Y":0,"X":3},{"X":4,"Y":0}],"EliminatedOnTurn":0,"EliminatedBy":""}],"Height":11,"Turn":138,"Width":11}`),
+			okMoves:     []generator.Direction{generator.DirectionRight},
+		},
 	}
 )
 
@@ -113,6 +129,8 @@ func TestMove(t *testing.T) {
 
 		move, reason := Move(context.Background(), s, ruleset, you, s.Turn, "test")
 		if reason == "yeet todo logic" {
+			generator.PrintMap(s)
+			t.Log("got todo logic")
 			t.Fail()
 			continue
 		}

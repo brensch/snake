@@ -32,12 +32,13 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 	for _, snack := range state.Food {
 		// fmt.Println("checking snack", snack)
 
-		route, healthCost, err := pather.GetRoute(state, ruleset, you.Body[0], snack)
+		route, routedGrid, err := pather.GetRoute(state, ruleset, you.Body[0], snack)
 		if err != nil {
 			// fmt.Println(err)
 			continue
 		}
 		// fmt.Println(route)
+		healthCost := routedGrid[snack.X][snack.Y].CostFromOrigin
 
 		if healthCost/pather.CostFactor > you.Health {
 			fmt.Println("too hungry for dat boy")

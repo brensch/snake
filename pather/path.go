@@ -71,18 +71,6 @@ func (p PathGrid) ScoreNeighbours(currentPoint, targetPoint rules.Point, hazardC
 	return false
 }
 
-// // MakePathgrid performs all the steps to initialise a pathgrid to then be able to calculate routes.
-// // origin and yourhead are different because obstacle calculation should not take into account the
-// // snake's own head, but we may be initialising path grids not from the snake's own head. For instance
-// // the snack calculations
-// func MakePathgrid(s *rules.BoardState, origin, yourHead rules.Point) PathGrid {
-// 	grid := initPathGrid(s)
-// 	grid.AddObstacles(s, origin)
-// 	// grid.CalculateDistancesToOrigin(origin)
-
-// 	return grid
-// }
-
 func initPathGrid(s *rules.BoardState) PathGrid {
 	grid := make(PathGrid, s.Width)
 
@@ -249,7 +237,8 @@ func (p PathGrid) NextStepBackToOrigin(current, origin rules.Point) (rules.Point
 
 		// you only need to check the distance to target, not the cost. cost is used in calculating the next
 		// square to check in the distance to target sum.
-		if p[neighbour.X][neighbour.Y].CostFromOrigin < lowestCostFromOrigin {
+		if p[neighbour.X][neighbour.Y].CostFromOrigin > 0 &&
+			p[neighbour.X][neighbour.Y].CostFromOrigin < lowestCostFromOrigin {
 			lowestCostFromOrigin = p[neighbour.X][neighbour.Y].CostFromOrigin
 			nextCoord = neighbour
 			found = true
@@ -259,7 +248,7 @@ func (p PathGrid) NextStepBackToOrigin(current, origin rules.Point) (rules.Point
 
 	if !found {
 		// p.DebugPrint(current, target)
-		return rules.Point{}, fmt.Errorf("no step takes us home")
+		return rules.Point{}, fmt.Errorf("no step takes us home from point %+v", current)
 	}
 
 	return nextCoord, nil
@@ -404,7 +393,10 @@ func (p PathGrid) CalculateRouteToTarget(origin, target rules.Point, hazardCost 
 // 	return route, healthCostToGetToSnack.DistanceToTarget, err
 // }
 
-func GetRoute(s *rules.BoardState, ruleset rules.Ruleset, origin, target rules.Point) ([]rules.Point, int32, error) {
+// GetRoute calculates a path between two points given a game state, mutating other snakes in a way that seems reasonable
+// for each step.
+// returns route, costToTarget, err
+func GetRoute(s *rules.BoardState, ruleset rules.Ruleset, origin, target rules.Point) ([]rules.Point, PathGrid, error) {
 
 	grid := initPathGrid(s)
 	grid.AddObstacles(s, origin)
@@ -421,16 +413,16 @@ func GetRoute(s *rules.BoardState, ruleset rules.Ruleset, origin, target rules.P
 	//
 	err := grid.CalculateRouteToTarget(origin, target, hazardCost)
 	if err != nil {
-		return nil, 0, err
+		return nil, grid, err
 	}
 
 	route, err := grid.TraceRouteBackToOrigin(origin, target)
 	if err != nil {
 		// shouldn't be getting an error here tbh, should be caught above
-		return nil, 0, err
+		return nil, grid, err
 	}
 
-	return route, grid[target.X][target.Y].CostFromOrigin, nil
+	return route, grid, nil
 }
 
 // TODO: make one which also calculates the cost based on hazard
