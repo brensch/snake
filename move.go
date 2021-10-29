@@ -117,9 +117,10 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 		return generator.DirectionToPoint(you.Body[0], tastiestSnackPath[len(tastiestSnackPath)-1]), "chasing snack"
 	}
 
+	// try to chase tail
 	route, _, err := pather.GetRoute(state, ruleset, you.Body[0], you.Body[len(you.Body)-1])
 	if err == nil {
-		return generator.DirectionToPoint(you.Body[0], route[0]), "chasing tail"
+		return generator.DirectionToPoint(you.Body[0], route[len(route)-1]), "chasing tail"
 	}
 
 	// TODO: redo this
