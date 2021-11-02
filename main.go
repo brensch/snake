@@ -36,10 +36,11 @@ func info() PingResponse {
 	return PingResponse{
 		ApiVersion: "1",
 		Author:     "brend",
-		Color:      "#ff8645",
-		Head:       "replit-mark",
-		Tail:       "replit-notmark",
-		Version:    "0.2",
+		Color:      "#118645",
+		// Color:      "#ff8645",
+		Head:    "replit-mark",
+		Tail:    "replit-notmark",
+		Version: "0.2",
 	}
 }
 

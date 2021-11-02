@@ -32,54 +32,22 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 	for _, snack := range state.Food {
 		// fmt.Println("checking snack", snack)
 
-		route, routedGrid, err := pather.GetRoute(state, ruleset, you.Body[0], snack)
+		route, routedGrid, err := pather.GetRoute(state, ruleset, you.Body[0], snack, you.ID)
 		if err != nil {
-			// fmt.Println(err)
 			continue
 		}
-		// fmt.Println(route)
 		healthCost := routedGrid[snack.X][snack.Y].CostFromOrigin
 
 		if healthCost/pather.CostFactor > you.Health {
 			fmt.Println("too hungry for dat boy")
 		}
 
-		// to find the routes from this point on, fastforward your position to what it would be
-		// given this route, and make everyone else do their safest move
-		// TODO: actually try and assume that they make good moves here
-		nextState := state.Clone()
+		ffState := generator.FastForward(state, ruleset, you, route)
 
-		previousHead := you.Body[0]
+		squaresFromSnackOnwards := pather.CountSquaresReachableFromOrigin(ffState, route[0], you.ID)
 
-		// need to traverse route backwards
-		for routePosition := range route {
-			pointInRoute := route[len(route)-routePosition-1]
-
-			moves := []rules.SnakeMove{
-				{ID: you.ID, Move: generator.DirectionToPoint(previousHead, pointInRoute).String()},
-			}
-			previousHead = pointInRoute
-
-			for _, snake := range nextState.Snakes {
-				if snake.ID == you.ID {
-					continue
-				}
-
-				safestMoves := SafestMoves(nextState, ruleset, snake)
-				if len(safestMoves) == 0 {
-					moves = append(moves, rules.SnakeMove{ID: snake.ID, Move: generator.DirectionDown.String()})
-					continue
-				}
-				moves = append(moves, rules.SnakeMove{ID: snake.ID, Move: safestMoves[0].String()})
-
-			}
-
-			nextState, err = ruleset.CreateNextBoardState(nextState, moves)
-
-		}
-
-		squaresFromSnackOnwards := pather.CountSquaresReachableFromOrigin(nextState, route[len(route)-1])
-
+		// fmt.Println(snack, squaresFromSnackOnwards)
+		// generator.PrintMap(ffState)
 		if squaresFromSnackOnwards < int32(len(you.Body)) {
 			// if len(routesFromSnackOnwards) < len(you.Body) {
 			log.WithFields(log.Fields{
@@ -118,12 +86,51 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 	}
 
 	// try to chase tail
-	route, _, err := pather.GetRoute(state, ruleset, you.Body[0], you.Body[len(you.Body)-1])
+	route, _, err := pather.GetRoute(state, ruleset, you.Body[0], you.Body[len(you.Body)-1], you.ID)
 	if err == nil {
+		// fmt.Println(route)
 		return generator.DirectionToPoint(you.Body[0], route[len(route)-1]), "chasing tail"
 	}
 
-	// TODO: redo this
+	// find the longest path to potentially find a better way.
+	// approach is to find longest path, fast forward, and keep going for an amount of time i'll decide later
+	furthestPoints := pather.GetSortedFurthestReachablePoints(state, you.Body[0], you.ID)
+	// fmt.Println("furthest points", furthestPoints)
+
+	// with the list of points, fastforward to each one and see if we can go further from there
+	longestRouteLength := 0
+	var longestRoute []rules.Point
+	for _, point := range furthestPoints {
+		route, _, err := pather.GetRoute(state, ruleset, you.Body[0], point, you.ID)
+		if err != nil {
+			fmt.Println("weird, this point should be reachable")
+			continue
+		}
+
+		ffState := generator.FastForward(state, ruleset, you, route)
+
+		// try to chase tail again now we've fastforwarded to furthest point
+		// TODO: this is not your real tail. maybe subtract len of route.
+		routeToTail, _, err := pather.GetRoute(ffState, ruleset, point, you.Body[len(you.Body)-1], you.ID)
+		if err != nil {
+			continue
+		}
+		// fmt.Println("could reach tail after", route)
+
+		potentialRouteLength := len(route) + len(routeToTail)
+		if potentialRouteLength > longestRouteLength {
+			// Only need to store the initial route, since we only need first step anyway
+			longestRoute = route
+			longestRouteLength = potentialRouteLength
+		}
+
+	}
+
+	if len(longestRoute) > 0 {
+		fmt.Println("got longest route", longestRoute)
+		return generator.DirectionToPoint(you.Body[0], longestRoute[len(longestRoute)-1]), "doing longest route in desparation"
+	}
+
 	// // if we can't reach our own tail, get all points and calculate longest route
 	// allAvailableRoutes := pather.GetRoutesFromOrigin(state, you.Body[0], you.Body[0], hazardCost)
 
@@ -147,87 +154,9 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 
 }
 
-func SafeMoves(state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake) [4]int {
-
-	moves := generator.AllMovesForState(state)
-	var safeMoves [4]int
-	var youPosition int
-
-	// get your position
-	for position, snake := range state.Snakes {
-		if you.ID != snake.ID {
-			continue
-		}
-
-		youPosition = position
-		break
-	}
-
-	// go through all moves, generate them, and see which ones we don't die in
-	for _, move := range moves {
-
-		var snakeMoves []rules.SnakeMove
-		for moveSnakeNum, movePoint := range move {
-			snakeMoves = append(snakeMoves, rules.SnakeMove{
-				ID:   state.Snakes[moveSnakeNum].ID,
-				Move: generator.DirectionToPoint(state.Snakes[moveSnakeNum].Body[0], movePoint).String(),
-			})
-		}
-
-		nextState, err := ruleset.CreateNextBoardState(state, snakeMoves)
-		if err != nil {
-			log.WithFields(log.Fields{
-				"state": state,
-			}).Error("failed to create next board state")
-			continue
-		}
-
-		if nextState.Snakes[youPosition].EliminatedCause != "" {
-			continue
-		}
-
-		direction := generator.DirectionToPoint(you.Body[0], move[youPosition])
-		safeMoves[direction]++
-
-	}
-
-	return safeMoves
-
-}
-
-func SafestMoves(state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake) []generator.Direction {
-
-	safeMoves := SafeMoves(state, ruleset, you)
-
-	var safestMoveCount int
-	for _, move := range safeMoves {
-		if move > safestMoveCount {
-			safestMoveCount = move
-		}
-	}
-
-	safestMoves := []generator.Direction{}
-	for direction, move := range safeMoves {
-		if move == safestMoveCount {
-			safestMoves = append(safestMoves, generator.Direction(direction))
-		}
-	}
-
-	return safestMoves
-}
-
-func MoveIsSafe(state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, candidate generator.Direction) bool {
-	safeMoves := SafeMoves(state, ruleset, you)
-	if safeMoves[candidate] > 0 {
-		return true
-	}
-
-	return false
-}
-
 func Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, turn int32, gameID string) (generator.Direction, string) {
 	galaxyBrain, reason := GalaxyBrain(ctx, state, ruleset, you, turn)
-	safestMoves := SafestMoves(state, ruleset, you)
+	safestMoves := generator.SafestMoves(state, ruleset, you)
 
 	finalMove := galaxyBrain
 
@@ -240,6 +169,7 @@ func Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, y
 	}
 
 	if len(safestMoves) != 0 && !galaxyBrainSafe {
+		// fmt.Println("made a smooth brain move..............................................")
 		finalMove = safestMoves[0]
 	}
 

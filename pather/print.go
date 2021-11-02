@@ -28,15 +28,23 @@ func (p PathGrid) DebugPrint() {
 	width := len(p)
 	height := len(p[0])
 
+	fmt.Println("costfromorigin:distancetotarget:blockedforturns:stepsfromorigin:blockedinturns")
+
 	for y := height - 1; y >= 0; y-- {
 		for x := 0; x < width; x++ {
 
 			if p[x][y] == nil {
-				fmt.Printf("---:---:--- |")
+				fmt.Printf("---:---:---:---:--- |")
 				continue
 			}
 
-			fmt.Printf("%3d:%3d:%3d |", p[x][y].CostFromOrigin, p[x][y].DistanceToTarget, p[x][y].BlockedForTurns)
+			fmt.Printf("%3d:%3d:%3d:%3d:%3d |",
+				p[x][y].CostFromOrigin,
+				p[x][y].DistanceToTarget,
+				p[x][y].BlockedForTurns,
+				p[x][y].StepsFromOrigin,
+				p[x][y].BlockedInTurns,
+			)
 			// descriptor := "o"
 			// if p[x][y].Blocked {
 			// 	descriptor = "x"

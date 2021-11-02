@@ -22,6 +22,7 @@ type AStarCost struct {
 	CostFromOrigin   int32 // the lowest current known cost to get to this square from the origin. takes into account hazard cost
 	Explored         bool  // we have already calculate this square
 	BlockedForTurns  int32 // impassable unless the steps from origin is >= this value
+	BlockedInTurns   int32 // calculate where snakes may be in a given number of turns
 	Hazard           bool  // costs extra health to traverse
 	// Origin           bool // this is the square we started at
 	// Blocked          bool // This is an impassable square (ie snake)
@@ -39,10 +40,19 @@ func (p PathGrid) ScoreNeighbours(currentPoint, targetPoint rules.Point, hazardC
 
 		neighbourPath := p[neighbourPoint.X][neighbourPoint.Y]
 
-		// we see if by this point in time this
-		if neighbourPath.Explored || currentPath.StepsFromOrigin < neighbourPath.BlockedForTurns {
+		// check if this point is blocked by this point in our journey
+		if neighbourPath.Explored ||
+			currentPath.StepsFromOrigin < neighbourPath.BlockedForTurns ||
+			(neighbourPath.BlockedInTurns != 0 && currentPath.StepsFromOrigin > neighbourPath.BlockedInTurns) {
+			// fmt.Printf("continuing because of blockage: %+v %d %d\n", neighbourPath, neighbourPoint.X, neighbourPoint.Y)
 			continue
 		}
+
+		// // check if this point is blocked by this point in our journey
+		// if neighbourPath.Explored ||
+		// 	currentPath.StepsFromOrigin < neighbourPath.BlockedForTurns {
+		// 	continue
+		// }
 
 		// weight this path more heavily if it's hazardous
 		cost := CostFactor
@@ -52,8 +62,15 @@ func (p PathGrid) ScoreNeighbours(currentPoint, targetPoint rules.Point, hazardC
 
 		// update costs and steps independently
 		// (steps are critical for calculating obstacle state)
-		neighbourPath.CostFromOrigin = currentPath.CostFromOrigin + cost
-		neighbourPath.StepsFromOrigin = currentPath.StepsFromOrigin + 1
+		potentialCostFromOrigin := currentPath.CostFromOrigin + cost
+		if neighbourPath.CostFromOrigin == 0 || neighbourPath.CostFromOrigin > potentialCostFromOrigin {
+			neighbourPath.CostFromOrigin = potentialCostFromOrigin
+		}
+
+		potentialStepsFromOrigin := currentPath.StepsFromOrigin + 1
+		if neighbourPath.StepsFromOrigin == 0 || neighbourPath.StepsFromOrigin > potentialStepsFromOrigin {
+			neighbourPath.StepsFromOrigin = potentialStepsFromOrigin
+		}
 
 		// calculate the pythag distance to the targetPoint
 		// using only ints and avoiding math library since performance is critical
@@ -109,15 +126,71 @@ func IntSqrt(n int32) int32 {
 	return x
 }
 
+func (p PathGrid) CalculatePointNeighbourBlockedInValues(x, y, startX, startY int32) []rules.Point {
+
+	if x < 0 || y < 0 {
+		fmt.Println("out of bounds----------------", x, y)
+		return nil
+	}
+
+	if p[x][y] == nil {
+		fmt.Println("error in logic calculating neighbour blocked in values")
+	}
+
+	startingBlockedInValue := p[x][y].BlockedInTurns
+
+	width := len(p)
+	height := len(p[0])
+	neighbours := generator.NeighboursSafe(height, width, rules.Point{X: x, Y: y})
+
+	var newNeighbours []rules.Point
+	// fmt.Println("got neighbours", neighbours)
+
+	for _, neighbour := range neighbours {
+
+		if neighbour.X < 0 || neighbour.Y < 0 {
+			fmt.Println("unsafe neighbour made----------------------", x, y)
+		}
+
+		// we should not calculate a value for the start of the snake
+		if startX == neighbour.X && startY == neighbour.Y {
+			continue
+		}
+
+		if p[neighbour.X][neighbour.Y] == nil {
+			p[neighbour.X][neighbour.Y] = &AStarCost{}
+		}
+
+		// only want to
+		if p[neighbour.X][neighbour.Y].BlockedInTurns != 0 &&
+			p[neighbour.X][neighbour.Y].BlockedInTurns < startingBlockedInValue+1 {
+			continue
+		}
+
+		newNeighbours = append(newNeighbours, neighbour)
+		p[neighbour.X][neighbour.Y].BlockedInTurns = startingBlockedInValue + 1
+		// fmt.Printf("incrementing %+v, %d\n", p[neighbour.X][neighbour.Y], startingBlockedInValue+1)
+	}
+
+	return newNeighbours
+}
+
 // AddObstacles adds all snake body parts if they will still be there when you get there.
 // ie it removes pieces from the ends of snakes depending on how far away it is from origin.
 // It also creates a cloud around the head of the snake depending on if they could make it to that
 // square theoretically by the time origin gets there.
 // To avoid distant snakeheads causing enormous danger clouds, it will ignore them if they are more than
 // 6 moves away.
-func (p PathGrid) AddObstacles(s *rules.BoardState, origin rules.Point) {
+func (p PathGrid) AddObstacles(s *rules.BoardState, origin rules.Point, youID string) {
 
 	for _, snake := range s.Snakes {
+
+		// get array of distances to snacks
+		var distancesToSnacks []int32
+		for _, snack := range s.Food {
+			distancesToSnacks = append(distancesToSnacks,
+				Abs(snack.X-snake.Body[0].X)+Abs(snack.Y-snake.Body[0].Y))
+		}
 
 		// only include snakes segments if they will still be there when we get there
 		for pointNumber, point := range snake.Body {
@@ -130,8 +203,22 @@ func (p PathGrid) AddObstacles(s *rules.BoardState, origin rules.Point) {
 			if p[point.X][point.Y] == nil {
 				p[point.X][point.Y] = &AStarCost{}
 			}
+			// fmt.Println(distancesToSnacks)
 
-			p[point.X][point.Y].BlockedForTurns = int32(len(snake.Body) - pointNumber - 1)
+			// figure out how many snacks this snake may have encountered by this step
+			potentialSnacks := 0
+			for _, potentialSnackDistance := range distancesToSnacks {
+				if int(potentialSnackDistance) <= len(snake.Body)-pointNumber {
+					potentialSnacks++
+				}
+			}
+
+			// calculate how many turns we're blocked for based on the position of the block in the snake
+			// and the length of the snake
+			newBlockedForTurns := int32(len(snake.Body) - pointNumber - 1 + potentialSnacks)
+			if p[point.X][point.Y].BlockedForTurns < newBlockedForTurns {
+				p[point.X][point.Y].BlockedForTurns = newBlockedForTurns
+			}
 
 			// if generator.OffBoard(s, point) ||
 			// 	len(snake.Body)-pointPosition <= int(distanceToOrigin) {
@@ -139,6 +226,33 @@ func (p PathGrid) AddObstacles(s *rules.BoardState, origin rules.Point) {
 			// }
 
 			// p[point.X][point.Y].Blocked = true
+		}
+		// do not calculate the future state of a snake if it's you
+		if snake.ID == youID {
+			continue
+		}
+
+		// doing this above seems to lower life expectency. TODO: investigate why
+		if snake.EliminatedCause != "" {
+			continue
+		}
+
+		// TODO: figure out how many moves ahead i should add this
+		if snake.Body[0].X < 0 || snake.Body[0].Y < 0 {
+			fmt.Println("got bad snake head", snake.Body[0])
+		}
+		pointsToCheck := []rules.Point{snake.Body[0]}
+		for {
+			var nextPointsToCheck []rules.Point
+			for _, pointToCheck := range pointsToCheck {
+				points := p.CalculatePointNeighbourBlockedInValues(pointToCheck.X, pointToCheck.Y, snake.Body[0].X, snake.Body[0].Y)
+				nextPointsToCheck = append(nextPointsToCheck, points...)
+			}
+			if len(nextPointsToCheck) == 0 {
+				break
+			}
+			pointsToCheck = nextPointsToCheck
+
 		}
 	}
 
@@ -230,15 +344,17 @@ func (p PathGrid) NextStepBackToOrigin(current, origin rules.Point) (rules.Point
 			continue
 		}
 
-		// stop when we find the origin
-		if generator.SamePoint(neighbour, origin) {
+		// stop when we find the origin if we are 0 steps from origin
+		if p[current.X][current.Y].StepsFromOrigin == 1 && generator.SamePoint(neighbour, origin) {
 			return neighbour, nil
 		}
 
-		// you only need to check the distance to target, not the cost. cost is used in calculating the next
-		// square to check in the distance to target sum.
+		// find the smallest CostFromOrigin.
+		// CostFromOrigin needs to not be zero since 0 implies that it was not explored.
+		// Each step has to have 1 less StepsFromOrigin or it was not possible to get to that square at that time.
 		if p[neighbour.X][neighbour.Y].CostFromOrigin > 0 &&
-			p[neighbour.X][neighbour.Y].CostFromOrigin < lowestCostFromOrigin {
+			p[neighbour.X][neighbour.Y].CostFromOrigin < lowestCostFromOrigin &&
+			p[neighbour.X][neighbour.Y].StepsFromOrigin == p[current.X][current.Y].StepsFromOrigin-1 {
 			lowestCostFromOrigin = p[neighbour.X][neighbour.Y].CostFromOrigin
 			nextCoord = neighbour
 			found = true
@@ -370,6 +486,7 @@ func (p PathGrid) CalculateRouteToTarget(origin, target rules.Point, hazardCost 
 		if err != nil {
 			return err
 		}
+		// fmt.Println(nextSquare)
 
 	}
 
@@ -396,10 +513,10 @@ func (p PathGrid) CalculateRouteToTarget(origin, target rules.Point, hazardCost 
 // GetRoute calculates a path between two points given a game state, mutating other snakes in a way that seems reasonable
 // for each step.
 // returns route, costToTarget, err
-func GetRoute(s *rules.BoardState, ruleset rules.Ruleset, origin, target rules.Point) ([]rules.Point, PathGrid, error) {
+func GetRoute(s *rules.BoardState, ruleset rules.Ruleset, origin, target rules.Point, youID string) ([]rules.Point, PathGrid, error) {
 
 	grid := initPathGrid(s)
-	grid.AddObstacles(s, origin)
+	grid.AddObstacles(s, origin, youID)
 	hazardCost := int32(0)
 
 	switch r := ruleset.(type) {
@@ -425,16 +542,23 @@ func GetRoute(s *rules.BoardState, ruleset rules.Ruleset, origin, target rules.P
 	return route, grid, nil
 }
 
-// TODO: make one which also calculates the cost based on hazard
-func CountSquaresReachableFromOrigin(s *rules.BoardState, origin rules.Point) int32 {
-
+func CalculateAllAvailableSquares(s *rules.BoardState, origin rules.Point, youID string) PathGrid {
 	grid := initPathGrid(s)
-	grid.AddObstacles(s, origin)
+	grid.AddObstacles(s, origin, youID)
 
 	// making a fake target outside the board does not lead to any illegal array dereferences, but does
 	// ensure the algorithm will exhaust all squares available to it before giving up
 	target := rules.Point{X: -1, Y: -1}
 	grid.CalculateRouteToTarget(origin, target, 0)
+
+	// grid.DebugPrint()
+	return grid
+}
+
+// TODO: make one which also calculates the cost based on hazard
+func CountSquaresReachableFromOrigin(s *rules.BoardState, origin rules.Point, youID string) int32 {
+
+	grid := CalculateAllAvailableSquares(s, origin, youID)
 
 	count := int32(0)
 
@@ -447,5 +571,35 @@ func CountSquaresReachableFromOrigin(s *rules.BoardState, origin rules.Point) in
 	}
 
 	return count
+
+}
+
+func GetSortedFurthestReachablePoints(s *rules.BoardState, origin rules.Point, youID string) []rules.Point {
+	grid := CalculateAllAvailableSquares(s, origin, youID)
+	// grid.DebugPrint()
+	points := []rules.Point{}
+
+	// TODO: don't smoothbrain this sorting algorithm
+	for {
+		var longestPath int32
+		var longestPathPoint rules.Point
+		found := false
+
+		for x := int32(0); x < s.Width; x++ {
+			for y := int32(0); y < s.Height; y++ {
+				if grid[x][y] != nil && grid[x][y].StepsFromOrigin > longestPath {
+					longestPath = grid[x][y].StepsFromOrigin
+					longestPathPoint = rules.Point{X: x, Y: y}
+					found = true
+				}
+			}
+		}
+		if !found {
+			return points
+		}
+
+		points = append(points, longestPathPoint)
+		grid[longestPathPoint.X][longestPathPoint.Y].StepsFromOrigin = 0
+	}
 
 }
