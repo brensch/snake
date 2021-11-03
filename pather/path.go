@@ -43,7 +43,7 @@ func (p PathGrid) ScoreNeighbours(currentPoint, targetPoint rules.Point, hazardC
 		// check if this point is blocked by this point in our journey
 		if neighbourPath.Explored ||
 			currentPath.StepsFromOrigin < neighbourPath.BlockedForTurns ||
-			(neighbourPath.BlockedInTurns != 0 && currentPath.StepsFromOrigin > neighbourPath.BlockedInTurns) {
+			(neighbourPath.BlockedInTurns != 0 && currentPath.StepsFromOrigin >= neighbourPath.BlockedInTurns) {
 			// fmt.Printf("continuing because of blockage: %+v %d %d\n", neighbourPath, neighbourPoint.X, neighbourPoint.Y)
 			continue
 		}
@@ -148,11 +148,8 @@ func (p PathGrid) CalculatePointNeighbourBlockedInValues(x, y, startX, startY in
 
 	for _, neighbour := range neighbours {
 
-		if neighbour.X < 0 || neighbour.Y < 0 {
-			fmt.Println("unsafe neighbour made----------------------", x, y)
-		}
-
 		// we should not calculate a value for the start of the snake
+		// (ie when it loops back on itself in the second iteration)
 		if startX == neighbour.X && startY == neighbour.Y {
 			continue
 		}
@@ -161,9 +158,16 @@ func (p PathGrid) CalculatePointNeighbourBlockedInValues(x, y, startX, startY in
 			p[neighbour.X][neighbour.Y] = &AStarCost{}
 		}
 
-		// only want to
+		// only want to update value if the current blockedin count is smaller
+		// (ie this snake can get there quicker)
 		if p[neighbour.X][neighbour.Y].BlockedInTurns != 0 &&
 			p[neighbour.X][neighbour.Y].BlockedInTurns < startingBlockedInValue+1 {
+			continue
+		}
+
+		// check if this snake could possibly have travelled to this square
+		// (not blocked)
+		if p[neighbour.X][neighbour.Y].BlockedForTurns > startingBlockedInValue {
 			continue
 		}
 
@@ -182,6 +186,11 @@ func (p PathGrid) CalculatePointNeighbourBlockedInValues(x, y, startX, startY in
 // To avoid distant snakeheads causing enormous danger clouds, it will ignore them if they are more than
 // 6 moves away.
 func (p PathGrid) AddObstacles(s *rules.BoardState, origin rules.Point, youID string) {
+
+	you, err := generator.GetYou(s, youID)
+	if err != nil {
+		fmt.Println("there is no you snake in this board")
+	}
 
 	for _, snake := range s.Snakes {
 
@@ -237,12 +246,26 @@ func (p PathGrid) AddObstacles(s *rules.BoardState, origin rules.Point, youID st
 			continue
 		}
 
-		// TODO: figure out how many moves ahead i should add this
 		if snake.Body[0].X < 0 || snake.Body[0].Y < 0 {
 			fmt.Println("got bad snake head", snake.Body[0])
 		}
+
+		// TODO: figure out how many moves ahead i should add this
 		pointsToCheck := []rules.Point{snake.Body[0]}
-		for {
+
+		// setting the starting blocked in value to 1 less since the head won't block you if they're a smaller snake
+		startingBlockedInValue := int32(0)
+		if len(snake.Body) < len(you.Body) {
+			startingBlockedInValue = 1
+		}
+
+		if p[snake.Body[0].X][snake.Body[0].Y] == nil {
+			p[snake.Body[0].X][snake.Body[0].Y] = &AStarCost{}
+		}
+
+		p[snake.Body[0].X][snake.Body[0].Y].BlockedInTurns = startingBlockedInValue
+
+		for i := 0; i < 10; i++ {
 			var nextPointsToCheck []rules.Point
 			for _, pointToCheck := range pointsToCheck {
 				points := p.CalculatePointNeighbourBlockedInValues(pointToCheck.X, pointToCheck.Y, snake.Body[0].X, snake.Body[0].Y)
@@ -574,32 +597,32 @@ func CountSquaresReachableFromOrigin(s *rules.BoardState, origin rules.Point, yo
 
 }
 
-func GetSortedFurthestReachablePoints(s *rules.BoardState, origin rules.Point, youID string) []rules.Point {
+func GetReachablePoints(s *rules.BoardState, origin rules.Point, youID string) ([]rules.Point, PathGrid) {
 	grid := CalculateAllAvailableSquares(s, origin, youID)
 	// grid.DebugPrint()
 	points := []rules.Point{}
 
 	// TODO: don't smoothbrain this sorting algorithm
-	for {
-		var longestPath int32
-		var longestPathPoint rules.Point
-		found := false
+	// for {
+	// 	var longestPath int32
+	// 	var longestPathPoint rules.Point
+	// 	found := false
 
-		for x := int32(0); x < s.Width; x++ {
-			for y := int32(0); y < s.Height; y++ {
-				if grid[x][y] != nil && grid[x][y].StepsFromOrigin > longestPath {
-					longestPath = grid[x][y].StepsFromOrigin
-					longestPathPoint = rules.Point{X: x, Y: y}
-					found = true
-				}
+	for x := int32(0); x < s.Width; x++ {
+		for y := int32(0); y < s.Height; y++ {
+			if grid[x][y] != nil && grid[x][y].StepsFromOrigin != 0 {
+				points = append(points, rules.Point{X: x, Y: y})
+
+				// longestPath = grid[x][y].StepsFromOrigin
+				// longestPathPoint = rules.Point{X: x, Y: y}
+				// found = true
 			}
 		}
-		if !found {
-			return points
-		}
-
-		points = append(points, longestPathPoint)
-		grid[longestPathPoint.X][longestPathPoint.Y].StepsFromOrigin = 0
 	}
+	return points, grid
+
+	// 	points = append(points, longestPathPoint)
+	// 	grid[longestPathPoint.X][longestPathPoint.Y].StepsFromOrigin = 0
+	// }
 
 }
