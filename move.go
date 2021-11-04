@@ -128,7 +128,6 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 	// fmt.Println("furthest points", reachablePoints)
 	reachablePoints, availableSquaresGrid := pather.GetReachablePoints(state, you.Body[0], you.ID)
 
-	fmt.Println(reachablePoints)
 	if len(reachablePoints) == 0 {
 		return generator.DirectionDown, "no reachable points. GG"
 	}
@@ -159,7 +158,7 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 	// recursive function. needs to explore until finished
 	longestPath := availableSquaresGrid.ExploreForLength([]rules.Point{you.Body[0]}, len(you.Body))
 
-	fmt.Println(longestPath)
+	// fmt.Println(longestPath)
 	// for _,
 
 	// old logic for fforwarding and checking return path. worked okayish

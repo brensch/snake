@@ -158,6 +158,11 @@ var (
 			state:       []byte(`{"Snakes":[{"EliminatedBy":"","Body":[{"Y":1,"X":0},{"Y":2,"X":0},{"Y":3,"X":0},{"Y":4,"X":0},{"Y":4,"X":1},{"X":2,"Y":4},{"X":2,"Y":5},{"X":1,"Y":5},{"Y":5,"X":0},{"Y":6,"X":0},{"Y":7,"X":0},{"Y":7,"X":1},{"X":1,"Y":8},{"Y":8,"X":2}],"Health":92,"EliminatedOnTurn":0,"ID":"gs_MdfdWg8J4tWG9vk9DFfrWXXK","EliminatedCause":""},{"Body":[{"Y":3,"X":6},{"X":5,"Y":3},{"X":5,"Y":2},{"X":6,"Y":2},{"Y":2,"X":7},{"Y":1,"X":7},{"X":6,"Y":1},{"Y":1,"X":5},{"X":5,"Y":0},{"X":4,"Y":0},{"X":3,"Y":0}],"Health":88,"EliminatedOnTurn":0,"EliminatedBy":"","ID":"gs_Y9JHCFXjQHk7WD9TSwYMSJS3","EliminatedCause":""},{"EliminatedBy":"","EliminatedCause":"","EliminatedOnTurn":0,"ID":"you","Health":95,"Body":[{"X":0,"Y":9},{"Y":9,"X":1},{"Y":9,"X":2},{"X":3,"Y":9},{"Y":9,"X":4},{"X":4,"Y":8},{"Y":8,"X":5},{"X":6,"Y":8},{"Y":8,"X":7},{"X":7,"Y":7},{"Y":6,"X":7},{"X":7,"Y":5}]}],"Food":[{"Y":0,"X":0},{"Y":1,"X":8}],"Turn":105,"Height":11,"Width":11,"Hazards":null}`),
 			okMoves:     []generator.Direction{generator.DirectionUp},
 		},
+		{
+			explanation: "smooth check",
+			state:       []byte(`{"Turn":161,"Height":11,"Width":11,"Food":[{"X":3,"Y":9},{"X":3,"Y":1},{"X":1,"Y":10},{"X":2,"Y":8}],"Snakes":[{"ID":"0d3db8a8-eec2-40a8-9944-782d245a14c1","Body":[{"X":0,"Y":8},{"X":0,"Y":7},{"X":0,"Y":6},{"X":1,"Y":6},{"X":1,"Y":7},{"X":2,"Y":7},{"X":3,"Y":7},{"X":4,"Y":7},{"X":5,"Y":7},{"X":6,"Y":7},{"X":7,"Y":7},{"X":8,"Y":7},{"X":9,"Y":7},{"X":9,"Y":6},{"X":10,"Y":6},{"X":10,"Y":7},{"X":10,"Y":8}],"Health":96,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""},{"ID":"you","Body":[{"X":1,"Y":1},{"X":1,"Y":2},{"X":0,"Y":2},{"X":0,"Y":3},{"X":0,"Y":4},{"X":0,"Y":5},{"X":1,"Y":5},{"X":2,"Y":5},{"X":3,"Y":5},{"X":4,"Y":5},{"X":5,"Y":5},{"X":5,"Y":4},{"X":5,"Y":3},{"X":6,"Y":3}],"Health":98,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""}],"Hazards":null}`),
+			okMoves:     []generator.Direction{generator.DirectionRight},
+		},
 	}
 )
 
@@ -168,7 +173,7 @@ func TestMove(t *testing.T) {
 
 	for _, test := range tests {
 
-		if test.explanation != "is your opponent hungry" {
+		if test.explanation != "up seems fishy - stretch goal" {
 			continue
 		}
 

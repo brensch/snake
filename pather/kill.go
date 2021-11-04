@@ -8,20 +8,22 @@ import (
 
 func IdentifyKill(s *rules.BoardState, them, you rules.Snake) ([]rules.Point, error) {
 
-	youReachablePoints, youAvailableSquaresGrid := GetReachablePoints(s, you.Body[0], you.ID)
+	youReachablePoints, youGrid := GetReachablePoints(s, you.Body[0], you.ID)
 
 	fmt.Println(youReachablePoints)
-	youAvailableSquaresGrid.DebugPrint()
+	youGrid.DebugPrint()
 
-	themReachablePoints, themAvailableSquaresGrid := GetReachablePoints(s, them.Body[0], them.ID)
+	themReachablePoints, themGrid := GetReachablePoints(s, them.Body[0], them.ID)
 
 	fmt.Println(themReachablePoints)
-	themAvailableSquaresGrid.DebugPrint()
+	themGrid.DebugPrint()
 
-	killPoints := themAvailableSquaresGrid.FindKillPoints()
+	killPoints := themGrid.FindKillPoints()
 	fmt.Println("killpoints:", killPoints)
 
-	// for _, point :=
+	causedPoints := FindKillPointsYouCause(killPoints, youGrid, themGrid)
+
+	fmt.Println("causedpoints", causedPoints)
 
 	return nil, fmt.Errorf("in need of work")
 
@@ -49,13 +51,30 @@ func (p PathGrid) FindKillPoints() []rules.Point {
 	return points
 }
 
-// // FindKillPoints finds all points where a snake could be caught and killed
-// func FindKillPointsYouCause(killPoints []rules.Point, youGrid, themGrid PathGrid) []rules.Point {
+// FindKillPoints finds all points where a snake could be caught and killed
+func FindKillPointsYouCause(killPoints []rules.Point, youGrid, themGrid PathGrid) []rules.Point {
 
-// 	for _, killPoint := range killPoints {
-// 		stepsFromYou := youGrid[killPoint.X][killPoint.Y].StepsFromOrigin
-// 		stepsFromTh
-// 	}
+	var causedPoints []rules.Point
+	for _, killPoint := range killPoints {
+		stepsFromYou := youGrid.at(killPoint).StepsFromOrigin
+		stepsFromThem := themGrid.at(killPoint).StepsFromOrigin
+		if stepsFromThem == stepsFromYou {
+			causedPoints = append(causedPoints, killPoint)
+		}
+	}
 
-// 	return points
-// }
+	return causedPoints
+}
+
+func (p PathGrid) GetFurthestReachablePoint(reachablePoints []rules.Point) rules.Point {
+	largestStepCount := int32(0)
+	var largestStepPoint rules.Point
+	for _, point := range reachablePoints {
+		if p.at(point).StepsFromOrigin > largestStepCount {
+			largestStepCount = p.at(point).StepsFromOrigin
+			largestStepPoint = point
+		}
+	}
+
+	return largestStepPoint
+}

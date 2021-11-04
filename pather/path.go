@@ -40,11 +40,14 @@ func (p PathGrid) ScoreNeighbours(currentPoint, targetPoint rules.Point, hazardC
 
 		neighbourPath := p[neighbourPoint.X][neighbourPoint.Y]
 
+		// if neighbourPoint.X == 9 && neighbourPoint.Y == 5 {
+		// 	fmt.Println("thing", neighbourPath.BlockedInTurns, neighbourPath.StepsFromOrigin, currentPoint)
+		// }
+
 		// check if this point is blocked by this point in our journey
 		if neighbourPath.Explored ||
 			currentPath.StepsFromOrigin < neighbourPath.BlockedForTurns ||
-			(neighbourPath.BlockedInTurns != 0 && currentPath.StepsFromOrigin >= neighbourPath.BlockedInTurns) {
-			// fmt.Printf("continuing because of blockage: %+v %d %d\n", neighbourPath, neighbourPoint.X, neighbourPoint.Y)
+			(neighbourPath.BlockedInTurns != 0 && neighbourPath.BlockedInTurns <= currentPath.StepsFromOrigin+1) { // this calculates if another snake could boop us here
 			continue
 		}
 
@@ -625,4 +628,8 @@ func GetReachablePoints(s *rules.BoardState, origin rules.Point, youID string) (
 	// 	grid[longestPathPoint.X][longestPathPoint.Y].StepsFromOrigin = 0
 	// }
 
+}
+
+func (p PathGrid) at(point rules.Point) *AStarCost {
+	return p[point.X][point.Y]
 }
