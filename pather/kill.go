@@ -56,8 +56,8 @@ func FindKillPointsYouCause(killPoints []rules.Point, youGrid, themGrid PathGrid
 
 	var causedPoints []rules.Point
 	for _, killPoint := range killPoints {
-		stepsFromYou := youGrid.at(killPoint).StepsFromOrigin
-		stepsFromThem := themGrid.at(killPoint).StepsFromOrigin
+		stepsFromYou := youGrid.At(killPoint).StepsFromOrigin
+		stepsFromThem := themGrid.At(killPoint).StepsFromOrigin
 		if stepsFromThem == stepsFromYou {
 			causedPoints = append(causedPoints, killPoint)
 		}
@@ -70,8 +70,8 @@ func (p PathGrid) GetFurthestReachablePoint(reachablePoints []rules.Point) rules
 	largestStepCount := int32(0)
 	var largestStepPoint rules.Point
 	for _, point := range reachablePoints {
-		if p.at(point).StepsFromOrigin > largestStepCount {
-			largestStepCount = p.at(point).StepsFromOrigin
+		if p.At(point).StepsFromOrigin > largestStepCount {
+			largestStepCount = p.At(point).StepsFromOrigin
 			largestStepPoint = point
 		}
 	}

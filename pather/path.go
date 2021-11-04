@@ -23,8 +23,9 @@ type AStarCost struct {
 	Explored         bool  // we have already calculate this square
 	BlockedForTurns  int32 // impassable unless the steps from origin is >= this value
 	BlockedInTurns   int32 // calculate where snakes may be in a given number of turns
-	Hazard           bool  // costs extra health to traverse
-	// Origin           bool // this is the square we started at
+
+	Hazard bool // costs extra health to traverse
+	// Origin           bool // this is the square we started At
 	// Blocked          bool // This is an impassable square (ie snake)
 }
 
@@ -109,6 +110,8 @@ func initPathGrid(s *rules.BoardState) PathGrid {
 // 	p[coord.X][coord.Y].Explored = true
 // }
 
+// CalculatePointNeighbourBlockedInValues calculates the most pesimistic route this neighbour could take
+// from the perspective of origin. ie it just vlines straight for it
 func (p PathGrid) CalculatePointNeighbourBlockedInValues(x, y, startX, startY int32) []rules.Point {
 
 	if x < 0 || y < 0 {
@@ -248,6 +251,7 @@ func (p PathGrid) AddObstacles(s *rules.BoardState, origin rules.Point, youID st
 
 		p[snake.Body[0].X][snake.Body[0].Y].BlockedInTurns = startingBlockedInValue
 
+		//
 		for i := 0; i < 10; i++ {
 			var nextPointsToCheck []rules.Point
 			for _, pointToCheck := range pointsToCheck {
@@ -357,7 +361,7 @@ func (p PathGrid) NextStepBackToOrigin(current, origin rules.Point) (rules.Point
 
 		// find the smallest CostFromOrigin.
 		// CostFromOrigin needs to not be zero since 0 implies that it was not explored.
-		// Each step has to have 1 less StepsFromOrigin or it was not possible to get to that square at that time.
+		// Each step has to have 1 less StepsFromOrigin or it was not possible to get to that square At that time.
 		if p[neighbour.X][neighbour.Y].CostFromOrigin > 0 &&
 			p[neighbour.X][neighbour.Y].CostFromOrigin < lowestCostFromOrigin &&
 			p[neighbour.X][neighbour.Y].StepsFromOrigin == p[current.X][current.Y].StepsFromOrigin-1 {
@@ -633,6 +637,6 @@ func (p PathGrid) FurthestPoint() rules.Point {
 	return furthestDistancePoint
 }
 
-func (p PathGrid) at(point rules.Point) *AStarCost {
+func (p PathGrid) At(point rules.Point) *AStarCost {
 	return p[point.X][point.Y]
 }

@@ -15,7 +15,7 @@ const LargestCost = 10000
 
 func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, turn int32) (generator.Direction, string) {
 
-	var tastiestSnackPath []rules.Point
+	// var tastiestSnackPath []rules.Point
 	foundSnack := false
 
 	// p := pather.MakePathgrid(state, you.Body[0], you.Body[0])
@@ -31,13 +31,33 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 
 	// var closestSkippedSnack rules.Point
 
-	for _, snack := range state.Food {
-		// fmt.Println("checking snack", snack)
+	reachablePoints, grid := pather.GetReachablePoints(state, you.Body[0], you.ID)
 
-		route, _, err := pather.GetRoute(state, ruleset, you.Body[0], snack, you.ID)
-		if err != nil {
+	tastiestSnackDistance := int32(1000)
+	var tastiestSnack rules.Point
+
+	for _, snack := range state.Food {
+
+		snackReachable := false
+		for _, reachablePoint := range reachablePoints {
+			if generator.SamePoint(snack, reachablePoint) {
+				snackReachable = true
+				break
+			}
+		}
+
+		if !snackReachable {
 			continue
 		}
+
+		foundSnack = true
+
+		// fmt.Println("checking snack", snack)
+
+		// route, _, err := pather.GetRoute(state, ruleset, you.Body[0], snack, you.ID)
+		// if err != nil {
+		// 	continue
+		// }
 
 		// healthCost := routedGrid[snack.X][snack.Y].CostFromOrigin
 
@@ -45,61 +65,66 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 		// 	fmt.Println("too hungry for dat boy")
 		// }
 
-		ffState := generator.FastForward(state, ruleset, you, route)
+		// ffState := generator.FastForward(state, ruleset, you, route)
 
 		// squaresFromSnackOnwards := pather.CountSquaresReachableFromOrigin(ffState, route[0], you.ID)
-		squaresFromSnackOnwards, snackOnwardsGrid := pather.GetReachablePoints(ffState, route[0], you.ID)
+		// squaresFromSnackOnwards, snackOnwardsGrid := pather.GetReachablePoints(ffState, route[0], you.ID)
 
-		snackOnwardsGrid.DebugPrint()
+		// snackOnwardsGrid.DebugPrint()
 		//
 		// fmt.Println(snack, squaresFromSnackOnwards)
-		generator.PrintMap(ffState)
-		if len(squaresFromSnackOnwards) < len(you.Body) {
-			// if len(routesFromSnackOnwards) < len(you.Body) {
-			// log.WithFields(log.Fields{
-			// 	"reachable": squaresFromSnackOnwards,
-			// 	"total":     len(you.Body),
-			// 	"snack":     snack,
-			// }).Debug("not enough room to fit ya boi if i chase that snack")
-			fmt.Printf("can't fit if %+v\n", snack)
+		// generator.PrintMap(ffState)
+		// if len(squaresFromSnackOnwards) < len(you.Body) {
+		// 	// if len(routesFromSnackOnwards) < len(you.Body) {
+		// 	// log.WithFields(log.Fields{
+		// 	// 	"reachable": squaresFromSnackOnwards,
+		// 	// 	"total":     len(you.Body),
+		// 	// 	"snack":     snack,
+		// 	// }).Debug("not enough room to fit ya boi if i chase that snack")
+		// 	fmt.Printf("can't fit if %+v\n", snack)
 
-			continue
-		}
+		// 	continue
+		// }
 
 		// check if other is likely to get this first
-		otherSnakeCloser := false
-		for _, snake := range state.Snakes {
-			if snake.ID == you.ID {
-				continue
-			}
+		// otherSnakeCloser := false
+		// for _, snake := range state.Snakes {
+		// 	if snake.ID == you.ID {
+		// 		continue
+		// 	}
 
-			opponentRouteToSnack, _, err := pather.GetRoute(state, ruleset, snake.Body[0], snack, snake.ID)
-			if err != nil {
-				continue
-			}
+		// 	opponentRouteToSnack, _, err := pather.GetRoute(state, ruleset, snake.Body[0], snack, snake.ID)
+		// 	if err != nil {
+		// 		continue
+		// 	}
 
-			// scenario where we'd be the same size and kill them over it (very common)
-			if len(opponentRouteToSnack) == len(route) && len(you.Body) > len(snake.Body) {
-				continue
-			}
+		// 	// scenario where we'd be the same size and kill them over it (very common)
+		// 	if len(opponentRouteToSnack) == len(route) && len(you.Body) > len(snake.Body) {
+		// 		continue
+		// 	}
 
-			// if they are closer, don't chase
-			if len(opponentRouteToSnack) <= len(route) {
-				otherSnakeCloser = true
-				fmt.Printf("other snake closer to %+v\n", snack)
-				break
-			}
+		// 	// if they are closer, don't chase
+		// 	if len(opponentRouteToSnack) <= len(route) {
+		// 		otherSnakeCloser = true
+		// 		fmt.Printf("other snake closer to %+v\n", snack)
+		// 		break
+		// 	}
 
-		}
+		// }
 
-		if otherSnakeCloser {
-			continue
-		}
+		// if otherSnakeCloser {
+		// 	continue
+		// }
 
-		if (len(tastiestSnackPath) == 0 && len(route) > 0) ||
-			len(route) < len(tastiestSnackPath) {
-			tastiestSnackPath = route
-			foundSnack = true
+		// if (len(tastiestSnackPath) == 0 && len(route) > 0) ||
+		// 	len(route) < len(tastiestSnackPath) {
+		// 	tastiestSnackPath = route
+		// 	foundSnack = true
+		// }
+
+		if grid.At(snack).StepsFromOrigin < tastiestSnackDistance {
+			tastiestSnackDistance = grid.At(snack).StepsFromOrigin
+			tastiestSnack = snack
 		}
 
 	}
@@ -121,7 +146,13 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 	// chase food if we just ate, think we aren't girthy enough, or are going to starve.
 	// if foundSnack && (justFed || needMoreGirth || (int(you.Health)-10 < len(tastiestSnackPath))) {
 	if foundSnack {
-		return generator.DirectionToPoint(you.Body[0], tastiestSnackPath[len(tastiestSnackPath)-1]), "chasing snack"
+		route, err := grid.TraceRouteBackToOrigin(you.Body[0], tastiestSnack)
+		if err != nil {
+			// shouldn't be getting an error here tbh, should be caught above
+			fmt.Println("strange")
+			panic("yeet")
+		}
+		return generator.DirectionToPoint(you.Body[0], route[len(route)-1]), "chasing snack"
 	}
 
 	// if no snack, target the center most point from the reachable points
