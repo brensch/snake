@@ -77,9 +77,9 @@ func (p PathGrid) ScoreNeighbours(currentPoint, targetPoint rules.Point, hazardC
 
 		// calculate the pythag distance to the targetPoint
 		// using only ints and avoiding math library since performance is critical
-		xDelta := Abs(neighbourPoint.X-targetPoint.X) * CostFactor
-		yDelta := Abs(neighbourPoint.Y-targetPoint.Y) * CostFactor
-		neighbourPath.DistanceToTarget = IntSqrt(xDelta*xDelta + yDelta*yDelta)
+		xDelta := generator.Abs(neighbourPoint.X-targetPoint.X) * CostFactor
+		yDelta := generator.Abs(neighbourPoint.Y-targetPoint.Y) * CostFactor
+		neighbourPath.DistanceToTarget = generator.IntSqrt(xDelta*xDelta + yDelta*yDelta)
 
 		// check if we found the target
 		if generator.SamePoint(neighbourPoint, targetPoint) {
@@ -108,26 +108,6 @@ func initPathGrid(s *rules.BoardState) PathGrid {
 // func (p PathGrid) MarkExplored(coord rules.Point) {
 // 	p[coord.X][coord.Y].Explored = true
 // }
-
-// Some int maths helpers to hopefully make things a bit faster
-func Abs(num int32) int32 {
-	if num < 0 {
-		return -num
-	}
-	return num
-}
-
-func IntSqrt(n int32) int32 {
-
-	x := n
-	y := int32(1)
-	for x > y {
-		x = (x + y) / 2
-		y = n / x
-	}
-
-	return x
-}
 
 func (p PathGrid) CalculatePointNeighbourBlockedInValues(x, y, startX, startY int32) []rules.Point {
 
@@ -201,7 +181,7 @@ func (p PathGrid) AddObstacles(s *rules.BoardState, origin rules.Point, youID st
 		var distancesToSnacks []int32
 		for _, snack := range s.Food {
 			distancesToSnacks = append(distancesToSnacks,
-				Abs(snack.X-snake.Body[0].X)+Abs(snack.Y-snake.Body[0].Y))
+				generator.Abs(snack.X-snake.Body[0].X)+generator.Abs(snack.Y-snake.Body[0].Y))
 		}
 
 		// only include snakes segments if they will still be there when we get there
@@ -581,24 +561,24 @@ func CalculateAllAvailableSquares(s *rules.BoardState, origin rules.Point, youID
 	return grid
 }
 
-// TODO: make one which also calculates the cost based on hazard
-func CountSquaresReachableFromOrigin(s *rules.BoardState, origin rules.Point, youID string) int32 {
+// // TODO: make one which also calculates the cost based on hazard
+// func CountSquaresReachableFromOrigin(s *rules.BoardState, origin rules.Point, youID string) int32 {
 
-	grid := CalculateAllAvailableSquares(s, origin, youID)
+// 	grid := CalculateAllAvailableSquares(s, origin, youID)
 
-	count := int32(0)
+// 	count := int32(0)
 
-	for x := int32(0); x < s.Width; x++ {
-		for y := int32(0); y < s.Height; y++ {
-			if grid[x][y] != nil && grid[x][y].CostFromOrigin > 0 {
-				count++
-			}
-		}
-	}
+// 	for x := int32(0); x < s.Width; x++ {
+// 		for y := int32(0); y < s.Height; y++ {
+// 			if grid[x][y] != nil && grid[x][y].CostFromOrigin > 0 {
+// 				count++
+// 			}
+// 		}
+// 	}
 
-	return count
+// 	return count
 
-}
+// }
 
 func GetReachablePoints(s *rules.BoardState, origin rules.Point, youID string) ([]rules.Point, PathGrid) {
 	grid := CalculateAllAvailableSquares(s, origin, youID)
@@ -628,6 +608,29 @@ func GetReachablePoints(s *rules.BoardState, origin rules.Point, youID string) (
 	// 	grid[longestPathPoint.X][longestPathPoint.Y].StepsFromOrigin = 0
 	// }
 
+}
+
+func (p PathGrid) FurthestPoint() rules.Point {
+	width := int32(len(p))
+	height := int32(len(p[0]))
+
+	furthestDistance := int32(0)
+	var furthestDistancePoint rules.Point
+
+	for x := int32(0); x < width; x++ {
+		for y := int32(0); y < height; y++ {
+
+			if p[x][y] == nil || p[x][y].StepsFromOrigin <= furthestDistance {
+				continue
+			}
+
+			furthestDistance = p[x][y].StepsFromOrigin
+			furthestDistancePoint = rules.Point{X: x, Y: y}
+
+		}
+	}
+
+	return furthestDistancePoint
 }
 
 func (p PathGrid) at(point rules.Point) *AStarCost {
