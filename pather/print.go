@@ -33,6 +33,7 @@ func (p PathGrid) DebugPrint() {
 	for y := height - 1; y >= 0; y-- {
 		for x := 0; x < width; x++ {
 
+			fmt.Printf("{%2d,%2d} ", x, y)
 			if p[x][y] == nil {
 				fmt.Printf("---:---:---:---:--- |")
 				continue

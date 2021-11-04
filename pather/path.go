@@ -110,10 +110,9 @@ func initPathGrid(s *rules.BoardState) PathGrid {
 // 	p[coord.X][coord.Y].Explored = true
 // }
 
-// CalculatePointNeighbourBlockedInValues calculates the most pesimistic route this neighbour could take
-// from the perspective of origin. ie it just vlines straight for it
 func (p PathGrid) CalculatePointNeighbourBlockedInValues(x, y, startX, startY int32) []rules.Point {
 
+	fmt.Println(x, y)
 	if x < 0 || y < 0 {
 		fmt.Println("out of bounds----------------", x, y)
 		return nil
@@ -153,7 +152,7 @@ func (p PathGrid) CalculatePointNeighbourBlockedInValues(x, y, startX, startY in
 
 		// check if this snake could possibly have travelled to this square
 		// (not blocked)
-		if p[neighbour.X][neighbour.Y].BlockedForTurns > startingBlockedInValue {
+		if p[neighbour.X][neighbour.Y].BlockedForTurns >= startingBlockedInValue {
 			continue
 		}
 
@@ -202,9 +201,11 @@ func (p PathGrid) AddObstacles(s *rules.BoardState, origin rules.Point, youID st
 
 			// figure out how many snacks this snake may have encountered by this step
 			potentialSnacks := 0
-			for _, potentialSnackDistance := range distancesToSnacks {
-				if int(potentialSnackDistance) <= len(snake.Body)-pointNumber {
-					potentialSnacks++
+			if snake.ID != youID {
+				for _, potentialSnackDistance := range distancesToSnacks {
+					if int(potentialSnackDistance) <= len(snake.Body)-pointNumber {
+						potentialSnacks++
+					}
 				}
 			}
 
@@ -222,6 +223,11 @@ func (p PathGrid) AddObstacles(s *rules.BoardState, origin rules.Point, youID st
 
 			// p[point.X][point.Y].Blocked = true
 		}
+
+	}
+
+	// do second loop to make sure all blocked in values are calculated
+	for _, snake := range s.Snakes {
 		// do not calculate the future state of a snake if it's you
 		if snake.ID == youID {
 			continue
@@ -232,9 +238,9 @@ func (p PathGrid) AddObstacles(s *rules.BoardState, origin rules.Point, youID st
 			continue
 		}
 
-		if snake.Body[0].X < 0 || snake.Body[0].Y < 0 {
-			fmt.Println("got bad snake head", snake.Body[0])
-		}
+		// if snake.Body[0].X < 0 || snake.Body[0].Y < 0 {
+		// 	fmt.Println("got bad snake head", snake.Body[0])
+		// }
 
 		// TODO: figure out how many moves ahead i should add this
 		pointsToCheck := []rules.Point{snake.Body[0]}
@@ -640,3 +646,63 @@ func (p PathGrid) FurthestPoint() rules.Point {
 func (p PathGrid) At(point rules.Point) *AStarCost {
 	return p[point.X][point.Y]
 }
+
+// func (p PathGrid) FindPointsBeyond(currentRoute []rules.Point, targetLength int) []rules.Point {
+
+// 	// last value in array is where we're up to
+// 	currentPoint := currentRoute[len(currentRoute)-1]
+
+// 	width := len(p)
+// 	height := len(p[0])
+// 	neighbours := generator.NeighboursSafe(height, width, rules.Point{X: currentPoint.X, Y: currentPoint.Y})
+
+// 	var newRoutes [][]rules.Point
+
+// 	for _, neighbour := range neighbours {
+// 		alreadyExplored := false
+// 		for _, currentRoutePoint := range currentRoute {
+// 			if generator.SamePoint(currentRoutePoint, neighbour) {
+// 				alreadyExplored = true
+// 				break
+// 			}
+// 		}
+
+// 		if alreadyExplored {
+// 			continue
+// 		}
+
+// 		if p[neighbour.X][neighbour.Y] == nil {
+// 			p[neighbour.X][neighbour.Y] = &AStarCost{}
+// 		}
+
+// 		// check if this snake could possibly have travelled to this square
+// 		// (not blocked)
+// 		if p[neighbour.X][neighbour.Y].BlockedForTurns >= int32(len(currentRoute)) {
+// 			continue
+// 		}
+
+// 		neighbourBestPath := p.ExploreForLength(append(currentRoute, neighbour), targetLength)
+
+// 		newRoutes = append(newRoutes, neighbourBestPath)
+
+// 		// shortcircuit the check here. no point exploring all neighbours if we've found a good path
+// 		if len(neighbourBestPath) >= targetLength {
+// 			return neighbourBestPath
+// 		}
+
+// 		// fmt.Printf("incrementing %+v, %d\n", p[neighbour.X][neighbour.Y], startingBlockedInValue+1)
+// 	}
+
+// 	if len(newRoutes) == 0 {
+// 		return currentRoute
+// 	}
+
+// 	var longestRoute []rules.Point
+// 	for _, route := range newRoutes {
+// 		if len(route) > len(longestRoute) {
+// 			longestRoute = route
+// 		}
+// 	}
+
+// 	return longestRoute
+// }

@@ -184,9 +184,9 @@ func TestMove(t *testing.T) {
 
 	for _, test := range tests {
 
-		// if test.explanation != "don't panic" {
-		// 	continue
-		// }
+		if test.explanation != "avoid an awkward corner when i'm shorter going for snack" {
+			continue
+		}
 
 		t.Log("running test: ", test.explanation)
 
