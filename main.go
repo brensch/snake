@@ -2,9 +2,15 @@ package main
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
+	"sync"
+	"time"
 
+	"github.com/brensch/snake/generator"
+	"github.com/brensch/snake/rules"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -20,6 +26,9 @@ func main() {
 	if len(port) == 0 {
 		port = "8080"
 	}
+	// for {
+	// 	stress()
+	// }
 
 	http.HandleFunc("/", HandleIndex)
 	http.HandleFunc("/start", HandleStart)
@@ -28,6 +37,60 @@ func main() {
 
 	log.Info("welcome to snake")
 	log.Fatal(http.ListenAndServe(":"+port, nil))
+
+}
+
+func stress() {
+
+	state := []byte(`{"Hazards":null,"Food":[{"Y":9,"X":4},{"Y":10,"X":10},{"X":3,"Y":7}],"Width":11,"Snakes":[{"ID":"gs_Mryy8QHFPhDq3cxWJJpRFkg4","EliminatedCause":"","EliminatedOnTurn":0,"Health":78,"Body":[{"Y":6,"X":3},{"X":3,"Y":5},{"X":3,"Y":4},{"Y":3,"X":3},{"X":2,"Y":3},{"Y":3,"X":1},{"X":0,"Y":3},{"Y":4,"X":0},{"Y":5,"X":0},{"Y":6,"X":0},{"Y":7,"X":0},{"X":0,"Y":8},{"Y":8,"X":1},{"X":2,"Y":8},{"Y":7,"X":2},{"Y":7,"X":1}],"EliminatedBy":""},{"Body":[{"X":9,"Y":2},{"Y":2,"X":8},{"Y":1,"X":8},{"X":8,"Y":0},{"Y":0,"X":7},{"Y":1,"X":7},{"Y":1,"X":6},{"Y":1,"X":5},{"X":5,"Y":2},{"Y":3,"X":5},{"X":5,"Y":4},{"X":5,"Y":5},{"X":6,"Y":5},{"X":6,"Y":4},{"Y":4,"X":7},{"Y":4,"X":8},{"Y":4,"X":9},{"X":10,"Y":4},{"Y":5,"X":10},{"Y":5,"X":9},{"Y":5,"X":8},{"Y":5,"X":7},{"X":7,"Y":6}],"EliminatedOnTurn":0,"EliminatedCause":"","Health":97,"EliminatedBy":"","ID":"you"}],"Height":11,"Turn":163}`)
+
+	var s *rules.BoardState
+	err := json.Unmarshal(state, &s)
+	if err != nil {
+		fmt.Print("err", err.Error())
+	}
+
+	ruleset := &rules.StandardRuleset{
+		FoodSpawnChance: 0,
+		MinimumFood:     0,
+	}
+	countCHAN := make(chan int)
+	var sendWG, recWG sync.WaitGroup
+
+	totalCount := 0
+	recWG.Add(1)
+	go func() {
+		defer recWG.Done()
+		for count := range countCHAN {
+			totalCount += count
+		}
+
+	}()
+
+	start := time.Now()
+	for i := 0; i < 4; i++ {
+		sendWG.Add(1)
+		go func() {
+			defer sendWG.Done()
+			counter := 0
+			for {
+				if time.Since(start) > 500*time.Millisecond {
+					break
+				}
+
+				generator.SafeMoves(s, ruleset, "you")
+				counter++
+			}
+
+			countCHAN <- counter
+		}()
+	}
+
+	sendWG.Wait()
+	close(countCHAN)
+	recWG.Wait()
+
+	fmt.Println(totalCount)
 
 }
 

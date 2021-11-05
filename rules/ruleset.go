@@ -38,6 +38,25 @@ type Point struct {
 	Y int32
 }
 
+type Direction uint8
+
+func (d Direction) String() string {
+	return [...]string{"left", "right", "up", "down", "unknown"}[d]
+}
+
+const (
+	// Not starting with Unknown even though that would help with empty moves.
+	// An empty move now defaults to left (ie 0). This is fine since only meant
+	// for internal consumption and i won't pass empty moves.
+	DirectionLeft Direction = iota
+	DirectionRight
+	DirectionUp
+	DirectionDown
+	DirectionUnknown
+
+	directionCount = 4
+)
+
 type Snake struct {
 	ID               string
 	Body             []Point
@@ -49,7 +68,7 @@ type Snake struct {
 
 type SnakeMove struct {
 	ID   string
-	Move string
+	Move Direction
 }
 
 type Ruleset interface {

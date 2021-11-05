@@ -112,7 +112,7 @@ func initPathGrid(s *rules.BoardState) PathGrid {
 
 func (p PathGrid) CalculatePointNeighbourBlockedInValues(x, y, startX, startY int32) []rules.Point {
 
-	fmt.Println(x, y)
+	// fmt.Println(x, y)
 	if x < 0 || y < 0 {
 		fmt.Println("out of bounds----------------", x, y)
 		return nil
@@ -152,7 +152,7 @@ func (p PathGrid) CalculatePointNeighbourBlockedInValues(x, y, startX, startY in
 
 		// check if this snake could possibly have travelled to this square
 		// (not blocked)
-		if p[neighbour.X][neighbour.Y].BlockedForTurns >= startingBlockedInValue {
+		if !(x == startX && y == startY) && p[neighbour.X][neighbour.Y].BlockedForTurns >= startingBlockedInValue {
 			continue
 		}
 

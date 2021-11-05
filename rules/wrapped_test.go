@@ -19,10 +19,10 @@ func TestLeft(t *testing.T) {
 	}
 
 	snakeMoves := []SnakeMove{
-		{ID: "bottomLeft", Move: "left"},
-		{ID: "bottomRight", Move: "left"},
-		{ID: "topLeft", Move: "left"},
-		{ID: "topRight", Move: "left"},
+		{ID: "bottomLeft", Move: DirectionLeft},
+		{ID: "bottomRight", Move: DirectionLeft},
+		{ID: "topLeft", Move: DirectionLeft},
+		{ID: "topRight", Move: DirectionLeft},
 	}
 
 	r := WrappedRuleset{}
@@ -58,10 +58,10 @@ func TestRight(t *testing.T) {
 	}
 
 	snakeMoves := []SnakeMove{
-		{ID: "bottomLeft", Move: "right"},
-		{ID: "bottomRight", Move: "right"},
-		{ID: "topLeft", Move: "right"},
-		{ID: "topRight", Move: "right"},
+		{ID: "bottomLeft", Move: DirectionRight},
+		{ID: "bottomRight", Move: DirectionRight},
+		{ID: "topLeft", Move: DirectionRight},
+		{ID: "topRight", Move: DirectionRight},
 	}
 
 	r := WrappedRuleset{}
@@ -97,10 +97,10 @@ func TestUp(t *testing.T) {
 	}
 
 	snakeMoves := []SnakeMove{
-		{ID: "bottomLeft", Move: "up"},
-		{ID: "bottomRight", Move: "up"},
-		{ID: "topLeft", Move: "up"},
-		{ID: "topRight", Move: "up"},
+		{ID: "bottomLeft", Move: DirectionUp},
+		{ID: "bottomRight", Move: DirectionUp},
+		{ID: "topLeft", Move: DirectionUp},
+		{ID: "topRight", Move: DirectionUp},
 	}
 
 	r := WrappedRuleset{}
@@ -136,10 +136,10 @@ func TestDown(t *testing.T) {
 	}
 
 	snakeMoves := []SnakeMove{
-		{ID: "bottomLeft", Move: "down"},
-		{ID: "bottomRight", Move: "down"},
-		{ID: "topLeft", Move: "down"},
-		{ID: "topRight", Move: "down"},
+		{ID: "bottomLeft", Move: DirectionDown},
+		{ID: "bottomRight", Move: DirectionDown},
+		{ID: "topLeft", Move: DirectionDown},
+		{ID: "topRight", Move: DirectionDown},
 	}
 
 	r := WrappedRuleset{}
@@ -167,7 +167,7 @@ func TestEdgeCrossingCollision(t *testing.T) {
 		Width:  11,
 		Height: 11,
 		Snakes: []Snake{
-			{ID: "left", Health: 10, Body: []Point{{0, 5}}},
+			{ID: "right", Health: 10, Body: []Point{{0, 5}}},
 			{ID: "rightEdge", Health: 10, Body: []Point{
 				{10, 1},
 				{10, 2},
@@ -180,8 +180,8 @@ func TestEdgeCrossingCollision(t *testing.T) {
 	}
 
 	snakeMoves := []SnakeMove{
-		{ID: "left", Move: "left"},
-		{ID: "rightEdge", Move: "down"},
+		{ID: "right", Move: DirectionLeft},
+		{ID: "rightEdge", Move: DirectionDown},
 	}
 
 	r := WrappedRuleset{}
@@ -191,7 +191,7 @@ func TestEdgeCrossingCollision(t *testing.T) {
 	require.Equal(t, len(boardState.Snakes), len(nextBoardState.Snakes))
 
 	expectedSnakes := []Snake{
-		{ID: "left", Health: 0, Body: []Point{{10, 5}}, EliminatedCause: EliminatedByCollision, EliminatedBy: "rightEdge"},
+		{ID: "right", Health: 0, Body: []Point{{10, 5}}, EliminatedCause: EliminatedByCollision, EliminatedBy: "rightEdge"},
 		{ID: "rightEdge", Health: 10, Body: []Point{
 			{10, 0},
 			{10, 1},
@@ -223,8 +223,8 @@ func TestEdgeCrossingEating(t *testing.T) {
 	}
 
 	snakeMoves := []SnakeMove{
-		{ID: "left", Move: "left"},
-		{ID: "other", Move: "left"},
+		{ID: "left", Move: DirectionLeft},
+		{ID: "other", Move: DirectionLeft},
 	}
 
 	r := WrappedRuleset{}

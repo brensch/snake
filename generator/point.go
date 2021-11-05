@@ -40,7 +40,7 @@ func NeighboursSnake(state *rules.BoardState, snake []rules.Point) []rules.Point
 	var possibleNeighbours []rules.Point
 
 	for i := 0; i < 4; i++ {
-		possibleNeighbour := Move(Direction(i), snake[0])
+		possibleNeighbour := Move(rules.Direction(i), snake[0])
 		if SamePoint(possibleNeighbour, snake[1]) || OffBoard(state, possibleNeighbour) {
 			continue
 		}
@@ -51,18 +51,18 @@ func NeighboursSnake(state *rules.BoardState, snake []rules.Point) []rules.Point
 	return possibleNeighbours
 }
 
-func Move(direction Direction, p rules.Point) rules.Point {
+func Move(direction rules.Direction, p rules.Point) rules.Point {
 	switch direction {
-	case DirectionLeft:
+	case rules.DirectionLeft:
 		return left(p)
-	case DirectionRight:
+	case rules.DirectionRight:
 		return right(p)
-	case DirectionUp:
+	case rules.DirectionUp:
 		return up(p)
-	case DirectionDown:
+	case rules.DirectionDown:
 		return down(p)
-	// if we get a DirectionUnknown in here we should panic. indicates a bug in logic.
-	case DirectionUnknown:
+	// if we get a rules.DirectionUnknown in here we should panic. indicates a bug in logic.
+	case rules.DirectionUnknown:
 		panic("got direction unknown")
 	}
 
@@ -103,30 +103,30 @@ func OffBoard(state *rules.BoardState, p rules.Point) bool {
 }
 
 // Headsnaps tells you which way you should avoid if you don't want 75% headjob
-func Headsnaps(state *rules.BoardState) []Direction {
+func Headsnaps(state *rules.BoardState) []rules.Direction {
 
-	directions := make([]Direction, len(state.Snakes))
+	directions := make([]rules.Direction, len(state.Snakes))
 	for snakePosition, snake := range state.Snakes {
 
 		// assume snake always > 3
 		if snake.Body[0].X > snake.Body[1].X {
-			directions[snakePosition] = DirectionLeft
+			directions[snakePosition] = rules.DirectionLeft
 			continue
 		}
 		if snake.Body[0].X < snake.Body[1].X {
-			directions[snakePosition] = DirectionRight
+			directions[snakePosition] = rules.DirectionRight
 			continue
 		}
 		if snake.Body[0].Y > snake.Body[1].Y {
-			directions[snakePosition] = DirectionDown
+			directions[snakePosition] = rules.DirectionDown
 			continue
 		}
 		if snake.Body[0].X > snake.Body[1].X {
-			directions[snakePosition] = DirectionUp
+			directions[snakePosition] = rules.DirectionUp
 			continue
 		}
 
-		directions[snakePosition] = DirectionUnknown
+		directions[snakePosition] = rules.DirectionUnknown
 	}
 
 	return directions
