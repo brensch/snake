@@ -61,7 +61,7 @@ func TestAvoidWalls(t *testing.T) {
 
 		nextMove := rules.SnakeMove{
 			ID:   snakeID,
-			Move: move.String(),
+			Move: move,
 		}
 
 		nextState, err := standardGame.CreateNextBoardState(state, []rules.SnakeMove{nextMove})
@@ -163,7 +163,7 @@ func TestAvoidBattleSnakes(t *testing.T) {
 
 		nextMove := rules.SnakeMove{
 			ID:   snakeID,
-			Move: move.String(),
+			Move: move,
 		}
 
 		var botMoves []rules.SnakeMove
@@ -171,7 +171,7 @@ func TestAvoidBattleSnakes(t *testing.T) {
 
 			botMoves = append(botMoves, rules.SnakeMove{
 				ID:   bot.ID,
-				Move: generator.ChaserNextMove(bot).String(),
+				Move: generator.ChaserNextMove(bot),
 			})
 		}
 

@@ -13,7 +13,7 @@ import (
 
 const LargestCost = 10000
 
-func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, turn int32) (generator.Direction, string) {
+func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, turn int32) (rules.Direction, string) {
 
 	var tastiestSnackPath []rules.Point
 	foundSnack := false
@@ -312,11 +312,11 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 
 	// TODO: make this longest route wind around into the space we have.
 	// return generator.DirectionToPoint(you.Body[0], longestRoute), "doing longest route"
-	return generator.DirectionDown, "no routes left. GG."
+	return rules.DirectionDown, "no routes left. GG."
 
 }
 
-func Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, turn int32, gameID string) (generator.Direction, string) {
+func Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, turn int32, gameID string) (rules.Direction, string) {
 	galaxyBrain, reason := GalaxyBrain(ctx, state, ruleset, you, turn)
 	safestMoves := generator.SafestMoves(state, ruleset, you)
 

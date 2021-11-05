@@ -180,7 +180,7 @@ func TestEdgeCrossingCollision(t *testing.T) {
 	}
 
 	snakeMoves := []SnakeMove{
-		{ID: "left", Move: DirectionLeft},
+		{ID: "right", Move: DirectionLeft},
 		{ID: "rightEdge", Move: DirectionDown},
 	}
 
@@ -191,7 +191,7 @@ func TestEdgeCrossingCollision(t *testing.T) {
 	require.Equal(t, len(boardState.Snakes), len(nextBoardState.Snakes))
 
 	expectedSnakes := []Snake{
-		{ID: "left", Health: 0, Body: []Point{{10, 5}}, EliminatedCause: EliminatedByCollision, EliminatedBy: "rightEdge"},
+		{ID: "right", Health: 0, Body: []Point{{10, 5}}, EliminatedCause: EliminatedByCollision, EliminatedBy: "rightEdge"},
 		{ID: "rightEdge", Health: 10, Body: []Point{
 			{10, 0},
 			{10, 1},

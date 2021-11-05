@@ -45,6 +45,9 @@ func (d Direction) String() string {
 }
 
 const (
+	// Not starting with Unknown even though that would help with empty moves.
+	// An empty move now defaults to left (ie 0). This is fine since only meant
+	// for internal consumption and i won't pass empty moves.
 	DirectionLeft Direction = iota
 	DirectionRight
 	DirectionUp

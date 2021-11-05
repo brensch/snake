@@ -33,7 +33,7 @@ func FastForward(s *rules.BoardState, ruleset rules.Ruleset, snake rules.Snake, 
 				moves = append(moves, rules.SnakeMove{ID: snakeIter.ID, Move: rules.DirectionDown})
 				continue
 			}
-			moves = append(moves, rules.SnakeMove{ID: snakeIter.ID, Move: safestMoves[0].String()})
+			moves = append(moves, rules.SnakeMove{ID: snakeIter.ID, Move: safestMoves[0]})
 
 		}
 
