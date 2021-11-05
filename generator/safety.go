@@ -1,19 +1,23 @@
 package generator
 
 import (
+	"fmt"
+
 	"github.com/brensch/snake/rules"
 )
 
-func SafetyDance(state *rules.BoardState, ruleset rules.Ruleset, youID string) [4]int {
+func SafetyDance(state *rules.BoardState, ruleset rules.Ruleset, youID string) [4][][]rules.SnakeMove {
 
-	moves := AllMovesForStateRaw(state)
-	var safeMoves [4]int
+	moveSets := AllMoveSetsForStateRaw(state)
+	var nextMoveSets [4][][]rules.SnakeMove
 	var youPosition int
 	// var you rules.Snake
+	foundSnake := false
 
 	// get your position
 	for position, snake := range state.Snakes {
 		if youID != snake.ID {
+			foundSnake = true
 			continue
 		}
 
@@ -22,10 +26,14 @@ func SafetyDance(state *rules.BoardState, ruleset rules.Ruleset, youID string) [
 		break
 	}
 
-	// go through all moves, generate them, and see which ones we don't die in
-	for _, move := range moves {
+	if !foundSnake {
+		fmt.Println("no you bruh")
+	}
 
-		nextState, err := ruleset.CreateNextBoardState(state, move)
+	// go through all moveSets, generate them, and see which ones we don't die in
+	for _, moveSet := range moveSets {
+
+		nextState, err := ruleset.CreateNextBoardState(state, moveSet)
 		if err != nil {
 			// log.WithFields(log.Fields{
 			// 	"state": state,
@@ -33,20 +41,35 @@ func SafetyDance(state *rules.BoardState, ruleset rules.Ruleset, youID string) [
 			continue
 		}
 
+		sadSnake := false
+		for _, snake := range nextState.Snakes {
+			if snake.EliminatedCause != "" {
+				sadSnake = true
+				// fmt.Println(snake.EliminatedCause)
+				continue
+			}
+		}
+
+		if sadSnake {
+			continue
+		}
+
 		if nextState.Snakes[youPosition].EliminatedCause != "" {
 			continue
 		}
 
-		safeMoves[move[youPosition].Move]++
+		yourMove := moveSet[youPosition]
+
+		nextMoveSets[yourMove.Move] = append(nextMoveSets[yourMove.Move], moveSet)
 
 	}
 
-	return safeMoves
+	return nextMoveSets
 }
 
 func SafeMoves(state *rules.BoardState, ruleset rules.Ruleset, youID string) [4]int {
 
-	moves := AllMovesForState(state)
+	moves := AllMoveSetsForState(state)
 	var safeMoves [4]int
 	var youPosition int
 	var you rules.Snake

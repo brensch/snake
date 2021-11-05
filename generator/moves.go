@@ -7,7 +7,7 @@ import (
 )
 
 // AllMovesForState makes a list of move permutations excluding 75% headjobs and out of bounds
-func AllMovesForState(state *rules.BoardState) [][]rules.Point {
+func AllMoveSetsForState(state *rules.BoardState) [][]rules.Point {
 
 	neighbourArray := make([][]rules.Point, len(state.Snakes))
 	for snakeNumber, snake := range state.Snakes {
@@ -32,7 +32,7 @@ func AllMovesForState(state *rules.BoardState) [][]rules.Point {
 	return allMoves
 }
 
-func AllMovesForStateRaw(state *rules.BoardState) [][]rules.SnakeMove {
+func AllMoveSetsForStateRaw(state *rules.BoardState) [][]rules.SnakeMove {
 	// totalMoves := 4 * len(state.Snakes)
 	totalMoves := 1
 	for i := 0; i < len(state.Snakes); i++ {

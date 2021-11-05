@@ -52,7 +52,7 @@ func TestAllMovesForState(t *testing.T) {
 		},
 	}
 
-	points := generator.AllMovesForState(state)
+	points := generator.AllMoveSetsForState(state)
 	for _, row := range points {
 		fmt.Println(row)
 	}

@@ -19,7 +19,7 @@ func TestAllMovesForState(t *testing.T) {
 		t.Fail()
 	}
 
-	moves := AllMovesForState(s)
+	moves := AllMoveSetsForState(s)
 
 	fmt.Println(moves)
 
@@ -43,7 +43,7 @@ func TestSpeedAllMovesForState(t *testing.T) {
 		if time.Since(start) > 500*time.Millisecond {
 			break
 		}
-		AllMovesForState(s)
+		AllMoveSetsForState(s)
 		count++
 	}
 
@@ -64,7 +64,7 @@ func TestSpeedAllMovesForStateRaw(t *testing.T) {
 
 	PrintMap(s)
 
-	moves := AllMovesForStateRaw(s)
+	moves := AllMoveSetsForStateRaw(s)
 	fmt.Println(moves)
 
 }
