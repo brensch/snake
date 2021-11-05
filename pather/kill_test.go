@@ -12,7 +12,7 @@ import (
 type killTestCase struct {
 	explanation string
 	state       []byte
-	okMoves     []generator.Direction
+	okMoves     []rules.Direction
 	isKillable  bool
 }
 
@@ -24,7 +24,7 @@ var (
 		{
 			explanation: "check box into wall",
 			state:       []byte(`{"Turn":49,"Height":11,"Width":11,"Hazards":null,"Food":[{"X":1,"Y":3},{"Y":9,"X":7}],"Snakes":[{"Body":[{"Y":5,"X":10},{"Y":6,"X":10},{"Y":7,"X":10},{"Y":8,"X":10},{"Y":9,"X":10},{"Y":9,"X":9},{"X":9,"Y":9}],"Health":100,"ID":"them","EliminatedOnTurn":0,"EliminatedCause":"","EliminatedBy":""},{"EliminatedCause":"","ID":"you","Body":[{"X":8,"Y":5},{"X":7,"Y":5},{"X":6,"Y":5},{"X":5,"Y":5},{"Y":4,"X":5},{"X":4,"Y":4},{"Y":4,"X":3},{"X":2,"Y":4}],"Health":91,"EliminatedBy":"","EliminatedOnTurn":0},{"EliminatedCause":"","EliminatedOnTurn":0,"ID":"gs_88K6HT8qbvwV3x6rMcrDw3d3","Health":61,"Body":[{"X":2,"Y":9},{"X":3,"Y":9},{"Y":9,"X":4},{"X":4,"Y":8}],"EliminatedBy":""}]}`),
-			okMoves:     []generator.Direction{generator.DirectionRight},
+			okMoves:     []rules.Direction{rules.DirectionRight},
 			isKillable:  true,
 		},
 		// {

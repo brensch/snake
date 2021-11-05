@@ -130,11 +130,6 @@ var (
 			okMoves:     []generator.Direction{generator.DirectionUp},
 		},
 		{
-			explanation: "don't get todo logic",
-			state:       []byte(`{"Turn":376,"Height":12,"Width":11,"Food":[{"X":5,"Y":0},{"X":3,"Y":1},{"X":9,"Y":2},{"X":9,"Y":9}],"Snakes":[{"ID":"you2","Body":[{"X":7,"Y":4},{"X":6,"Y":4},{"X":5,"Y":4},{"X":5,"Y":5},{"X":5,"Y":6},{"X":5,"Y":7},{"X":5,"Y":8},{"X":4,"Y":8},{"X":4,"Y":7},{"X":4,"Y":6},{"X":4,"Y":5},{"X":3,"Y":5},{"X":3,"Y":6},{"X":2,"Y":6},{"X":2,"Y":7},{"X":2,"Y":8},{"X":1,"Y":8},{"X":1,"Y":9},{"X":1,"Y":10},{"X":2,"Y":10},{"X":3,"Y":10},{"X":4,"Y":10},{"X":5,"Y":10},{"X":6,"Y":10},{"X":7,"Y":10},{"X":8,"Y":10},{"X":8,"Y":9},{"X":8,"Y":8},{"X":7,"Y":8},{"X":6,"Y":8},{"X":6,"Y":7},{"X":6,"Y":6},{"X":7,"Y":6},{"X":8,"Y":6},{"X":8,"Y":5},{"X":8,"Y":4}],"Health":82,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""},{"ID":"you","Body":[{"X":1,"Y":2},{"X":1,"Y":3},{"X":2,"Y":3},{"X":3,"Y":3},{"X":3,"Y":2},{"X":2,"Y":2},{"X":2,"Y":1},{"X":1,"Y":1},{"X":1,"Y":0},{"X":0,"Y":0},{"X":0,"Y":1},{"X":0,"Y":2},{"X":0,"Y":3},{"X":0,"Y":4},{"X":0,"Y":5},{"X":0,"Y":6},{"X":0,"Y":7},{"X":1,"Y":7},{"X":1,"Y":6},{"X":1,"Y":5},{"X":2,"Y":5},{"X":2,"Y":4},{"X":3,"Y":4},{"X":4,"Y":4},{"X":4,"Y":3},{"X":5,"Y":3},{"X":6,"Y":3},{"X":6,"Y":2},{"X":6,"Y":1},{"X":6,"Y":0},{"X":7,"Y":0},{"X":7,"Y":1},{"X":8,"Y":1},{"X":8,"Y":0}],"Health":96,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""}],"Hazards":null}`),
-			okMoves:     []generator.Direction{generator.DirectionUp},
-		},
-		{
 			explanation: "definitely don't panic. escape is possible",
 			state:       []byte(`{"Hazards":null,"Food":[{"Y":9,"X":4},{"Y":10,"X":10},{"X":3,"Y":7}],"Width":11,"Snakes":[{"ID":"gs_Mryy8QHFPhDq3cxWJJpRFkg4","EliminatedCause":"","EliminatedOnTurn":0,"Health":78,"Body":[{"Y":6,"X":3},{"X":3,"Y":5},{"X":3,"Y":4},{"Y":3,"X":3},{"X":2,"Y":3},{"Y":3,"X":1},{"X":0,"Y":3},{"Y":4,"X":0},{"Y":5,"X":0},{"Y":6,"X":0},{"Y":7,"X":0},{"X":0,"Y":8},{"Y":8,"X":1},{"X":2,"Y":8},{"Y":7,"X":2},{"Y":7,"X":1}],"EliminatedBy":""},{"Body":[{"X":9,"Y":2},{"Y":2,"X":8},{"Y":1,"X":8},{"X":8,"Y":0},{"Y":0,"X":7},{"Y":1,"X":7},{"Y":1,"X":6},{"Y":1,"X":5},{"X":5,"Y":2},{"Y":3,"X":5},{"X":5,"Y":4},{"X":5,"Y":5},{"X":6,"Y":5},{"X":6,"Y":4},{"Y":4,"X":7},{"Y":4,"X":8},{"Y":4,"X":9},{"X":10,"Y":4},{"Y":5,"X":10},{"Y":5,"X":9},{"Y":5,"X":8},{"Y":5,"X":7},{"X":7,"Y":6}],"EliminatedOnTurn":0,"EliminatedCause":"","Health":97,"EliminatedBy":"","ID":"you"}],"Height":11,"Turn":163}`),
 			okMoves:     []generator.Direction{generator.DirectionDown},
@@ -142,7 +137,7 @@ var (
 		{
 			explanation: "don't timeout for pete's sake",
 			state:       []byte(`{"Turn":394,"Height":12,"Width":11,"Food":[{"X":3,"Y":6},{"X":4,"Y":10},{"X":2,"Y":6},{"X":3,"Y":4},{"X":9,"Y":8},{"X":4,"Y":8},{"X":0,"Y":5},{"X":6,"Y":0}],"Snakes":[{"ID":"you2","Body":[{"X":4,"Y":3},{"X":4,"Y":2},{"X":5,"Y":2},{"X":5,"Y":3},{"X":6,"Y":3},{"X":7,"Y":3},{"X":7,"Y":2},{"X":6,"Y":2},{"X":6,"Y":1},{"X":7,"Y":1},{"X":7,"Y":0},{"X":8,"Y":0},{"X":8,"Y":1},{"X":8,"Y":2},{"X":9,"Y":2},{"X":9,"Y":1},{"X":10,"Y":1},{"X":10,"Y":2},{"X":10,"Y":3},{"X":9,"Y":3},{"X":8,"Y":3},{"X":8,"Y":4},{"X":7,"Y":4},{"X":7,"Y":5},{"X":6,"Y":5},{"X":5,"Y":5},{"X":5,"Y":4},{"X":4,"Y":4},{"X":4,"Y":5},{"X":3,"Y":5},{"X":2,"Y":5},{"X":1,"Y":5},{"X":1,"Y":4},{"X":2,"Y":4},{"X":2,"Y":3},{"X":2,"Y":2},{"X":3,"Y":2},{"X":3,"Y":3}],"Health":65,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""},{"ID":"you","Body":[{"X":1,"Y":6},{"X":1,"Y":7},{"X":0,"Y":7},{"X":0,"Y":8},{"X":0,"Y":9},{"X":1,"Y":9},{"X":1,"Y":10},{"X":1,"Y":11},{"X":2,"Y":11},{"X":3,"Y":11},{"X":4,"Y":11},{"X":5,"Y":11},{"X":6,"Y":11},{"X":7,"Y":11},{"X":8,"Y":11},{"X":9,"Y":11},{"X":10,"Y":11},{"X":10,"Y":10},{"X":10,"Y":9},{"X":10,"Y":8},{"X":10,"Y":7},{"X":10,"Y":6},{"X":9,"Y":6},{"X":9,"Y":7},{"X":8,"Y":7},{"X":8,"Y":6},{"X":7,"Y":6},{"X":6,"Y":6},{"X":5,"Y":6},{"X":4,"Y":6},{"X":4,"Y":7},{"X":3,"Y":7},{"X":3,"Y":8},{"X":3,"Y":9},{"X":2,"Y":9},{"X":2,"Y":8},{"X":2,"Y":8}],"Health":100,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""}],"Hazards":null}`),
-			okMoves:     []generator.Direction{generator.DirectionLeft},
+			okMoves:     []generator.Direction{generator.DirectionLeft, generator.DirectionRight},
 		},
 		{
 			explanation: "plenty of space, but only if you go the right way",
@@ -174,6 +169,12 @@ var (
 			state:       []byte(`{"Food":[{"Y":8,"X":3},{"X":0,"Y":6},{"X":9,"Y":2}],"Turn":170,"Height":11,"Hazards":null,"Width":11,"Snakes":[{"ID":"you","EliminatedCause":"","Health":95,"Body":[{"X":8,"Y":10},{"X":7,"Y":10},{"Y":9,"X":7},{"X":7,"Y":8},{"Y":7,"X":7},{"X":7,"Y":6},{"Y":6,"X":6},{"Y":6,"X":5},{"Y":6,"X":4},{"X":4,"Y":7},{"Y":8,"X":4},{"X":4,"Y":9},{"Y":10,"X":4},{"X":3,"Y":10}],"EliminatedOnTurn":0,"EliminatedBy":""},{"ID":"gs_9tYCpg9rmbCdv9QrjRQ74md4","EliminatedBy":"","EliminatedOnTurn":0,"EliminatedCause":"","Body":[{"Y":7,"X":1},{"Y":6,"X":1},{"Y":6,"X":2},{"X":3,"Y":6},{"X":3,"Y":5},{"Y":5,"X":2},{"X":1,"Y":5},{"X":1,"Y":4},{"X":0,"Y":4},{"X":0,"Y":3},{"Y":3,"X":1},{"X":1,"Y":2},{"Y":1,"X":1},{"Y":1,"X":2}],"Health":87},{"ID":"gs_vDjhQKPPKWQRRwVW8jpmTgG7","EliminatedBy":"","Body":[{"X":10,"Y":4},{"Y":5,"X":10},{"Y":6,"X":10},{"X":9,"Y":6},{"X":9,"Y":5},{"X":8,"Y":5},{"Y":5,"X":7},{"X":6,"Y":5},{"Y":5,"X":5},{"Y":4,"X":5},{"Y":3,"X":5},{"Y":2,"X":5}],"Health":92,"EliminatedCause":"","EliminatedOnTurn":0}]}`),
 			okMoves:     []generator.Direction{generator.DirectionRight},
 		},
+
+		// https://play.battlesnake.com/g/c5abc16a-8970-4fd4-abb8-0439c00d8ddd/
+		// turn 130
+
+		// https://play.battlesnake.com/g/70d6e123-9f50-4337-b0cb-e99f5ec67335/
+		// turn 196
 	}
 )
 
@@ -184,9 +185,9 @@ func TestMove(t *testing.T) {
 
 	for _, test := range tests {
 
-		if test.explanation != "avoid an awkward corner when i'm shorter going for snack" {
-			continue
-		}
+		// if test.explanation != "don't go into tomb of you after chasing tail in pursuit of snak" {
+		// 	continue
+		// }
 
 		t.Log("running test: ", test.explanation)
 

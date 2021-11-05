@@ -100,16 +100,16 @@ func (r *StandardRuleset) moveSnakes(b *BoardState, moves []SnakeMove) error {
 			if move.ID == snake.ID {
 				var newHead = Point{}
 				switch move.Move {
-				case MoveDown:
+				case DirectionDown:
 					newHead.X = snake.Body[0].X
 					newHead.Y = snake.Body[0].Y - 1
-				case MoveLeft:
+				case DirectionLeft:
 					newHead.X = snake.Body[0].X - 1
 					newHead.Y = snake.Body[0].Y
-				case MoveRight:
+				case DirectionRight:
 					newHead.X = snake.Body[0].X + 1
 					newHead.Y = snake.Body[0].Y
-				case MoveUp:
+				case DirectionUp:
 					newHead.X = snake.Body[0].X
 					newHead.Y = snake.Body[0].Y + 1
 				default:

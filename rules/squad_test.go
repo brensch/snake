@@ -364,10 +364,10 @@ func TestRegressionIssue16(t *testing.T) {
 		"Zero Cool":                    "Hackers",
 	}
 	snakeMoves := []SnakeMove{
-		{ID: "teamBoi", Move: "up"},
-		{ID: "Node-Red-Bellied-Black-Snake", Move: "left"},
-		{ID: "Crash Override", Move: "left"},
-		{ID: "Zero Cool", Move: "left"},
+		{ID: "teamBoi", Move: DirectionUp},
+		{ID: "Node-Red-Bellied-Black-Snake", Move: DirectionLeft},
+		{ID: "Crash Override", Move: DirectionLeft},
+		{ID: "Zero Cool", Move: DirectionLeft},
 	}
 
 	require.Equal(t, len(squadMap), len(boardState.Snakes), "squad map is wrong size, error in test setup")

@@ -125,7 +125,7 @@ func TestRoyalDamageNextTurn(t *testing.T) {
 
 	base := &BoardState{Width: 10, Height: 10, Snakes: []Snake{{ID: "one", Health: 100, Body: []Point{{9, 1}, {9, 1}, {9, 1}}}}}
 	r := RoyaleRuleset{StandardRuleset: StandardRuleset{HazardDamagePerTurn: 30}, Seed: seed, ShrinkEveryNTurns: 10}
-	m := []SnakeMove{{ID: "one", Move: "down"}}
+	m := []SnakeMove{{ID: "one", Move: DirectionDown}}
 
 	stateAfterTurn := func(prevState *BoardState, turn int32) *BoardState {
 		nextState := prevState.Clone()

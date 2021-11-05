@@ -32,7 +32,8 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 	// var closestSkippedSnack rules.Point
 
 	reachablePoints, grid := pather.GetReachablePoints(state, you.Body[0], you.ID)
-	grid.DebugPrint()
+
+	// grid.DebugPrint()
 
 	// tastiestSnackDistance := int32(1000)
 	// var tastiestSnack rules.Point
@@ -73,10 +74,9 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 
 		ffState := generator.FastForward(state, ruleset, you, route)
 
-		// squaresFromSnackOnwards := pather.CountSquaresReachableFromOrigin(ffState, route[0], you.ID)
 		squaresFromSnackOnwards, snackOnwardsGrid := pather.GetReachablePoints(ffState, snack, you.ID)
 
-		fmt.Println("squares onwards", squaresFromSnackOnwards)
+		// fmt.Println("squares onwards", squaresFromSnackOnwards)
 		_ = snackOnwardsGrid
 		// snackOnwardsGrid.DebugPrint()
 		//
@@ -89,10 +89,10 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 			// 	"total":     len(you.Body),
 			// 	"snack":     snack,
 			// }).Debug("not enough room to fit ya boi if i chase that snack")
-			fmt.Printf("can't fit if %+v\n", snack)
+			// fmt.Printf("can't fit if %+v\n", snack)
 			// if it doesn't seem like we can fit after moving to this snack, check the longest path
 			longestPath := snackOnwardsGrid.ExploreForLength([]rules.Point{snack}, len(you.Body))
-			fmt.Println("longest path is ", longestPath)
+			// fmt.Println("longest path is ", longestPath)
 
 			if len(longestPath) < len(you.Body) {
 				continue
@@ -168,21 +168,33 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 	}
 
 	// if no snack, target the center most point from the reachable points
-	reachablePoints, availableSquaresGrid := pather.GetReachablePoints(state, you.Body[0], you.ID)
+	_, availableSquaresGrid := pather.GetReachablePoints(state, you.Body[0], you.ID)
 
-	if len(reachablePoints) == 0 {
-		return generator.DirectionDown, "no reachable points. GG"
-	}
+	// if len(reachablePoints) == 0 {
+	// 	return generator.DirectionDown, "no reachable points. GG"
+	// }
 
 	// availableSquaresGrid.DebugPrint()
 
-	// centrePoint := generator.CentreMostPoint(state, reachablePoints)
-	furthestPoint := availableSquaresGrid.FurthestPoint()
+	// add this back
+	// -------------------------
+	// // centrePoint := generator.CentreMostPoint(state, reachablePoints)
+	// furthestPoint := availableSquaresGrid.FurthestPoint()
 
-	route, _, err := pather.GetRoute(state, ruleset, you.Body[0], furthestPoint, you.ID)
-	if err == nil {
-		return generator.DirectionToPoint(you.Body[0], route[len(route)-1]), "going to furthest point"
-	}
+	// route, _, err := pather.GetRoute(state, ruleset, you.Body[0], furthestPoint, you.ID)
+	// if err != nil {
+	// 	fmt.Println("this should not error--------------------", route, state)
+	// 	panic("wot")
+	// 	// return generator.DirectionToPoint(you.Body[0], route[len(route)-1]), "going to furthest point"
+	// }
+
+	// ffState := generator.FastForward(state, ruleset, you, route)
+
+	// squaresOnwards, gridOnwards := pather.GetReachablePoints(ffState, route[0], you.ID)
+	// fmt.Println("squares onwards", squaresOnwards)
+	// gridOnwards.DebugPrint()
+	// generator.PrintMap(ffState)
+	// ---------------------
 
 	// // try to chase tail
 	// route, _, err := pather.GetRoute(state, ruleset, you.Body[0], you.Body[len(you.Body)-1], you.ID)

@@ -70,8 +70,8 @@ func TestConstrictorCreateNextBoardState(t *testing.T) {
 				Food: []Point{},
 			},
 			[]SnakeMove{
-				{ID: "one", Move: MoveUp},
-				{ID: "two", Move: MoveDown},
+				{ID: "one", Move: DirectionUp},
+				{ID: "two", Move: DirectionDown},
 			},
 			&BoardState{
 				Width:  3,
@@ -106,7 +106,7 @@ func TestConstrictorCreateNextBoardState(t *testing.T) {
 				Food: []Point{},
 			},
 			[]SnakeMove{
-				{ID: "one", Move: MoveUp},
+				{ID: "one", Move: DirectionUp},
 			},
 			&BoardState{
 				Width:  3,

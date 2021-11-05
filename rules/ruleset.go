@@ -38,6 +38,22 @@ type Point struct {
 	Y int32
 }
 
+type Direction uint8
+
+func (d Direction) String() string {
+	return [...]string{"left", "right", "up", "down", "unknown"}[d]
+}
+
+const (
+	DirectionLeft Direction = iota
+	DirectionRight
+	DirectionUp
+	DirectionDown
+	DirectionUnknown
+
+	directionCount = 4
+)
+
 type Snake struct {
 	ID               string
 	Body             []Point
@@ -49,7 +65,7 @@ type Snake struct {
 
 type SnakeMove struct {
 	ID   string
-	Move string
+	Move Direction
 }
 
 type Ruleset interface {

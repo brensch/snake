@@ -19,7 +19,7 @@ func FastForward(s *rules.BoardState, ruleset rules.Ruleset, snake rules.Snake, 
 		pointInRoute := proposedRoute[len(proposedRoute)-routePosition-1]
 
 		moves := []rules.SnakeMove{
-			{ID: snake.ID, Move: DirectionToPoint(previousHead, pointInRoute).String()},
+			{ID: snake.ID, Move: DirectionToPoint(previousHead, pointInRoute)},
 		}
 		previousHead = pointInRoute
 
@@ -30,7 +30,7 @@ func FastForward(s *rules.BoardState, ruleset rules.Ruleset, snake rules.Snake, 
 
 			safestMoves := SafestMoves(nextState, ruleset, snakeIter)
 			if len(safestMoves) == 0 {
-				moves = append(moves, rules.SnakeMove{ID: snakeIter.ID, Move: DirectionDown.String()})
+				moves = append(moves, rules.SnakeMove{ID: snakeIter.ID, Move: rules.DirectionDown})
 				continue
 			}
 			moves = append(moves, rules.SnakeMove{ID: snakeIter.ID, Move: safestMoves[0].String()})

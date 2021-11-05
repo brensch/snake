@@ -2,22 +2,63 @@ package generator
 
 import (
 	"github.com/brensch/snake/rules"
-	log "github.com/sirupsen/logrus"
 )
 
-func SafeMoves(state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake) [4]int {
+func SafetyDance(state *rules.BoardState, ruleset rules.Ruleset, youID string) [4]int {
 
-	moves := AllMovesForState(state)
+	moves := AllMovesForStateRaw(state)
 	var safeMoves [4]int
 	var youPosition int
+	// var you rules.Snake
 
 	// get your position
 	for position, snake := range state.Snakes {
-		if you.ID != snake.ID {
+		if youID != snake.ID {
 			continue
 		}
 
 		youPosition = position
+		// you = snake
+		break
+	}
+
+	// go through all moves, generate them, and see which ones we don't die in
+	for _, move := range moves {
+
+		nextState, err := ruleset.CreateNextBoardState(state, move)
+		if err != nil {
+			// log.WithFields(log.Fields{
+			// 	"state": state,
+			// }).Error("failed to create next board state")
+			continue
+		}
+
+		if nextState.Snakes[youPosition].EliminatedCause != "" {
+			continue
+		}
+
+		safeMoves[move[youPosition].Move]++
+
+	}
+
+	return safeMoves
+}
+
+func SafeMoves(state *rules.BoardState, ruleset rules.Ruleset, youID string) [4]int {
+
+	moves := AllMovesForState(state)
+	var safeMoves [4]int
+	var youPosition int
+	var you rules.Snake
+
+	// get your position
+	for position, snake := range state.Snakes {
+		if youID != snake.ID {
+			continue
+		}
+
+		youPosition = position
+		you = snake
 		break
 	}
 
@@ -28,15 +69,15 @@ func SafeMoves(state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake) 
 		for moveSnakeNum, movePoint := range move {
 			snakeMoves = append(snakeMoves, rules.SnakeMove{
 				ID:   state.Snakes[moveSnakeNum].ID,
-				Move: DirectionToPoint(state.Snakes[moveSnakeNum].Body[0], movePoint).String(),
+				Move: DirectionToPoint(state.Snakes[moveSnakeNum].Body[0], movePoint),
 			})
 		}
 
 		nextState, err := ruleset.CreateNextBoardState(state, snakeMoves)
 		if err != nil {
-			log.WithFields(log.Fields{
-				"state": state,
-			}).Error("failed to create next board state")
+			// log.WithFields(log.Fields{
+			// 	"state": state,
+			// }).Error("failed to create next board state")
 			continue
 		}
 
@@ -53,9 +94,9 @@ func SafeMoves(state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake) 
 
 }
 
-func SafestMoves(state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake) []Direction {
+func SafestMoves(state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake) []rules.Direction {
 
-	safeMoves := SafeMoves(state, ruleset, you)
+	safeMoves := SafeMoves(state, ruleset, you.ID)
 
 	var safestMoveCount int
 	for _, move := range safeMoves {
@@ -64,18 +105,18 @@ func SafestMoves(state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake
 		}
 	}
 
-	safestMoves := []Direction{}
+	safestMoves := []rules.Direction{}
 	for direction, move := range safeMoves {
 		if move == safestMoveCount {
-			safestMoves = append(safestMoves, Direction(direction))
+			safestMoves = append(safestMoves, rules.Direction(direction))
 		}
 	}
 
 	return safestMoves
 }
 
-func MoveIsSafe(state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, candidate Direction) bool {
-	safeMoves := SafeMoves(state, ruleset, you)
+func MoveIsSafe(state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, candidate rules.Direction) bool {
+	safeMoves := SafeMoves(state, ruleset, you.ID)
 	if safeMoves[candidate] > 0 {
 		return true
 	}

@@ -93,8 +93,8 @@ func TestCreateNextBoardState(t *testing.T) {
 				Hazards: []Point{},
 			},
 			[]SnakeMove{
-				{ID: "one", Move: MoveUp},
-				{ID: "two", Move: MoveDown},
+				{ID: "one", Move: DirectionUp},
+				{ID: "two", Move: DirectionDown},
 			},
 			ErrorZeroLengthSnake,
 			nil,
@@ -125,9 +125,9 @@ func TestCreateNextBoardState(t *testing.T) {
 				Hazards: []Point{},
 			},
 			[]SnakeMove{
-				{ID: "one", Move: MoveDown},
-				{ID: "two", Move: MoveUp},
-				{ID: "three", Move: MoveLeft}, // Should be ignored
+				{ID: "one", Move: DirectionDown},
+				{ID: "two", Move: DirectionUp},
+				{ID: "three", Move: DirectionLeft}, // Should be ignored
 			},
 			nil,
 			&BoardState{
@@ -202,8 +202,8 @@ func TestEatingOnLastMove(t *testing.T) {
 				Food: []Point{{0, 3}, {9, 9}},
 			},
 			[]SnakeMove{
-				{ID: "one", Move: MoveUp},
-				{ID: "two", Move: MoveDown},
+				{ID: "one", Move: DirectionUp},
+				{ID: "two", Move: DirectionDown},
 			},
 			nil,
 			&BoardState{
@@ -273,8 +273,8 @@ func TestHeadToHeadOnFood(t *testing.T) {
 				Food: []Point{{0, 3}, {9, 9}},
 			},
 			[]SnakeMove{
-				{ID: "one", Move: MoveUp},
-				{ID: "two", Move: MoveDown},
+				{ID: "one", Move: DirectionUp},
+				{ID: "two", Move: DirectionDown},
 			},
 			nil,
 			&BoardState{
@@ -318,8 +318,8 @@ func TestHeadToHeadOnFood(t *testing.T) {
 				Food: []Point{{0, 3}, {9, 9}},
 			},
 			[]SnakeMove{
-				{ID: "one", Move: MoveUp},
-				{ID: "two", Move: MoveDown},
+				{ID: "one", Move: DirectionUp},
+				{ID: "two", Move: DirectionDown},
 			},
 			nil,
 			&BoardState{
@@ -391,8 +391,8 @@ func TestRegressionIssue19(t *testing.T) {
 				Food: []Point{{9, 9}},
 			},
 			[]SnakeMove{
-				{ID: "one", Move: MoveUp},
-				{ID: "two", Move: MoveDown},
+				{ID: "one", Move: DirectionUp},
+				{ID: "two", Move: DirectionDown},
 			},
 			nil,
 			&BoardState{
@@ -459,37 +459,37 @@ func TestMoveSnakes(t *testing.T) {
 	}
 
 	tests := []struct {
-		MoveOne       string
+		MoveOne       Direction
 		ExpectedOne   []Point
-		MoveTwo       string
+		MoveTwo       Direction
 		ExpectedTwo   []Point
-		MoveThree     string
+		MoveThree     Direction
 		ExpectedThree []Point
 	}{
 		{
-			MoveDown, []Point{{10, 109}, {10, 110}},
-			MoveUp, []Point{{23, 221}, {23, 220}, {22, 220}, {21, 220}},
-			MoveDown, []Point{{0, 0}},
+			DirectionDown, []Point{{10, 109}, {10, 110}},
+			DirectionUp, []Point{{23, 221}, {23, 220}, {22, 220}, {21, 220}},
+			DirectionDown, []Point{{0, 0}},
 		},
 		{
-			MoveRight, []Point{{11, 109}, {10, 109}},
-			MoveLeft, []Point{{22, 221}, {23, 221}, {23, 220}, {22, 220}},
-			MoveDown, []Point{{0, 0}},
+			DirectionRight, []Point{{11, 109}, {10, 109}},
+			DirectionLeft, []Point{{22, 221}, {23, 221}, {23, 220}, {22, 220}},
+			DirectionDown, []Point{{0, 0}},
 		},
 		{
-			MoveRight, []Point{{12, 109}, {11, 109}},
-			MoveLeft, []Point{{21, 221}, {22, 221}, {23, 221}, {23, 220}},
-			MoveDown, []Point{{0, 0}},
+			DirectionRight, []Point{{12, 109}, {11, 109}},
+			DirectionLeft, []Point{{21, 221}, {22, 221}, {23, 221}, {23, 220}},
+			DirectionDown, []Point{{0, 0}},
 		},
 		{
-			MoveRight, []Point{{13, 109}, {12, 109}},
-			MoveLeft, []Point{{20, 221}, {21, 221}, {22, 221}, {23, 221}},
-			MoveDown, []Point{{0, 0}},
+			DirectionRight, []Point{{13, 109}, {12, 109}},
+			DirectionLeft, []Point{{20, 221}, {21, 221}, {22, 221}, {23, 221}},
+			DirectionDown, []Point{{0, 0}},
 		},
 		{
-			MoveDown, []Point{{13, 108}, {13, 109}},
-			MoveUp, []Point{{20, 222}, {20, 221}, {21, 221}, {22, 221}},
-			MoveDown, []Point{{0, 0}},
+			DirectionDown, []Point{{13, 108}, {13, 109}},
+			DirectionUp, []Point{{20, 222}, {20, 221}, {21, 221}, {22, 221}},
+			DirectionDown, []Point{{0, 0}},
 		},
 	}
 
@@ -540,7 +540,7 @@ func TestMoveSnakesWrongID(t *testing.T) {
 	moves := []SnakeMove{
 		{
 			ID:   "not found",
-			Move: MoveUp,
+			Move: DirectionUp,
 		},
 	}
 
@@ -565,7 +565,7 @@ func TestMoveSnakesNotEnoughMoves(t *testing.T) {
 	moves := []SnakeMove{
 		{
 			ID:   "two",
-			Move: MoveUp,
+			Move: DirectionUp,
 		},
 	}
 
@@ -586,11 +586,11 @@ func TestMoveSnakesExtraMovesIgnored(t *testing.T) {
 	moves := []SnakeMove{
 		{
 			ID:   "one",
-			Move: MoveDown,
+			Move: DirectionDown,
 		},
 		{
 			ID:   "two",
-			Move: MoveLeft,
+			Move: DirectionLeft,
 		},
 	}
 
@@ -603,17 +603,17 @@ func TestMoveSnakesExtraMovesIgnored(t *testing.T) {
 func TestMoveSnakesDefault(t *testing.T) {
 	tests := []struct {
 		Body     []Point
-		Move     string
+		Move     Direction
 		Expected []Point
 	}{
 		{
 			Body:     []Point{{0, 0}},
-			Move:     "invalid",
+			Move:     DirectionUnknown,
 			Expected: []Point{{0, 1}},
 		},
 		{
 			Body:     []Point{{5, 5}, {5, 5}},
-			Move:     "",
+			Move:     DirectionUnknown,
 			Expected: []Point{{5, 6}, {5, 5}},
 		},
 		{
