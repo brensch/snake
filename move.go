@@ -3,10 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 
 	"github.com/brensch/snake/generator"
+	"github.com/brensch/snake/mcts"
 	"github.com/brensch/snake/pather"
 	"github.com/brensch/snake/rules"
 )
@@ -316,7 +318,7 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 
 }
 
-func Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, turn int32, gameID string) (rules.Direction, string) {
+func MoveOld(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, turn int32, gameID string) (rules.Direction, string) {
 	galaxyBrain, reason := GalaxyBrain(ctx, state, ruleset, you, turn)
 	safestMoves := generator.SafestMoves(state, ruleset, you)
 
@@ -352,5 +354,48 @@ func Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, y
 	}).Info("moved")
 
 	return finalMove, reason
+
+}
+
+func Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, turn int32, gameID string) (rules.Direction, string) {
+	var youPosition int
+
+	for snakePosition, snake := range state.Snakes {
+		if snake.ID == you.ID {
+			state.Snakes[snakePosition].ID = "you"
+			youPosition = snakePosition
+			continue
+		}
+		state.Snakes[snakePosition].ID = fmt.Sprint(snakePosition)
+	}
+
+	ctxTimed, cancel := context.WithTimeout(ctx, 400*time.Millisecond)
+	defer cancel()
+
+	tree := mcts.Search(ctxTimed, state, 50)
+	var cumScores [4]float64
+
+	for _, child := range tree.Children {
+		cumScores[child.MoveSet[youPosition].Move] += child.OutcomeScore
+	}
+
+	for i := 0; i < 4; i++ {
+		fmt.Print(rules.Direction(i).String())
+	}
+
+	fmt.Println()
+	// fmt.Println(state)
+	fmt.Println(cumScores, you.ID)
+
+	highestScore := float64(-1000000)
+	var highestScoreMove rules.Direction
+	for move, score := range cumScores {
+		if score != 0 && score > highestScore {
+			highestScoreMove = rules.Direction(move)
+			highestScore = score
+		}
+	}
+
+	return highestScoreMove, "yeeeeeeeet"
 
 }

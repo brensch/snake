@@ -28,6 +28,7 @@ func SafetyDance(state *rules.BoardState, ruleset rules.Ruleset, youID string) [
 
 	if !foundSnake {
 		fmt.Println("no you bruh")
+		return nextMoveSets
 	}
 
 	// go through all moveSets, generate them, and see which ones we don't die in
