@@ -146,7 +146,7 @@ func (p PathGrid) CalculatePointNeighbourBlockedInValues(x, y, startX, startY in
 		// only want to update value if the current blockedin count is smaller
 		// (ie this snake can get there quicker)
 		if p[neighbour.X][neighbour.Y].BlockedInTurns != 0 &&
-			p[neighbour.X][neighbour.Y].BlockedInTurns < startingBlockedInValue+1 {
+			p[neighbour.X][neighbour.Y].BlockedInTurns < startingBlockedInValue {
 			continue
 		}
 
@@ -211,7 +211,7 @@ func (p PathGrid) AddObstacles(s *rules.BoardState, origin rules.Point, youID st
 
 			// calculate how many turns we're blocked for based on the position of the block in the snake
 			// and the length of the snake
-			newBlockedForTurns := int32(len(snake.Body) - pointNumber - 1 + potentialSnacks)
+			newBlockedForTurns := int32(len(snake.Body) - pointNumber + potentialSnacks)
 			if p[point.X][point.Y].BlockedForTurns < newBlockedForTurns {
 				p[point.X][point.Y].BlockedForTurns = newBlockedForTurns
 			}
