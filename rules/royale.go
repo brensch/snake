@@ -2,6 +2,7 @@ package rules
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
 )
 
@@ -32,6 +33,12 @@ func (r *RoyaleRuleset) CreateNextBoardState(prevState *BoardState, moves []Snak
 	}
 
 	return nextBoardState, nil
+}
+
+func (r *RoyaleRuleset) ApplySingleMove(prevState *BoardState, move SnakeMoveIndex) (*BoardState, error) {
+
+	return nil, fmt.Errorf("not implemented for royale")
+
 }
 
 func (r *RoyaleRuleset) populateHazards(b *BoardState, turn int32) error {

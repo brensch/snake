@@ -71,9 +71,15 @@ type SnakeMove struct {
 	Move Direction
 }
 
+type SnakeMoveIndex struct {
+	Index int
+	Move  Direction
+}
+
 type Ruleset interface {
 	Name() string
 	ModifyInitialBoardState(initialState *BoardState) (*BoardState, error)
 	CreateNextBoardState(prevState *BoardState, moves []SnakeMove) (*BoardState, error)
+	ApplySingleMove(prevState *BoardState, move SnakeMoveIndex) (*BoardState, error)
 	IsGameOver(state *BoardState) (bool, error)
 }

@@ -31,8 +31,6 @@ var (
 func TestPercentageOfBoardControlled(t *testing.T) {
 	log.SetLevel(log.DebugLevel)
 
-	youID := "you"
-
 	for _, test := range tests {
 		t.Log("running test: ", test.explanation)
 
@@ -43,15 +41,9 @@ func TestPercentageOfBoardControlled(t *testing.T) {
 			t.FailNow()
 		}
 
-		you, err := generator.GetYou(s, youID)
-		if err != nil {
-			t.Error(err)
-			t.FailNow()
-		}
-
 		generator.PrintMap(s)
 
-		score := PercentageOfBoardControlled(s, you.ID)
+		score := PercentageOfBoardControlled(s, 0)
 
 		t.Log(score)
 
@@ -70,8 +62,6 @@ func TestPercentageOfBoardControlled(t *testing.T) {
 func BenchmarkPercentageOfBoardControlled(b *testing.B) {
 	log.SetLevel(log.DebugLevel)
 
-	youID := "you"
-
 	var s *rules.BoardState
 	err := json.Unmarshal(tests[0].state, &s)
 	if err != nil {
@@ -79,15 +69,9 @@ func BenchmarkPercentageOfBoardControlled(b *testing.B) {
 		b.FailNow()
 	}
 
-	you, err := generator.GetYou(s, youID)
-	if err != nil {
-		b.Error(err)
-		b.FailNow()
-	}
-
 	for n := 0; n < b.N; n++ {
 
-		PercentageOfBoardControlled(s, you.ID)
+		PercentageOfBoardControlled(s, 0)
 
 	}
 }

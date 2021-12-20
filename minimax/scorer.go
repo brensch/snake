@@ -7,7 +7,7 @@ import (
 
 // type
 
-func PercentageOfBoardControlled(board *rules.BoardState, you string) float64 {
+func PercentageOfBoardControlled(board *rules.BoardState, you int) float64 {
 
 	// calculate how many squares i can reach first
 	allMovesFromSquares := make([][]int32, len(board.Snakes))
@@ -32,11 +32,11 @@ func PercentageOfBoardControlled(board *rules.BoardState, you string) float64 {
 
 	for i := 0; i < totalSpaces; i++ {
 		closestDistance := int32(1000)
-		closestSnake := ""
-		for j, snake := range board.Snakes {
-			if allMovesFromSquares[j][i] < int32(closestDistance) {
-				closestDistance = allMovesFromSquares[j][i]
-				closestSnake = snake.ID
+		closestSnake := -1
+		for snake := range board.Snakes {
+			if allMovesFromSquares[snake][i] < int32(closestDistance) {
+				closestDistance = allMovesFromSquares[snake][i]
+				closestSnake = snake
 			}
 		}
 

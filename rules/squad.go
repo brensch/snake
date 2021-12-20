@@ -2,6 +2,7 @@ package rules
 
 import (
 	"errors"
+	"fmt"
 )
 
 type SquadRuleset struct {
@@ -39,6 +40,12 @@ func (r *SquadRuleset) CreateNextBoardState(prevState *BoardState, moves []Snake
 	}
 
 	return nextBoardState, nil
+}
+
+func (r *SquadRuleset) ApplySingleMove(prevState *BoardState, move SnakeMoveIndex) (*BoardState, error) {
+
+	return nil, fmt.Errorf("not implemented for royale")
+
 }
 
 func (r *SquadRuleset) areSnakesOnSameSquad(snake *Snake, other *Snake) bool {

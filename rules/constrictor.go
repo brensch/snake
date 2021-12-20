@@ -1,5 +1,7 @@
 package rules
 
+import "fmt"
+
 type ConstrictorRuleset struct {
 	StandardRuleset
 }
@@ -31,6 +33,12 @@ func (r *ConstrictorRuleset) CreateNextBoardState(prevState *BoardState, moves [
 	}
 
 	return nextState, nil
+}
+
+func (r *ConstrictorRuleset) ApplySingleMove(prevState *BoardState, move SnakeMoveIndex) (*BoardState, error) {
+
+	return nil, fmt.Errorf("not implemented for constrictor")
+
 }
 
 func (r *ConstrictorRuleset) applyConstrictorRules(b *BoardState) error {

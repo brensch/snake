@@ -1,6 +1,7 @@
 package rules
 
 import (
+	"fmt"
 	"math/rand"
 	"sort"
 )
@@ -67,7 +68,22 @@ func (r *StandardRuleset) CreateNextBoardState(prevState *BoardState, moves []Sn
 	return nextState, nil
 }
 
-func (r *StandardRuleset) moveSnakes(b *BoardState, moves []SnakeMove) error {
+func (r *StandardRuleset) ApplySingleMove(prevState *BoardState, move SnakeMoveIndex) (*BoardState, error) {
+
+	nextState := prevState.Clone()
+
+	err := r.MoveSnake(nextState, move)
+	if err != nil {
+		return nil, err
+	}
+
+	nextState.Snakes[move.Index].Health = nextState.Snakes[move.Index].Health - 1
+
+	return nil, fmt.Errorf("not implemented for royale")
+
+}
+
+func (r *StandardRuleset) checkAllSnakesHaveMoves(b *BoardState, moves []SnakeMove) error {
 	// Sanity check that all non-eliminated snakes have moves and bodies.
 	for i := 0; i < len(b.Snakes); i++ {
 		snake := &b.Snakes[i]
@@ -90,50 +106,79 @@ func (r *StandardRuleset) moveSnakes(b *BoardState, moves []SnakeMove) error {
 		}
 	}
 
-	for i := 0; i < len(b.Snakes); i++ {
-		snake := &b.Snakes[i]
-		if snake.EliminatedCause != NotEliminated {
-			continue
-		}
+	return nil
+}
 
-		for _, move := range moves {
-			if move.ID == snake.ID {
-				var newHead = Point{}
-				switch move.Move {
-				case DirectionDown:
-					newHead.X = snake.Body[0].X
-					newHead.Y = snake.Body[0].Y - 1
-				case DirectionLeft:
-					newHead.X = snake.Body[0].X - 1
-					newHead.Y = snake.Body[0].Y
-				case DirectionRight:
-					newHead.X = snake.Body[0].X + 1
-					newHead.Y = snake.Body[0].Y
-				case DirectionUp:
-					newHead.X = snake.Body[0].X
-					newHead.Y = snake.Body[0].Y + 1
-				default:
-					// Default to UP
-					var dX int32 = 0
-					var dY int32 = 1
-					// If neck is available, use neck to determine last direction
-					if len(snake.Body) >= 2 {
-						dX = snake.Body[0].X - snake.Body[1].X
-						dY = snake.Body[0].Y - snake.Body[1].Y
-						if dX == 0 && dY == 0 {
-							dY = 1 // Move up if no last move was made
-						}
-					}
-					// Apply
-					newHead.X = snake.Body[0].X + dX
-					newHead.Y = snake.Body[0].Y + dY
-				}
+func (r *StandardRuleset) MoveSnake(b *BoardState, move SnakeMoveIndex) error {
 
-				// Append new head, pop old tail
-				snake.Body = append([]Point{newHead}, snake.Body[:len(snake.Body)-1]...)
+	snake := &b.Snakes[move.Index]
+
+	var newHead = Point{}
+	switch move.Move {
+	case DirectionDown:
+		newHead.X = snake.Body[0].X
+		newHead.Y = snake.Body[0].Y - 1
+	case DirectionLeft:
+		newHead.X = snake.Body[0].X - 1
+		newHead.Y = snake.Body[0].Y
+	case DirectionRight:
+		newHead.X = snake.Body[0].X + 1
+		newHead.Y = snake.Body[0].Y
+	case DirectionUp:
+		newHead.X = snake.Body[0].X
+		newHead.Y = snake.Body[0].Y + 1
+	default:
+		// Default to UP
+		var dX int32 = 0
+		var dY int32 = 1
+		// If neck is available, use neck to determine last direction
+		if len(snake.Body) >= 2 {
+			dX = snake.Body[0].X - snake.Body[1].X
+			dY = snake.Body[0].Y - snake.Body[1].Y
+			if dX == 0 && dY == 0 {
+				dY = 1 // Move up if no last move was made
 			}
 		}
+		// Apply
+		newHead.X = snake.Body[0].X + dX
+		newHead.Y = snake.Body[0].Y + dY
 	}
+
+	// Append new head, pop old tail
+	snake.Body = append([]Point{newHead}, snake.Body[:len(snake.Body)-1]...)
+
+	return nil
+
+}
+
+func (r *StandardRuleset) moveSnakes(b *BoardState, moves []SnakeMove) error {
+	// Sanity check that all non-eliminated snakes have moves and bodies.
+
+	err := r.checkAllSnakesHaveMoves(b, moves)
+	if err != nil {
+		return err
+	}
+
+	// only go through moves since should not be applying moves from dead snakes anyway
+	for _, move := range moves {
+		// need to go from regular snake move to index move (backwards compatibility, will remove eventually.)
+		for indexItr, snake := range b.Snakes {
+			if snake.ID != move.ID {
+				continue
+			}
+
+			moveWithIndex := SnakeMoveIndex{
+				Index: indexItr,
+				Move:  move.Move,
+			}
+			err = r.MoveSnake(b, moveWithIndex)
+			if err != nil {
+				return err
+			}
+			break
+		}
+	}
+
 	return nil
 }
 

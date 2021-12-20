@@ -60,3 +60,69 @@ func baseConvert(x int, snakes []rules.Snake) []rules.SnakeMove {
 	}
 	return r
 }
+
+func AllMovesForSnake(b *rules.BoardState, snakePosition int) [4]bool {
+	// get their neck
+	head := b.Snakes[snakePosition].Body[0]
+	neck := b.Snakes[snakePosition].Body[1]
+
+	positions := [4]bool{}
+
+	// go through each direction, check if it's ok
+
+	// left
+	if head.X > 0 && neck.X >= head.X {
+		positions[rules.DirectionLeft] = true
+	}
+
+	// right
+	if head.X < b.Width-1 && neck.X <= head.X {
+		positions[rules.DirectionRight] = true
+	}
+
+	// down
+	if head.Y > 0 && neck.Y >= head.Y {
+		positions[rules.DirectionDown] = true
+	}
+
+	// up
+	if head.Y < b.Height-1 && neck.Y <= head.Y {
+		positions[rules.DirectionUp] = true
+	}
+
+	return positions
+
+}
+
+func AllMovesForSnakeSlow(b *rules.BoardState, snakePosition int) []rules.Direction {
+	// get their neck
+	head := b.Snakes[snakePosition].Body[0]
+	neck := b.Snakes[snakePosition].Body[1]
+
+	var positions []rules.Direction
+
+	// go through each direction, check if it's ok
+
+	// left
+	if head.X > 0 && neck.X >= head.X {
+		positions = append(positions, rules.DirectionLeft)
+	}
+
+	// right
+	if head.X < b.Width-1 && neck.X <= head.X {
+		positions = append(positions, rules.DirectionRight)
+	}
+
+	// down
+	if head.Y > 0 && neck.Y >= head.Y {
+		positions = append(positions, rules.DirectionDown)
+	}
+
+	// up
+	if head.Y < b.Height-1 && neck.Y <= head.Y {
+		positions = append(positions, rules.DirectionUp)
+	}
+
+	return positions
+
+}
