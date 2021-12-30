@@ -13,6 +13,13 @@ import (
 
 const LargestCost = 10000
 
+// func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, turn int32) (rules.Direction, string) {
+
+// 	var youIndex int
+
+// 	for index, snake := range
+// }
+
 func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, turn int32) (rules.Direction, string) {
 
 	var tastiestSnackPath []rules.Point

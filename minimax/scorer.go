@@ -46,6 +46,6 @@ func PercentageOfBoardControlled(board *rules.BoardState, you int) float64 {
 
 	}
 
-	return float64(closestSquareCount) / float64(totalSpaces)
+	return 1 - (float64(closestSquareCount) / float64(totalSpaces))
 
 }

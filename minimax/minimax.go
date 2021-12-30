@@ -2,41 +2,110 @@ package minimax
 
 import (
 	"fmt"
-	"strconv"
+	"math"
 
 	"github.com/brensch/snake/generator"
 	"github.com/brensch/snake/rules"
 )
 
-func MiniMax(maxPlayer, minPlayer int, depth int, alpha, beta float64, max bool, state *rules.BoardState, ruleset rules.Ruleset) float64 {
+const (
+	MAXPLAYERINDEX = 0
+	MINPLAYERINDEX = 1
+)
 
+// Search requires that the maximising player is at index 0, min at 1
+// TODO: change the boardstate struct to have explicit max and min player fields
+func Search(state *rules.BoardState, ruleset rules.Ruleset, depth int, alpha, beta float64, isMaxPlayer bool) float64 {
+
+	fmt.Println("player max", isMaxPlayer)
+	// generator.PrintMap(state)
 	if depth == 0 {
 		// TODO: heuristic value
-		if max {
-			return PercentageOfBoardControlled(state, maxPlayer)
-		}
-		return PercentageOfBoardControlled(state, minPlayer)
+		control := PercentageOfBoardControlled(state, MAXPLAYERINDEX)
+		fmt.Println(control)
+		return control
 
 	}
 
-	if max {
-		maxMove := -1000000
-		safeMoves := generator.AllMovesForSnake(state, maxPlayer)
-		for move, isSafe := range safeMoves {
-			if isSafe {
+	if isMaxPlayer {
+		maxMove := math.Inf(-1)
+		// maxValue := rules.DirectionUnknown
+		safeMoves := generator.AllMovesForSnake(state, MAXPLAYERINDEX)
+		for move, isOk := range safeMoves {
+			if !isOk {
 				continue
 			}
-			_ = move
-			_ = maxMove
 
-			ruleset.ApplySingleMove()
-			// return MiniMax(maxPlayer,minPlayer, depth - 1, alpha, beta, !max, nextState)
-			return 0
+			snakeMove := rules.SnakeMoveIndex{
+				Index: MAXPLAYERINDEX,
+				Move:  rules.Direction(move),
+			}
+
+			nextState, err := ruleset.ApplySingleMove(state, snakeMove)
+			if err != nil {
+				print(err)
+				print(state)
+				panic(err)
+			}
+
+			mmax := Search(nextState, ruleset, depth-1, alpha, beta, !isMaxPlayer)
+
+			if mmax > maxMove {
+				maxMove = mmax
+			}
+
+			if maxMove > alpha {
+				alpha = maxMove
+			}
+
+			if alpha >= beta {
+				// fmt.Println("pruning")
+				break
+			}
+
+		}
+
+		return maxMove
+
+	}
+
+	minMove := math.Inf(1)
+	safeMoves := generator.AllMovesForSnake(state, MINPLAYERINDEX)
+	for move, isOk := range safeMoves {
+		if !isOk {
+			continue
+		}
+
+		snakeMove := rules.SnakeMoveIndex{
+			Index: MINPLAYERINDEX,
+			Move:  rules.Direction(move),
+		}
+
+		nextState, err := ruleset.ApplySingleMove(state, snakeMove)
+		if err != nil {
+			print(state)
+			panic("this is odd")
+		}
+
+		mmax := Search(nextState, ruleset, depth-1, alpha, beta, !isMaxPlayer)
+
+		if mmax < minMove {
+			minMove = mmax
+		}
+
+		// TODO: check alpha here too. think it's a typo in algorithm
+		if minMove < beta {
+			beta = minMove
+		}
+
+		if alpha >= beta {
+			// fmt.Println("pruning min")
+			break
 		}
 
 	}
 
-	return 0
+	return minMove
 
 }
 
@@ -57,16 +126,16 @@ func New() Node {
 	return n
 }
 
-// GetBestChildNode returns the first child node with the matching score
-func (node *Node) GetBestChildNode() *Node {
-	for _, cn := range node.children {
-		if cn.Score == node.Score {
-			return cn
-		}
-	}
+// // GetBestChildNode returns the first child node with the matching score
+// func (node *Node) GetBestChildNode() *Node {
+// 	for _, cn := range node.children {
+// 		if cn.Score == node.Score {
+// 			return cn
+// 		}
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 // Evaluate runs through the tree and caculates the score from the terminal nodes
 // all the the way up to the root node
@@ -86,26 +155,26 @@ func (node *Node) Evaluate() {
 	}
 }
 
-// Print the node for debugging purposes
-func (node *Node) Print(level int) {
-	var padding = ""
-	for j := 0; j < level; j++ {
-		padding += " "
-	}
+// // Print the node for debugging purposes
+// func (node *Node) Print(level int) {
+// 	var padding = ""
+// 	for j := 0; j < level; j++ {
+// 		padding += " "
+// 	}
 
-	var s = ""
-	if node.Score != nil {
-		s = strconv.Itoa(*node.Score)
-	}
+// 	var s = ""
+// 	if node.Score != nil {
+// 		s = strconv.Itoa(*node.Score)
+// 	}
 
-	fmt.Println(padding, node.isOpponent, node.Board, "["+s+"]")
+// 	fmt.Println(padding, node.isOpponent, node.Board, "["+s+"]")
 
-	for _, cn := range node.children {
-		level += 2
-		cn.Print(level)
-		level -= 2
-	}
-}
+// 	for _, cn := range node.children {
+// 		level += 2
+// 		cn.Print(level)
+// 		level -= 2
+// 	}
+// }
 
 // AddTerminal adds a terminal node (or leaf node).  These nodes
 // should contain a score and no children

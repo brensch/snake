@@ -1,7 +1,6 @@
 package rules
 
 import (
-	"fmt"
 	"math/rand"
 	"sort"
 )
@@ -77,9 +76,10 @@ func (r *StandardRuleset) ApplySingleMove(prevState *BoardState, move SnakeMoveI
 		return nil, err
 	}
 
+	// lower health
 	nextState.Snakes[move.Index].Health = nextState.Snakes[move.Index].Health - 1
 
-	return nil, fmt.Errorf("not implemented for royale")
+	return nextState, nil
 
 }
 

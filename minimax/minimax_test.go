@@ -49,7 +49,7 @@ func TestMinimax(t *testing.T) {
 			HazardDamagePerTurn: 16,
 		}
 
-		value := MiniMax(0, 1, 3, -1000000, 10000000, true, s, ruleset)
+		value := MiniMax(1, 0, 2, -1000000, 10000000, true, s, ruleset)
 		fmt.Println(value)
 	}
 }
