@@ -2,110 +2,89 @@ package minimax
 
 import (
 	"fmt"
-	"math"
 
 	"github.com/brensch/snake/generator"
 	"github.com/brensch/snake/rules"
 )
 
-const (
-	MAXPLAYERINDEX = 0
-	MINPLAYERINDEX = 1
-)
+// const (
+// 	MAXPLAYERINDEX = 0
+// 	MINPLAYERINDEX = 1
+// )
 
 // Search requires that the maximising player is at index 0, min at 1
 // TODO: change the boardstate struct to have explicit max and min player fields
-func Search(state *rules.BoardState, ruleset rules.Ruleset, depth int, alpha, beta float64, isMaxPlayer bool) float64 {
+// no longer using ismaxplayer, just swap alpha and beta at every layer
+func Search(player int, state *rules.BoardState, ruleset rules.Ruleset, depth int, alpha, beta float64) (*rules.BoardState, float64) {
 
-	fmt.Println("player max", isMaxPlayer)
+	fmt.Println("player", player)
+
+	finishedCheck := GameFinished(state, player)
+	if finishedCheck != 0 {
+		return state, finishedCheck
+	}
+
 	// generator.PrintMap(state)
 	if depth == 0 {
 		// TODO: heuristic value
-		control := PercentageOfBoardControlled(state, MAXPLAYERINDEX)
-		fmt.Println(control)
-		return control
+		control := HeuristicAnalysis(state, player)
+		fmt.Println("hit bottom", control, player)
+		// generator.PrintMap(state)
+		return state, control
 
 	}
 
-	if isMaxPlayer {
-		maxMove := math.Inf(-1)
-		// maxValue := rules.DirectionUnknown
-		safeMoves := generator.AllMovesForSnake(state, MAXPLAYERINDEX)
-		for move, isOk := range safeMoves {
-			if !isOk {
-				continue
-			}
-
-			snakeMove := rules.SnakeMoveIndex{
-				Index: MAXPLAYERINDEX,
-				Move:  rules.Direction(move),
-			}
-
-			nextState, err := ruleset.ApplySingleMove(state, snakeMove)
-			if err != nil {
-				print(err)
-				print(state)
-				panic(err)
-			}
-
-			mmax := Search(nextState, ruleset, depth-1, alpha, beta, !isMaxPlayer)
-
-			if mmax > maxMove {
-				maxMove = mmax
-			}
-
-			if maxMove > alpha {
-				alpha = maxMove
-			}
-
-			if alpha >= beta {
-				// fmt.Println("pruning")
-				break
-			}
-
-		}
-
-		return maxMove
-
-	}
-
-	minMove := math.Inf(1)
-	safeMoves := generator.AllMovesForSnake(state, MINPLAYERINDEX)
+	// bestMoveScore := math.Inf(-1)
+	var bestMove *rules.BoardState
+	// maxValue := rules.DirectionUnknown
+	safeMoves := generator.AllMovesForSnake(state, player)
 	for move, isOk := range safeMoves {
 		if !isOk {
 			continue
 		}
 
 		snakeMove := rules.SnakeMoveIndex{
-			Index: MINPLAYERINDEX,
+			Index: player,
 			Move:  rules.Direction(move),
 		}
 
 		nextState, err := ruleset.ApplySingleMove(state, snakeMove)
 		if err != nil {
+			print(err)
 			print(state)
-			panic("this is odd")
+			panic(err)
 		}
 
-		mmax := Search(nextState, ruleset, depth-1, alpha, beta, !isMaxPlayer)
+		_, tmpScore := Search((player+1)%2, nextState, ruleset, depth-1, -beta, -alpha)
+		tmpScore = -tmpScore
 
-		if mmax < minMove {
-			minMove = mmax
+		// if score > bestMoveScore {
+		// 	bestMoveScore = score
+		// 	bestMove = potentialMove
+		// }
+
+		if tmpScore > alpha {
+			fmt.Println("found new alpha", tmpScore, "player", player)
+			alpha = tmpScore
+			bestMove = nextState
+			if beta <= alpha {
+				fmt.Println("pruning", player, beta, alpha)
+				return bestMove, beta
+			}
 		}
 
-		// TODO: check alpha here too. think it's a typo in algorithm
-		if minMove < beta {
-			beta = minMove
-		}
-
-		if alpha >= beta {
-			// fmt.Println("pruning min")
-			break
+		if bestMove == nil {
+			bestMove = nextState
 		}
 
 	}
 
-	return minMove
+	if bestMove == nil {
+		bestMove = state
+		fmt.Println("no good moves found")
+	}
+
+	return bestMove, alpha
 
 }
 

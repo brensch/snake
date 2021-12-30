@@ -1,6 +1,8 @@
 package minimax
 
 import (
+	"math"
+
 	"github.com/brensch/snake/generator"
 	"github.com/brensch/snake/rules"
 )
@@ -48,4 +50,35 @@ func PercentageOfBoardControlled(board *rules.BoardState, you int) float64 {
 
 	return 1 - (float64(closestSquareCount) / float64(totalSpaces))
 
+}
+
+// GameFinished returns
+// +inf: you won
+// -inf: you lost
+// 0: not finished
+func GameFinished(board *rules.BoardState, you int) float64 {
+
+	youSnake := board.Snakes[you]
+	opponentSnake := board.Snakes[(you+1)%2]
+	youHead := youSnake.Body[0]
+
+	for _, opponentPiece := range opponentSnake.Body {
+
+		if opponentPiece.X == youHead.X && opponentPiece.Y == youHead.Y {
+			return math.Inf(-1)
+		}
+
+	}
+
+	return 0
+
+}
+
+func HeuristicAnalysis(board *rules.BoardState, you int) float64 {
+	finishedCheck := GameFinished(board, you)
+	if finishedCheck != 0 {
+		return finishedCheck
+	}
+
+	return PercentageOfBoardControlled(board, you)
 }

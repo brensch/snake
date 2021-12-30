@@ -3,6 +3,7 @@ package minimax
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"testing"
 
 	"github.com/brensch/snake/generator"
@@ -49,7 +50,8 @@ func TestMinimax(t *testing.T) {
 			HazardDamagePerTurn: 16,
 		}
 
-		value := MiniMax(1, 0, 2, -1000000, 10000000, true, s, ruleset)
-		fmt.Println(value)
+		bestChild, score := Search(0, s, ruleset, 10, math.Inf(-1), math.Inf(1))
+		fmt.Println("got score of next move", score)
+		generator.PrintMap(bestChild)
 	}
 }
