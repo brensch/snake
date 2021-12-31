@@ -86,12 +86,17 @@ func Search(player int, state *rules.BoardState, ruleset rules.Ruleset, depth in
 
 }
 
-// func (n *Node) Search(depth int, ruleset rules.Ruleset) (*rules.BoardState, float64) {
+// func (n *Node) Search(depth int, ruleset rules.Ruleset)  {
 
 // 	// fmt.Println("player", player)
 
 // 	finishedCheck := GameFinished(n.State, n.player)
 // 	if finishedCheck != 0 {
+// 		// propagate up the tree
+// 		parent := n.parent
+// 		for parent!=nil {
+// 			parent.
+// 		}
 // 		return n.State, finishedCheck
 // 	}
 
@@ -159,18 +164,18 @@ func Search(player int, state *rules.BoardState, ruleset rules.Ruleset, depth in
 
 // }
 
-// // Node represents an element in the decision tree
-// type Node struct {
-// 	// Score is available when supplied by an evaluation function or when calculated
-// 	Score    *float64
-// 	parent   *Node
-// 	children []*Node
-// 	player   int
-// 	alpha    float64
-// 	beta     float64
+// Node represents an element in the decision tree
+type Node struct {
+	// Score is available when supplied by an evaluation function or when calculated
+	Score    *float64
+	parent   *Node
+	children []*Node
+	player   int
+	alpha    float64
+	beta     float64
 
-// 	State *rules.BoardState
-// }
+	State *rules.BoardState
+}
 
 // // New returns a new minimax structure
 // func New() Node {

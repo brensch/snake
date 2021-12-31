@@ -11,6 +11,8 @@ import (
 
 func PercentageOfBoardControlled(board *rules.BoardState, you int) float64 {
 
+	you = 0
+
 	// calculate how many squares i can reach first
 	allMovesFromSquares := make([][]int32, len(board.Snakes))
 	totalSpaces := int(board.Height * board.Width)
