@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-
-	log "github.com/sirupsen/logrus"
+	"math"
 
 	"github.com/brensch/snake/generator"
+	"github.com/brensch/snake/minimax"
 	"github.com/brensch/snake/pather"
 	"github.com/brensch/snake/rules"
 )
@@ -323,41 +324,70 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 
 }
 
+// func Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, turn int32, gameID string) (rules.Direction, string) {
+// 	galaxyBrain, reason := GalaxyBrain(ctx, state, ruleset, you, turn)
+// 	safestMoves := generator.SafestMoves(state, ruleset, you)
+
+// 	finalMove := galaxyBrain
+
+// 	galaxyBrainSafe := false
+// 	for _, smoothBrain := range safestMoves {
+// 		if galaxyBrain == smoothBrain {
+// 			galaxyBrainSafe = true
+// 			break
+// 		}
+// 	}
+
+// 	if len(safestMoves) != 0 && !galaxyBrainSafe {
+// 		// fmt.Println("made a smooth brain move..............................................")
+// 		finalMove = safestMoves[0]
+// 	}
+
+// 	safeMoveStrings := []string{}
+// 	for _, move := range safestMoves {
+// 		safeMoveStrings = append(safeMoveStrings, move.String())
+// 	}
+
+// 	log.WithFields(log.Fields{
+// 		"game":        gameID,
+// 		"action":      "move",
+// 		"galaxy":      galaxyBrain.String(),
+// 		"galaxy_safe": galaxyBrainSafe,
+// 		"safe":        safeMoveStrings,
+// 		"actual":      finalMove.String(),
+// 		"reason":      reason,
+// 		"state":       state,
+// 	}).Info("moved")
+
+// 	return finalMove, reason
+
+// }
+
 func Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, turn int32, gameID string) (rules.Direction, string) {
-	galaxyBrain, reason := GalaxyBrain(ctx, state, ruleset, you, turn)
-	safestMoves := generator.SafestMoves(state, ruleset, you)
 
-	finalMove := galaxyBrain
-
-	galaxyBrainSafe := false
-	for _, smoothBrain := range safestMoves {
-		if galaxyBrain == smoothBrain {
-			galaxyBrainSafe = true
-			break
-		}
+	// put you as snake 0
+	skipper := false
+	if state.Snakes[0].ID != you.ID {
+		// fmt.Println("swapping snakes")
+		state.Snakes[1] = state.Snakes[0]
+		state.Snakes[0] = you
+		skipper = true
 	}
 
-	if len(safestMoves) != 0 && !galaxyBrainSafe {
-		// fmt.Println("made a smooth brain move..............................................")
-		finalMove = safestMoves[0]
+	bestChild, score := minimax.Search(0, state, ruleset, 15, math.Inf(-1), math.Inf(1))
+
+	// generator.PrintMap(bestChild)
+	// get the direction that the child moved in
+	direction := generator.DirectionToPoint(you.Body[0], bestChild.Snakes[0].Body[0])
+
+	if !skipper {
+
+		fmt.Println("got score of next move", score, direction.String())
+		// fmt.Println(state)
+		stateJSON, _ := json.Marshal(state)
+		fmt.Println(string(stateJSON))
 	}
 
-	safeMoveStrings := []string{}
-	for _, move := range safestMoves {
-		safeMoveStrings = append(safeMoveStrings, move.String())
-	}
-
-	log.WithFields(log.Fields{
-		"game":        gameID,
-		"action":      "move",
-		"galaxy":      galaxyBrain.String(),
-		"galaxy_safe": galaxyBrainSafe,
-		"safe":        safeMoveStrings,
-		"actual":      finalMove.String(),
-		"reason":      reason,
-		"state":       state,
-	}).Info("moved")
-
-	return finalMove, reason
+	return direction, "yeet kang"
 
 }

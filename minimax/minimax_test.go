@@ -50,7 +50,7 @@ func TestMinimax(t *testing.T) {
 			HazardDamagePerTurn: 16,
 		}
 
-		bestChild, score := Search(0, s, ruleset, 10, math.Inf(-1), math.Inf(1))
+		bestChild, score := Search(0, s, ruleset, 15, math.Inf(-1), math.Inf(1))
 		fmt.Println("got score of next move", score)
 		generator.PrintMap(bestChild)
 	}

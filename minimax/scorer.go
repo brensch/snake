@@ -48,7 +48,7 @@ func PercentageOfBoardControlled(board *rules.BoardState, you int) float64 {
 
 	}
 
-	return 1 - (float64(closestSquareCount) / float64(totalSpaces))
+	return (float64(closestSquareCount) / float64(totalSpaces))
 
 }
 
@@ -65,6 +65,14 @@ func GameFinished(board *rules.BoardState, you int) float64 {
 	for _, opponentPiece := range opponentSnake.Body {
 
 		if opponentPiece.X == youHead.X && opponentPiece.Y == youHead.Y {
+			return math.Inf(-1)
+		}
+
+	}
+
+	for _, youPiece := range youSnake.Body[1:] {
+
+		if youPiece.X == youHead.X && youPiece.Y == youHead.Y {
 			return math.Inf(-1)
 		}
 

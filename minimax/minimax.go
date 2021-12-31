@@ -1,8 +1,6 @@
 package minimax
 
 import (
-	"fmt"
-
 	"github.com/brensch/snake/generator"
 	"github.com/brensch/snake/rules"
 )
@@ -17,7 +15,7 @@ import (
 // no longer using ismaxplayer, just swap alpha and beta at every layer
 func Search(player int, state *rules.BoardState, ruleset rules.Ruleset, depth int, alpha, beta float64) (*rules.BoardState, float64) {
 
-	fmt.Println("player", player)
+	// fmt.Println("player", player)
 
 	finishedCheck := GameFinished(state, player)
 	if finishedCheck != 0 {
@@ -28,7 +26,7 @@ func Search(player int, state *rules.BoardState, ruleset rules.Ruleset, depth in
 	if depth == 0 {
 		// TODO: heuristic value
 		control := HeuristicAnalysis(state, player)
-		fmt.Println("hit bottom", control, player)
+		// fmt.Println("hit bottom", control, player)
 		// generator.PrintMap(state)
 		return state, control
 
@@ -64,11 +62,11 @@ func Search(player int, state *rules.BoardState, ruleset rules.Ruleset, depth in
 		// }
 
 		if tmpScore > alpha {
-			fmt.Println("found new alpha", tmpScore, "player", player)
+			// fmt.Println("found new alpha", tmpScore, "player", player)
 			alpha = tmpScore
 			bestMove = nextState
 			if beta <= alpha {
-				fmt.Println("pruning", player, beta, alpha)
+				// fmt.Println("pruning", player, beta, alpha)
 				return bestMove, beta
 			}
 		}
@@ -81,7 +79,7 @@ func Search(player int, state *rules.BoardState, ruleset rules.Ruleset, depth in
 
 	if bestMove == nil {
 		bestMove = state
-		fmt.Println("no good moves found")
+		// fmt.Println("no good moves found")
 	}
 
 	return bestMove, alpha
