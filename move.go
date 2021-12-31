@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"math"
 
@@ -380,13 +379,15 @@ func Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, y
 	// get the direction that the child moved in
 	direction := generator.DirectionToPoint(you.Body[0], bestChild.Snakes[0].Body[0])
 
-	if !skipper {
+	_ = score
+	_ = skipper
+	// if !skipper {
 
-		fmt.Println("got score of next move", score, direction.String())
-		// fmt.Println(state)
-		stateJSON, _ := json.Marshal(state)
-		fmt.Println(string(stateJSON))
-	}
+	// 	fmt.Println("got score of next move", score, direction.String())
+	// 	// fmt.Println(state)
+	// 	stateJSON, _ := json.Marshal(state)
+	// 	fmt.Println(string(stateJSON))
+	// }
 
 	return direction, "yeet kang"
 

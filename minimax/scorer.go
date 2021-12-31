@@ -52,6 +52,50 @@ func PercentageOfBoardControlled(board *rules.BoardState, you int) float64 {
 
 }
 
+// TODO: make this actually check the shortest path to the point
+func PercentageOfBoardControlledSmart(board *rules.BoardState, you int) float64 {
+
+	// calculate how many squares i can reach first
+	allMovesFromSquares := make([][]int32, len(board.Snakes))
+	totalSpaces := int(board.Height * board.Width)
+
+	// for each snake, find a naive distance to each point
+	for snakeNumber, snake := range board.Snakes {
+
+		movesFromSquares := make([]int32, totalSpaces)
+		boardSpace := 0
+		for x := int32(0); x < board.Width; x++ {
+			for y := int32(0); y < board.Height; y++ {
+				movesFromSquares[boardSpace] = generator.Abs(snake.Body[0].X-x) + generator.Abs(snake.Body[0].Y-y)
+				boardSpace++
+			}
+		}
+
+		allMovesFromSquares[snakeNumber] = movesFromSquares
+	}
+
+	closestSquareCount := 0
+
+	for i := 0; i < totalSpaces; i++ {
+		closestDistance := int32(1000)
+		closestSnake := -1
+		for snake := range board.Snakes {
+			if allMovesFromSquares[snake][i] < int32(closestDistance) {
+				closestDistance = allMovesFromSquares[snake][i]
+				closestSnake = snake
+			}
+		}
+
+		if closestSnake == you {
+			closestSquareCount++
+		}
+
+	}
+
+	return (float64(closestSquareCount) / float64(totalSpaces))
+
+}
+
 // GameFinished returns
 // +inf: you won
 // -inf: you lost

@@ -86,22 +86,97 @@ func Search(player int, state *rules.BoardState, ruleset rules.Ruleset, depth in
 
 }
 
-// Node represents an element in the decision tree
-type Node struct {
-	// Score is available when supplied by an evaluation function or when calculated
-	Score      *int
-	parent     *Node
-	children   []*Node
-	isOpponent bool
+// func (n *Node) Search(depth int, ruleset rules.Ruleset) (*rules.BoardState, float64) {
 
-	Board *rules.BoardState
-}
+// 	// fmt.Println("player", player)
 
-// New returns a new minimax structure
-func New() Node {
-	n := Node{isOpponent: false}
-	return n
-}
+// 	finishedCheck := GameFinished(n.State, n.player)
+// 	if finishedCheck != 0 {
+// 		return n.State, finishedCheck
+// 	}
+
+// 	// generator.PrintMap(n.State)
+// 	if depth == 0 {
+// 		// TODO: heuristic value
+// 		control := HeuristicAnalysis(n.State, n.player)
+// 		// fmt.Println("hit bottom", control, n.player)
+// 		// generator.PrintMap(n.State)
+// 		return n.State, control
+
+// 	}
+
+// 	// bestMoveScore := math.Inf(-1)
+// 	var bestMove *rules.BoardState
+// 	// maxValue := rules.DirectionUnknown
+// 	safeMoves := generator.AllMovesForSnake(n.State, n.player)
+// 	for move, isOk := range safeMoves {
+// 		if !isOk {
+// 			continue
+// 		}
+
+// 		snakeMove := rules.SnakeMoveIndex{
+// 			Index: n.player,
+// 			Move:  rules.Direction(move),
+// 		}
+
+// 		nextState, err := ruleset.ApplySingleMove(n.State, snakeMove)
+// 		if err != nil {
+// 			print(err)
+// 			print(n.State)
+// 			panic(err)
+// 		}
+
+// 		_, tmpScore := Search((n.player+1)%2, nextState, ruleset, depth-1, -beta, -alpha)
+// 		tmpScore = -tmpScore
+
+// 		// if score > bestMoveScore {
+// 		// 	bestMoveScore = score
+// 		// 	bestMove = potentialMove
+// 		// }
+
+// 		if tmpScore > alpha {
+// 			// fmt.Println("found new alpha", tmpScore, "n.player", n.player)
+// 			alpha = tmpScore
+// 			bestMove = nextState
+// 			if beta <= alpha {
+// 				// fmt.Println("pruning", n.player, beta, alpha)
+// 				return bestMove, beta
+// 			}
+// 		}
+
+// 		if bestMove == nil {
+// 			bestMove = nextState
+// 		}
+
+// 	}
+
+// 	if bestMove == nil {
+// 		bestMove = n.State
+// 		// fmt.Println("no good moves found")
+// 	}
+
+// 	return bestMove, alpha
+
+// }
+
+// // Node represents an element in the decision tree
+// type Node struct {
+// 	// Score is available when supplied by an evaluation function or when calculated
+// 	Score    *float64
+// 	parent   *Node
+// 	children []*Node
+// 	player   int
+// 	alpha    float64
+// 	beta     float64
+
+// 	State *rules.BoardState
+// }
+
+// // New returns a new minimax structure
+// func New() Node {
+// 	n := Node{isOpponent: false}
+// 	return n
+// }
 
 // // GetBestChildNode returns the first child node with the matching score
 // func (node *Node) GetBestChildNode() *Node {
@@ -116,21 +191,21 @@ func New() Node {
 
 // Evaluate runs through the tree and caculates the score from the terminal nodes
 // all the the way up to the root node
-func (node *Node) Evaluate() {
-	for _, cn := range node.children {
-		if !cn.isTerminal() {
-			cn.Evaluate()
-		}
+// func (node *Node) Evaluate() {
+// 	for _, cn := range node.children {
+// 		if !cn.isTerminal() {
+// 			cn.Evaluate()
+// 		}
 
-		if cn.parent.Score == nil {
-			cn.parent.Score = cn.Score
-		} else if cn.isOpponent && *cn.Score > *cn.parent.Score {
-			cn.parent.Score = cn.Score
-		} else if !cn.isOpponent && *cn.Score < *cn.parent.Score {
-			cn.parent.Score = cn.Score
-		}
-	}
-}
+// 		if cn.parent.Score == nil {
+// 			cn.parent.Score = cn.Score
+// 		} else if cn.isOpponent && *cn.Score > *cn.parent.Score {
+// 			cn.parent.Score = cn.Score
+// 		} else if !cn.isOpponent && *cn.Score < *cn.parent.Score {
+// 			cn.parent.Score = cn.Score
+// 		}
+// 	}
+// }
 
 // // Print the node for debugging purposes
 // func (node *Node) Print(level int) {
@@ -153,26 +228,26 @@ func (node *Node) Evaluate() {
 // 	}
 // }
 
-// AddTerminal adds a terminal node (or leaf node).  These nodes
-// should contain a score and no children
-func (node *Node) AddTerminal(score int, board *rules.BoardState) *Node {
-	return node.add(&score, board)
-}
+// // AddTerminal adds a terminal node (or leaf node).  These nodes
+// // should contain a score and no children
+// func (node *Node) AddTerminal(score int, board *rules.BoardState) *Node {
+// 	return node.add(&score, board)
+// }
 
-// Add a new node to structure, this node should have children and
-// an unknown score
-func (node *Node) Add(board *rules.BoardState) *Node {
-	return node.add(nil, board)
-}
+// // Add a new node to structure, this node should have children and
+// // an unknown score
+// func (node *Node) Add(board *rules.BoardState) *Node {
+// 	return node.add(nil, board)
+// }
 
-func (node *Node) add(score *int, board *rules.BoardState) *Node {
-	childNode := Node{parent: node, Score: score, Board: board}
+// func (node *Node) add(score *int, state *rules.BoardState) *Node {
+// 	childNode := Node{parent: node, Score: score, State: state}
 
-	childNode.isOpponent = !node.isOpponent
-	node.children = append(node.children, &childNode)
-	return &childNode
-}
+// 	childNode.player = (node.player + 1) % 2
+// 	node.children = append(node.children, &childNode)
+// 	return &childNode
+// }
 
-func (node *Node) isTerminal() bool {
-	return len(node.children) == 0
-}
+// func (node *Node) isTerminal() bool {
+// 	return len(node.children) == 0
+// }

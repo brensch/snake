@@ -84,6 +84,8 @@ func (r *StandardRuleset) ApplySingleMove(prevState *BoardState, move SnakeMoveI
 	for _, snack := range prevState.Food {
 		if head.X == snack.X && head.Y == snack.Y {
 			nextState.Snakes[move.Index].Health = 100
+			// add one piece to tail
+			nextState.Snakes[move.Index].Body = append(nextState.Snakes[move.Index].Body, nextState.Snakes[move.Index].Body[len(nextState.Snakes[move.Index].Body)-1])
 			break
 		}
 	}
