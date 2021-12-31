@@ -62,6 +62,14 @@ func GameFinished(board *rules.BoardState, you int) float64 {
 	opponentSnake := board.Snakes[(you+1)%2]
 	youHead := youSnake.Body[0]
 
+	if youSnake.Health == 0 {
+		return math.Inf(-1)
+	}
+
+	if opponentSnake.Health == 0 {
+		return math.Inf(1)
+	}
+
 	for _, opponentPiece := range opponentSnake.Body {
 
 		if opponentPiece.X == youHead.X && opponentPiece.Y == youHead.Y {

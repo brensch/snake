@@ -79,6 +79,15 @@ func (r *StandardRuleset) ApplySingleMove(prevState *BoardState, move SnakeMoveI
 	// lower health
 	nextState.Snakes[move.Index].Health = nextState.Snakes[move.Index].Health - 1
 
+	// check if we ate
+	head := nextState.Snakes[move.Index].Body[0]
+	for _, snack := range prevState.Food {
+		if head.X == snack.X && head.Y == snack.Y {
+			nextState.Snakes[move.Index].Health = 100
+			break
+		}
+	}
+
 	return nextState, nil
 
 }
