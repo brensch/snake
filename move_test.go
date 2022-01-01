@@ -20,6 +20,12 @@ type testCase struct {
 var (
 	tests = []testCase{
 		{
+			explanation: "head towards space",
+			state:       []byte(`{"Turn":19,"Height":11,"Width":11,"Food":[{"X":0,"Y":4}],"Snakes":[{"ID":"you","Body":[{"X":6,"Y":8},{"X":7,"Y":8},{"X":8,"Y":8}],"Health":82,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""},{"ID":"d66ed448-851d-416e-bc26-851906eaee5d","Body":[{"X":8,"Y":4},{"X":9,"Y":4},{"X":9,"Y":3},{"X":8,"Y":3},{"X":7,"Y":3},{"X":6,"Y":3},{"X":6,"Y":2}],"Health":98,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""}],"Hazards":null}`),
+			okMoves:     []rules.Direction{rules.DirectionDown},
+		},
+
+		{
 			explanation: "check heading towards food",
 			state:       []byte(`{"Turn":0,"Height":11,"Width":11,"Food":[{"X":0,"Y":8},{"X":6,"Y":10},{"X":5,"Y":5}],"Snakes":[{"ID":"you","Body":[{"X":1,"Y":9},{"X":1,"Y":8},{"X":1,"Y":7}],"Health":100,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""},{"ID":"7dd375fc-c66e-413e-aa11-bd13d32bbef4","Body":[{"X":3,"Y":7},{"X":3,"Y":8},{"X":3,"Y":9},{"X":2,"Y":9},{"X":2,"Y":8}],"Health":100,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""}],"Hazards":null}`),
 			okMoves:     []rules.Direction{rules.DirectionLeft, rules.DirectionUp},
@@ -177,6 +183,64 @@ var (
 		// turn 196
 	}
 )
+
+func TestSingleMove(t *testing.T) {
+	log.SetLevel(log.DebugLevel)
+
+	youID := "you"
+
+	test := tests[0]
+
+	// if test.explanation != "don't go into tomb of you after chasing tail in pursuit of snak" {
+	// 	continue
+	// }
+
+	t.Log("running test: ", test.explanation)
+
+	var s *rules.BoardState
+	err := json.Unmarshal(test.state, &s)
+	if err != nil {
+		t.Error(err)
+		t.FailNow()
+	}
+
+	you, err := generator.GetYou(s, youID)
+	if err != nil {
+		t.Error(err)
+		t.FailNow()
+	}
+
+	ruleset := &rules.StandardRuleset{
+		FoodSpawnChance: 0,
+		MinimumFood:     1,
+	}
+
+	move, reason := Move(context.Background(), s, ruleset, you, s.Turn, "test")
+	if reason == "yeet todo logic" {
+		generator.PrintMap(s)
+		t.Log("got todo logic")
+		t.Fail()
+		return
+	}
+
+	moveOk := false
+	for _, okMove := range test.okMoves {
+		if move == okMove {
+			moveOk = true
+			break
+		}
+	}
+
+	if moveOk {
+		return
+	}
+
+	generator.PrintMap(s)
+
+	t.Logf("%s FAILED: got %s because %s. ok moves: %+v", test.explanation, move.String(), reason, test.okMoves)
+	t.Fail()
+
+}
 
 func TestMove(t *testing.T) {
 	log.SetLevel(log.DebugLevel)

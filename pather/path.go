@@ -172,19 +172,19 @@ func (p PathGrid) CalculatePointNeighbourBlockedInValues(x, y, startX, startY in
 // 6 moves away.
 func (p PathGrid) AddObstacles(s *rules.BoardState, origin rules.Point, youID string) {
 
-	you, err := generator.GetYou(s, youID)
-	if err != nil {
-		fmt.Println("there is no you snake in this board")
-	}
+	// you, err := generator.GetYou(s, youID)
+	// if err != nil {
+	// 	fmt.Println("there is no you snake in this board")
+	// }
 
 	for _, snake := range s.Snakes {
 
-		// get array of distances to snacks
-		var distancesToSnacks []int32
-		for _, snack := range s.Food {
-			distancesToSnacks = append(distancesToSnacks,
-				generator.Abs(snack.X-snake.Body[0].X)+generator.Abs(snack.Y-snake.Body[0].Y))
-		}
+		// // get array of distances to snacks
+		// var distancesToSnacks []int32
+		// for _, snack := range s.Food {
+		// 	distancesToSnacks = append(distancesToSnacks,
+		// 		generator.Abs(snack.X-snake.Body[0].X)+generator.Abs(snack.Y-snake.Body[0].Y))
+		// }
 
 		// only include snakes segments if they will still be there when we get there
 		for pointNumber, point := range snake.Body {
@@ -200,18 +200,18 @@ func (p PathGrid) AddObstacles(s *rules.BoardState, origin rules.Point, youID st
 			// fmt.Println(distancesToSnacks)
 
 			// figure out how many snacks this snake may have encountered by this step
-			potentialSnacks := 0
-			if snake.ID != youID {
-				for _, potentialSnackDistance := range distancesToSnacks {
-					if int(potentialSnackDistance) <= len(snake.Body)-pointNumber {
-						potentialSnacks++
-					}
-				}
-			}
+			// potentialSnacks := 0
+			// if snake.ID != youID {
+			// 	for _, potentialSnackDistance := range distancesToSnacks {
+			// 		if int(potentialSnackDistance) <= len(snake.Body)-pointNumber {
+			// 			potentialSnacks++
+			// 		}
+			// 	}
+			// }
 
 			// calculate how many turns we're blocked for based on the position of the block in the snake
 			// and the length of the snake
-			newBlockedForTurns := int32(len(snake.Body) - pointNumber + potentialSnacks)
+			newBlockedForTurns := int32(len(snake.Body) - pointNumber)
 			if p[point.X][point.Y].BlockedForTurns < newBlockedForTurns {
 				p[point.X][point.Y].BlockedForTurns = newBlockedForTurns
 			}
@@ -226,51 +226,51 @@ func (p PathGrid) AddObstacles(s *rules.BoardState, origin rules.Point, youID st
 
 	}
 
-	// do second loop to make sure all blocked in values are calculated
-	for _, snake := range s.Snakes {
-		// do not calculate the future state of a snake if it's you
-		if snake.ID == youID {
-			continue
-		}
+	// // do second loop to make sure all blocked in values are calculated
+	// for _, snake := range s.Snakes {
+	// 	// do not calculate the future state of a snake if it's you
+	// 	if snake.ID == youID {
+	// 		continue
+	// 	}
 
-		// doing this above seems to lower life expectency. TODO: investigate why
-		if snake.EliminatedCause != "" {
-			continue
-		}
+	// 	// doing this above seems to lower life expectency. TODO: investigate why
+	// 	if snake.EliminatedCause != "" {
+	// 		continue
+	// 	}
 
-		// if snake.Body[0].X < 0 || snake.Body[0].Y < 0 {
-		// 	fmt.Println("got bad snake head", snake.Body[0])
-		// }
+	// 	// if snake.Body[0].X < 0 || snake.Body[0].Y < 0 {
+	// 	// 	fmt.Println("got bad snake head", snake.Body[0])
+	// 	// }
 
-		// TODO: figure out how many moves ahead i should add this
-		pointsToCheck := []rules.Point{snake.Body[0]}
+	// 	// TODO: figure out how many moves ahead i should add this
+	// 	pointsToCheck := []rules.Point{snake.Body[0]}
 
-		// setting the starting blocked in value to 1 less since the head won't block you if they're a smaller snake
-		startingBlockedInValue := int32(0)
-		if len(snake.Body) < len(you.Body) {
-			startingBlockedInValue = 1
-		}
+	// 	// setting the starting blocked in value to 1 less since the head won't block you if they're a smaller snake
+	// 	startingBlockedInValue := int32(0)
+	// 	if len(snake.Body) < len(you.Body) {
+	// 		startingBlockedInValue = 1
+	// 	}
 
-		if p[snake.Body[0].X][snake.Body[0].Y] == nil {
-			p[snake.Body[0].X][snake.Body[0].Y] = &AStarCost{}
-		}
+	// 	if p[snake.Body[0].X][snake.Body[0].Y] == nil {
+	// 		p[snake.Body[0].X][snake.Body[0].Y] = &AStarCost{}
+	// 	}
 
-		p[snake.Body[0].X][snake.Body[0].Y].BlockedInTurns = startingBlockedInValue
+	// 	p[snake.Body[0].X][snake.Body[0].Y].BlockedInTurns = startingBlockedInValue
 
-		//
-		for i := 0; i < 10; i++ {
-			var nextPointsToCheck []rules.Point
-			for _, pointToCheck := range pointsToCheck {
-				points := p.CalculatePointNeighbourBlockedInValues(pointToCheck.X, pointToCheck.Y, snake.Body[0].X, snake.Body[0].Y)
-				nextPointsToCheck = append(nextPointsToCheck, points...)
-			}
-			if len(nextPointsToCheck) == 0 {
-				break
-			}
-			pointsToCheck = nextPointsToCheck
+	// 	//
+	// 	for i := 0; i < 10; i++ {
+	// 		var nextPointsToCheck []rules.Point
+	// 		for _, pointToCheck := range pointsToCheck {
+	// 			points := p.CalculatePointNeighbourBlockedInValues(pointToCheck.X, pointToCheck.Y, snake.Body[0].X, snake.Body[0].Y)
+	// 			nextPointsToCheck = append(nextPointsToCheck, points...)
+	// 		}
+	// 		if len(nextPointsToCheck) == 0 {
+	// 			break
+	// 		}
+	// 		pointsToCheck = nextPointsToCheck
 
-		}
-	}
+	// 	}
+	// }
 
 	// // check every point for proximity to origin and a snake head
 	// for x := int32(0); x < s.Width; x++ {

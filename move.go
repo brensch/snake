@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"math"
 
@@ -362,6 +363,38 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 
 // }
 
+// func Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, turn int32, gameID string) (rules.Direction, string) {
+
+// 	// put you as snake 0
+// 	skipper := false
+// 	if state.Snakes[0].ID != you.ID {
+// 		// fmt.Println("swapping snakes")
+// 		state.Snakes[1] = state.Snakes[0]
+// 		state.Snakes[0] = you
+// 		skipper = true
+// 	}
+
+// 	bestChild, score := minimax.Search(0, state, ruleset, 14, math.Inf(-1), math.Inf(1))
+
+// 	// generator.PrintMap(bestChild)
+// 	// get the direction that the child moved in
+// 	direction := generator.DirectionToPoint(you.Body[0], bestChild.Snakes[0].Body[0])
+
+// 	_ = score
+// 	_ = skipper
+// 	// if !skipper {
+
+// 	fmt.Println("got score of next move", score, direction.String())
+// 	// fmt.Println(state)
+// 	generator.PrintMap(bestChild)
+// 	stateJSON, _ := json.Marshal(state)
+// 	fmt.Println(string(stateJSON))
+// 	// }
+
+// 	return direction, "yeet kang"
+
+// }
+
 func Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, turn int32, gameID string) (rules.Direction, string) {
 
 	// put you as snake 0
@@ -373,20 +406,30 @@ func Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, y
 		skipper = true
 	}
 
-	bestChild, score := minimax.Search(0, state, ruleset, 15, math.Inf(-1), math.Inf(1))
+	startingNode := &minimax.Node{
+		Alpha:        math.Inf(-1),
+		Beta:         math.Inf(1),
+		IsMaximising: true,
+		State:        state,
+	}
+
+	startingNode.Search(16, ruleset)
+
+	bestChild := startingNode.FindBestChild()
 
 	// generator.PrintMap(bestChild)
 	// get the direction that the child moved in
-	direction := generator.DirectionToPoint(you.Body[0], bestChild.Snakes[0].Body[0])
+	direction := generator.DirectionToPoint(you.Body[0], bestChild.State.Snakes[0].Body[0])
 
-	_ = score
+	// _ = score
 	_ = skipper
 	// if !skipper {
 
-	// 	fmt.Println("got score of next move", score, direction.String())
-	// 	// fmt.Println(state)
-	// 	stateJSON, _ := json.Marshal(state)
-	// 	fmt.Println(string(stateJSON))
+	fmt.Println("got score of next move", *startingNode.Score, direction.String())
+	// fmt.Println(state)
+	generator.PrintMap(state)
+	stateJSON, _ := json.Marshal(state)
+	fmt.Println(string(stateJSON))
 	// }
 
 	return direction, "yeet kang"
