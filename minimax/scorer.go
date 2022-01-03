@@ -8,7 +8,7 @@ import (
 
 // type
 
-func PercentageOfBoardControlled(board *rules.BoardState, you int) float64 {
+func PercentageOfBoardControlled(board *rules.BoardState) float64 {
 
 	// you = 0
 
@@ -44,7 +44,7 @@ func PercentageOfBoardControlled(board *rules.BoardState, you int) float64 {
 		}
 
 		// check if index of closest snake is maxer index
-		if closestSnake == you {
+		if closestSnake == 0 {
 			closestSquareCount++
 		}
 
@@ -55,7 +55,7 @@ func PercentageOfBoardControlled(board *rules.BoardState, you int) float64 {
 }
 
 // TODO: make this actually check the shortest path to the point
-func PercentageOfBoardControlledSmart(board *rules.BoardState, you int) float64 {
+func PercentageOfBoardControlledSmart(board *rules.BoardState) float64 {
 
 	pather.CalculateAllAvailableSquares(board, board.Snakes[0].Body[0], board.Snakes[0].ID)
 
@@ -70,10 +70,24 @@ func PercentageOfBoardControlledSmart(board *rules.BoardState, you int) float64 
 // 0: not finished
 func GameFinished(board *rules.BoardState) float64 {
 
+	if board.Turn == 1 {
+		return 0
+	}
+
 	maxSnake := board.Snakes[0]
 	minSnake := board.Snakes[1]
 	maxHead := maxSnake.Body[0]
 	minHead := minSnake.Body[0]
+
+	if maxHead.X == minHead.X && maxHead.Y == minHead.Y {
+		if len(maxSnake.Body) < len(minSnake.Body) {
+			return -1
+		}
+		if len(maxSnake.Body) == len(minSnake.Body) {
+			return -1
+		}
+		return 1
+	}
 
 	if maxSnake.Health == 0 {
 		return -1
@@ -83,36 +97,48 @@ func GameFinished(board *rules.BoardState) float64 {
 		return 1
 	}
 
-	for _, minPiece := range minSnake.Body {
-		if minPiece.X == maxHead.X && minPiece.Y == maxHead.Y {
-			return -1
-		}
-	}
-
 	for _, maxPiece := range maxSnake.Body[1:] {
 		if maxPiece.X == maxHead.X && maxPiece.Y == maxHead.Y {
 			return -1
 		}
-	}
-
-	// todo: efficiency of loops
-	for _, maxPiece := range maxSnake.Body {
 		if maxPiece.X == minHead.X && maxPiece.Y == minHead.Y {
 			return 1
 		}
+	}
+
+	// also check the head, but only for max vs min
+	if maxSnake.Body[0].X == minHead.X && maxSnake.Body[0].Y == minHead.Y {
+		return 1
 	}
 
 	for _, minPiece := range minSnake.Body[1:] {
 		if minPiece.X == minHead.X && minPiece.Y == minHead.Y {
 			return 1
 		}
+		if minPiece.X == maxHead.X && minPiece.Y == maxHead.Y {
+			return -1
+		}
+	}
+
+	// also check the head, but only for min vs max (improving performance)
+	if minSnake.Body[0].X == maxHead.X && minSnake.Body[0].Y == maxHead.Y {
+		return -1
 	}
 
 	return 0
 
 }
 
-func HeuristicAnalysis(board *rules.BoardState, you int) float64 {
+func GameFinishedBits(snake1, snake2 int) float64 {
+	if snake1^snake2 != 0 {
+		return 1
 
-	return PercentageOfBoardControlled(board, you)
+	}
+
+	return 0
+}
+
+func HeuristicAnalysis(board *rules.BoardState) float64 {
+
+	return PercentageOfBoardControlled(board)
 }

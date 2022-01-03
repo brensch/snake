@@ -1,6 +1,8 @@
 package minimax
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/brensch/snake/generator"
@@ -88,28 +90,28 @@ import (
 
 // }
 
-func (n *Node) PropagateScore(score float64) {
+func (n *Node) PropagateScore(parent *Node, score float64) {
 
 	if n.Score == nil {
 		n.Score = &score
 
 	}
 
-	if n.Parent == nil {
+	if parent == nil {
 		n.Score = &score
 		return
 	}
 
 	if !n.IsMaximising {
-		if n.Parent.Alpha <= score {
-			n.Parent.Alpha = score
+		if parent.Alpha <= score {
+			parent.Alpha = score
 			n.Score = &score
 		}
 		return
 	}
 
-	if n.Parent.Beta >= score {
-		n.Parent.Beta = score
+	if parent.Beta >= score {
+		parent.Beta = score
 		n.Score = &score
 	}
 }
@@ -140,37 +142,98 @@ func (n *Node) FindBestChild() *Node {
 	return nil
 }
 
-func (n *Node) Search(depth int, ruleset rules.Ruleset) {
+// Too damn slow.
+func (n *Node) CopyNode() *Node {
+
+	if n == nil {
+		return nil
+	}
+
+	contents, err := json.Marshal(n)
+	if err != nil {
+		panic(err)
+	}
+
+	var copiedNode *Node
+	err = json.Unmarshal(contents, &copiedNode)
+	if err != nil {
+		panic(err)
+	}
+
+	return copiedNode
+}
+
+// Cancelling context is handled outside this functions
+func (n *Node) DeepeningSearch(ctx context.Context, ruleset rules.Ruleset) rules.BoardState {
+
+	// start with a modest check
+
+	depth := 10
+	n.Search(ctx, depth, depth, ruleset, nil)
+
+	var bestState rules.BoardState
+
+	for {
+		// get best move before each round, only
+		depth++
+		bestChild := n.FindBestChild()
+		bestState = *bestChild.State
+		deepestDepth, err := n.Search(ctx, depth, depth, ruleset, nil)
+		if err != nil {
+			break
+		}
+		// if ctx.Err() != nil {
+		// 	fmt.Println("error not picked up in search")
+		// 	break
+		// }
+		// this means we fully explored the tree and should give up.
+		if deepestDepth > 0 {
+			break
+		}
+
+	}
+	fmt.Println("got to depth", depth-1)
+	return bestState
+
+}
+
+func (n *Node) Search(ctx context.Context, depth, deepestDepth int, ruleset rules.Ruleset, parent *Node) (int, error) {
 
 	// fmt.Println("player", player)
+
+	if ctx.Err() != nil {
+		// fmt.Println("context finished")
+		return depth, ctx.Err()
+	}
 
 	finishedScore := GameFinished(n.State)
 	if finishedScore != 0 {
 		// fmt.Println("got score", finishedScore)
-		n.PropagateScore(finishedScore)
+		n.PropagateScore(parent, finishedScore)
 		// n.Score = &finishedScore
-		return
+		if depth < deepestDepth {
+			return depth, nil
+		}
+		return deepestDepth, nil
 	}
 
 	// generator.PrintMap(n.State)
 	if depth == 0 {
-		// TODO: heuristic value
-		you := 0
-		// if n.IsMaximising {
-		// 	you = 1
-		// }
-		control := HeuristicAnalysis(n.State, you)
+
+		control := HeuristicAnalysis(n.State)
 		// fmt.Println("----------")
 		// fmt.Println("got score", control)
 		// generator.PrintMap(n.State)
 		// fmt.Println("----------")
 
-		n.PropagateScore(control)
+		n.PropagateScore(parent, control)
 
 		// n.Score = &control
 		// fmt.Println("hit bottom", control, n.player)
-		return
-
+		if depth < deepestDepth {
+			return depth, nil
+		}
+		return deepestDepth, nil
 	}
 
 	// bestMoveScore := math.Inf(-1)
@@ -200,7 +263,6 @@ func (n *Node) Search(depth int, ruleset rules.Ruleset) {
 
 		// fmt.Println("made new node")
 		childNode := &Node{
-			Parent:       n,
 			Alpha:        n.Alpha,
 			Beta:         n.Beta,
 			IsMaximising: !n.IsMaximising,
@@ -208,7 +270,14 @@ func (n *Node) Search(depth int, ruleset rules.Ruleset) {
 		}
 		n.Children = append(n.Children, childNode)
 
-		childNode.Search(depth-1, ruleset)
+		newDepth, err := childNode.Search(ctx, depth-1, deepestDepth, ruleset, n)
+		if err != nil {
+			return nil, err
+		}
+
+		if newDepth < deepestDepth {
+			deepestDepth = newDepth
+		}
 
 		if n.Alpha >= n.Beta {
 			// if n.IsMaximising {
@@ -219,7 +288,10 @@ func (n *Node) Search(depth int, ruleset rules.Ruleset) {
 			// n.PropagateScore(n.Beta)
 
 			// fmt.Println("pruning", n.Alpha, n.Beta)
-			return
+			if depth < deepestDepth {
+				return depth, err
+			}
+			return deepestDepth, err
 		}
 
 		// _, tmpScore := Search((playerIndex+1)%2, nextState, ruleset, depth-1, -beta, -alpha)
@@ -259,8 +331,11 @@ func (n *Node) Search(depth int, ruleset rules.Ruleset) {
 		score = n.Beta
 	}
 
-	n.PropagateScore(score)
-
+	n.PropagateScore(parent, score)
+	if depth < deepestDepth {
+		return depth, nil
+	}
+	return deepestDepth, nil
 }
 
 func (n *Node) Print() {
@@ -274,8 +349,8 @@ func (n *Node) Print() {
 // Node represents an element in the decision tree
 type Node struct {
 	// Score is available when supplied by an evaluation function or when calculated
-	Score    *float64
-	Parent   *Node
+	Score *float64
+	// Parent   *Node
 	Children []*Node
 
 	Alpha float64

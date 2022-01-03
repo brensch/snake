@@ -43,7 +43,7 @@ func TestPercentageOfBoardControlled(t *testing.T) {
 
 		generator.PrintMap(s)
 
-		score := PercentageOfBoardControlled(s, 0)
+		score := PercentageOfBoardControlled(s)
 
 		t.Log(score)
 
@@ -74,7 +74,7 @@ func TestPercentageOfBoardControlledSmart(t *testing.T) {
 
 		generator.PrintMap(s)
 
-		score := PercentageOfBoardControlledSmart(s, 0)
+		score := PercentageOfBoardControlledSmart(s)
 
 		t.Log(score)
 
@@ -102,7 +102,7 @@ func BenchmarkPercentageOfBoardControlled(b *testing.B) {
 
 	for n := 0; n < b.N; n++ {
 
-		PercentageOfBoardControlled(s, 0)
+		PercentageOfBoardControlled(s)
 
 	}
 }
@@ -119,7 +119,41 @@ func BenchmarkPercentageOfBoardControlledSmart(b *testing.B) {
 
 	for n := 0; n < b.N; n++ {
 
-		PercentageOfBoardControlledSmart(s, 0)
+		PercentageOfBoardControlledSmart(s)
+
+	}
+}
+
+func BenchmarkGameFinished(b *testing.B) {
+	log.SetLevel(log.DebugLevel)
+
+	var s *rules.BoardState
+	err := json.Unmarshal(tests[0].state, &s)
+	if err != nil {
+		b.Error(err)
+		b.FailNow()
+	}
+
+	for n := 0; n < b.N; n++ {
+
+		GameFinished(s)
+
+	}
+}
+
+func BenchmarkGameFinishedBits(b *testing.B) {
+	log.SetLevel(log.DebugLevel)
+
+	var s *rules.BoardState
+	err := json.Unmarshal(tests[0].state, &s)
+	if err != nil {
+		b.Error(err)
+		b.FailNow()
+	}
+
+	for n := 0; n < b.N; n++ {
+
+		GameFinishedBits(1, 2)
 
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"time"
 
 	"github.com/brensch/snake/generator"
 	"github.com/brensch/snake/minimax"
@@ -413,7 +414,11 @@ func Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, y
 		State:        state,
 	}
 
-	startingNode.Search(16, ruleset)
+	ctx, cancel := context.WithTimeout(ctx, 400*time.Millisecond)
+	defer cancel()
+
+	// startingNode.Search(ctx, 14, ruleset)
+	startingNode.DeepeningSearch(ctx, ruleset)
 
 	bestChild := startingNode.FindBestChild()
 
