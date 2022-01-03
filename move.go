@@ -398,13 +398,15 @@ func GalaxyBrain(ctx context.Context, state *rules.BoardState, ruleset rules.Rul
 
 func Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, turn int32, gameID string) (rules.Direction, string) {
 
+	stateJSON, _ := json.Marshal(state)
+	fmt.Println(string(stateJSON))
 	// put you as snake 0
-	skipper := false
+	// skipper := false
 	if state.Snakes[0].ID != you.ID {
 		// fmt.Println("swapping snakes")
 		state.Snakes[1] = state.Snakes[0]
 		state.Snakes[0] = you
-		skipper = true
+		// skipper = true
 	}
 
 	startingNode := &minimax.Node{
@@ -414,7 +416,7 @@ func Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, y
 		State:        state,
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, 400*time.Millisecond)
+	ctx, cancel := context.WithTimeout(ctx, 50*time.Millisecond)
 	defer cancel()
 
 	// startingNode.Search(ctx, 14, ruleset)
@@ -427,14 +429,13 @@ func Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, y
 	direction := generator.DirectionToPoint(you.Body[0], bestNextState.Snakes[0].Body[0])
 
 	// _ = score
-	_ = skipper
+	// _ = skipper
 	// if !skipper {
 
 	// fmt.Println("got score of next move", *startingNode.Score, direction.String())
 	// fmt.Println(state)
-	generator.PrintMap(state)
-	stateJSON, _ := json.Marshal(state)
-	fmt.Println(string(stateJSON))
+	// generator.PrintMap(state)
+
 	// }
 
 	return direction, "yeet kang"

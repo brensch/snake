@@ -81,11 +81,17 @@ func (r *StandardRuleset) ApplySingleMove(prevState *BoardState, move SnakeMoveI
 
 	// check if we ate
 	head := nextState.Snakes[move.Index].Body[0]
-	for _, snack := range prevState.Food {
+	for index, snack := range prevState.Food {
 		if head.X == snack.X && head.Y == snack.Y {
 			nextState.Snakes[move.Index].Health = 100
 			// add one piece to tail
 			nextState.Snakes[move.Index].Body = append(nextState.Snakes[move.Index].Body, nextState.Snakes[move.Index].Body[len(nextState.Snakes[move.Index].Body)-1])
+
+			// remove snack
+			// replace index with final point then truncate array
+			nextState.Food[index] = snack
+			nextState.Food = nextState.Food[:len(nextState.Food)-1]
+
 			break
 		}
 	}

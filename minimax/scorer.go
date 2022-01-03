@@ -70,7 +70,8 @@ func PercentageOfBoardControlledSmart(board *rules.BoardState) float64 {
 // 0: not finished
 func GameFinished(board *rules.BoardState) float64 {
 
-	if board.Turn == 1 {
+	// the cli starts at 1 but the online servers start at 0
+	if board.Turn == 1 || board.Turn == 0 {
 		return 0
 	}
 
@@ -145,12 +146,10 @@ func HeuristicAnalysis(board *rules.BoardState) float64 {
 		healthScore = 0.5
 	}
 
-	percentLengthOfOtherSnake := float64(len(board.Snakes[0].Body) / len(board.Snakes[1].Body))
+	percentLengthOfOtherSnake := float64(len(board.Snakes[0].Body)) / float64(len(board.Snakes[1].Body))
 	lengthScore := percentLengthOfOtherSnake
-	if lengthScore > 1.1 {
-		lengthScore = 1.1
-	}
 
+	// return PercentageOfBoardControlled(board) * lengthScore
 	return PercentageOfBoardControlled(board) * lengthScore * healthScore
-	return PercentageOfBoardControlled(board)
+	// return PercentageOfBoardControlled(board)
 }

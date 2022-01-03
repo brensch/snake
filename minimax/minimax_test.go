@@ -62,13 +62,13 @@ var (
 		// 			`),
 		// 			// okMoves:     []rules.Direction{rules.DirectionDown},
 		// 		},
-		{
-			explanation: "don't starve, caused by terative depening giving strange output",
-			state: []byte(`
-		{"Turn":279,"Height":11,"Width":11,"Food":[{"X":9,"Y":1},{"X":4,"Y":0},{"X":3,"Y":2},{"X":1,"Y":2},{"X":4,"Y":9}],"Snakes":[{"ID":"6b81dd4c-fbd8-487b-b5bd-744d8b9f47cc","Body":[{"X":5,"Y":5},{"X":6,"Y":5},{"X":7,"Y":5},{"X":8,"Y":5},{"X":8,"Y":6},{"X":7,"Y":6},{"X":6,"Y":6},{"X":5,"Y":6}],"Health":6,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""},{"ID":"1f00c485-a941-4d1c-b03a-e53f58f9f429","Body":[{"X":5,"Y":7},{"X":6,"Y":7},{"X":6,"Y":8},{"X":7,"Y":8},{"X":8,"Y":8}],"Health":14,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""}],"Hazards":null}
-					`),
-			// okMoves:     []rules.Direction{rules.DirectionDown},
-		},
+		// {
+		// 	explanation: "don't starve, caused by iterative depening giving strange output",
+		// 	state: []byte(`
+		// {"Turn":279,"Height":11,"Width":11,"Food":[{"X":9,"Y":1},{"X":4,"Y":0},{"X":3,"Y":2},{"X":1,"Y":2},{"X":4,"Y":9}],"Snakes":[{"ID":"6b81dd4c-fbd8-487b-b5bd-744d8b9f47cc","Body":[{"X":5,"Y":5},{"X":6,"Y":5},{"X":7,"Y":5},{"X":8,"Y":5},{"X":8,"Y":6},{"X":7,"Y":6},{"X":6,"Y":6},{"X":5,"Y":6}],"Health":6,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""},{"ID":"1f00c485-a941-4d1c-b03a-e53f58f9f429","Body":[{"X":5,"Y":7},{"X":6,"Y":7},{"X":6,"Y":8},{"X":7,"Y":8},{"X":8,"Y":8}],"Health":14,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""}],"Hazards":null}
+		// 			`),
+		// 	// okMoves:     []rules.Direction{rules.DirectionDown},
+		// },
 		// 		{
 		// 			explanation: "do not segfault",
 		// 			state: []byte(`
@@ -83,12 +83,40 @@ var (
 		// 			`),
 		// 			// okMoves:     []rules.Direction{rules.DirectionDown},
 		// 		},
+		// {
+		// 	explanation: "test go down to fill space.",
+		// 	state: []byte(`
+		// 			{"Turn":179,"Height":11,"Width":11,"Food":[{"X":9,"Y":8},{"X":9,"Y":6}],"Snakes":[{"ID":"a335824d-2942-4088-a79a-9ce28111e048","Body":[{"X":6,"Y":10},{"X":7,"Y":10},{"X":8,"Y":10},{"X":9,"Y":10},{"X":10,"Y":10},{"X":10,"Y":9},{"X":9,"Y":9}],"Health":31,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""},{"ID":"23e3bcb5-9d9b-4c24-afea-c47bb55f8230","Body":[{"X":8,"Y":2},{"X":8,"Y":1},{"X":7,"Y":1},{"X":6,"Y":1},{"X":5,"Y":1},{"X":4,"Y":1},{"X":3,"Y":1},{"X":2,"Y":1},{"X":1,"Y":1},{"X":0,"Y":1},{"X":0,"Y":0},{"X":1,"Y":0},{"X":2,"Y":0},{"X":3,"Y":0}],"Health":46,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""}],"Hazards":null}
+		// 			`),
+		// 	// okMoves:     []rules.Direction{rules.DirectionDown},
+		// },
+		// {
+		// 	explanation: "don't go into tight space, symptom of not clearing old tree",
+		// 	state: []byte(`
+		// 	{"Turn":639,"Height":11,"Width":11,"Food":[{"X":9,"Y":10},{"X":10,"Y":10},{"X":1,"Y":8},{"X":3,"Y":7}],"Snakes":[{"ID":"4a4c77da-f10c-4064-bc48-3141562e788e","Body":[{"X":5,"Y":3},{"X":5,"Y":4},{"X":6,"Y":4},{"X":6,"Y":5},{"X":7,"Y":5},{"X":8,"Y":5},{"X":8,"Y":6},{"X":9,"Y":6},{"X":9,"Y":7},{"X":8,"Y":7},{"X":7,"Y":7},{"X":6,"Y":7},{"X":5,"Y":7},{"X":4,"Y":7},{"X":4,"Y":6},{"X":5,"Y":6},{"X":5,"Y":5},{"X":4,"Y":5},{"X":3,"Y":5}],"Health":80,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""},{"ID":"890785b2-4c44-4be8-914c-1d7cbda05612","Body":[{"X":2,"Y":6},{"X":1,"Y":6},{"X":1,"Y":5},{"X":1,"Y":4},{"X":0,"Y":4},{"X":0,"Y":3},{"X":1,"Y":3},{"X":1,"Y":2},{"X":2,"Y":2},{"X":3,"Y":2},{"X":4,"Y":2},{"X":5,"Y":2},{"X":5,"Y":1},{"X":6,"Y":1},{"X":7,"Y":1},{"X":8,"Y":1},{"X":8,"Y":2},{"X":8,"Y":2}],"Health":100,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""}],"Hazards":null}
+		// 	`),
+		// 	// okMoves:     []rules.Direction{rules.DirectionDown},
+		// },
+		// {
+		// 	explanation: "check iterating too much",
+		// 	state: []byte(`
+		// 	{"Turn":27,"Height":11,"Width":11,"Food":[{"X":1,"Y":7},{"X":7,"Y":3}],"Snakes":[{"ID":"fc21e710-4a00-44fc-8703-a6e124cf295f","Body":[{"X":7,"Y":1},{"X":6,"Y":1},{"X":5,"Y":1},{"X":4,"Y":1},{"X":3,"Y":1}],"Health":84,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""},{"ID":"7c17761e-e9de-4877-a2f3-0bf5310c2a22","Body":[{"X":6,"Y":0},{"X":5,"Y":0},{"X":4,"Y":0},{"X":3,"Y":0},{"X":2,"Y":0}],"Health":98,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""}],"Hazards":null}
+		// 	`),
+		// 	// okMoves:     []rules.Direction{rules.DirectionDown},
+		// },
+		// {
+		// 	explanation: "don't panic",
+		// 	state: []byte(`
+		// 	{"Turn":8,"Height":11,"Width":11,"Food":[{"X":5,"Y":5},{"X":5,"Y":4}],"Snakes":[{"ID":"gs_WmdKBYdfcypWSbQSt3pgtTGH","Body":[{"X":5,"Y":7},{"X":4,"Y":7},{"X":3,"Y":7},{"X":2,"Y":7}],"Health":94,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""},{"ID":"gs_TGYB6JcwF7c4fMCQBJDBpVpF","Body":[{"X":5,"Y":3},{"X":5,"Y":2},{"X":6,"Y":2},{"X":7,"Y":2}],"Health":94,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""}],"Hazards":null}
+		// 	`),
+		// 	// okMoves:     []rules.Direction{rules.DirectionDown},
+		// },
 		{
-			explanation: "test go down to fill space. doesn't work with deepening",
+			explanation: "doom on the left",
 			state: []byte(`
-					{"Turn":179,"Height":11,"Width":11,"Food":[{"X":9,"Y":8},{"X":9,"Y":6}],"Snakes":[{"ID":"a335824d-2942-4088-a79a-9ce28111e048","Body":[{"X":6,"Y":10},{"X":7,"Y":10},{"X":8,"Y":10},{"X":9,"Y":10},{"X":10,"Y":10},{"X":10,"Y":9},{"X":9,"Y":9}],"Health":31,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""},{"ID":"23e3bcb5-9d9b-4c24-afea-c47bb55f8230","Body":[{"X":8,"Y":2},{"X":8,"Y":1},{"X":7,"Y":1},{"X":6,"Y":1},{"X":5,"Y":1},{"X":4,"Y":1},{"X":3,"Y":1},{"X":2,"Y":1},{"X":1,"Y":1},{"X":0,"Y":1},{"X":0,"Y":0},{"X":1,"Y":0},{"X":2,"Y":0},{"X":3,"Y":0}],"Health":46,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""}],"Hazards":null}
-					`),
-			// okMoves:     []rules.Direction{rules.DirectionDown},
+			{"Turn":392,"Height":11,"Width":11,"Food":[{"X":1,"Y":0},{"X":0,"Y":0},{"X":1,"Y":6},{"X":9,"Y":5},{"X":1,"Y":1}],"Snakes":[{"ID":"gs_XTH4t36GjgDWYxH68cWkc3Cc","Body":[{"X":6,"Y":0},{"X":6,"Y":1},{"X":6,"Y":2},{"X":7,"Y":2},{"X":7,"Y":3},{"X":6,"Y":3},{"X":5,"Y":3},{"X":5,"Y":4},{"X":6,"Y":4},{"X":6,"Y":5},{"X":6,"Y":6},{"X":5,"Y":6},{"X":4,"Y":6},{"X":3,"Y":6},{"X":3,"Y":7},{"X":4,"Y":7},{"X":5,"Y":7},{"X":6,"Y":7},{"X":7,"Y":7},{"X":7,"Y":6},{"X":7,"Y":5},{"X":7,"Y":4},{"X":8,"Y":4},{"X":9,"Y":4},{"X":9,"Y":3},{"X":8,"Y":3},{"X":8,"Y":2},{"X":9,"Y":2},{"X":10,"Y":2},{"X":10,"Y":1},{"X":9,"Y":1},{"X":8,"Y":1},{"X":8,"Y":1}],"Health":100,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""},{"ID":"gs_3WTmFGhBX6jHPqQ7TF799cg4","Body":[{"X":1,"Y":9},{"X":1,"Y":10},{"X":2,"Y":10},{"X":3,"Y":10},{"X":4,"Y":10},{"X":5,"Y":10},{"X":6,"Y":10},{"X":7,"Y":10},{"X":8,"Y":10},{"X":9,"Y":10},{"X":10,"Y":10},{"X":10,"Y":9},{"X":9,"Y":9},{"X":9,"Y":8},{"X":8,"Y":8},{"X":7,"Y":8},{"X":7,"Y":9},{"X":6,"Y":9},{"X":5,"Y":9},{"X":4,"Y":9},{"X":3,"Y":9},{"X":3,"Y":8},{"X":2,"Y":8},{"X":2,"Y":7},{"X":2,"Y":6},{"X":2,"Y":5},{"X":2,"Y":4},{"X":2,"Y":3},{"X":2,"Y":2},{"X":3,"Y":2}],"Health":93,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""}],"Hazards":null}
+			`),
+			// okMoves: []rules.Direction{rules.DirectionRight},
 		},
 	}
 )
@@ -150,7 +178,7 @@ func TestMinimaxNode(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 5000*time.Millisecond)
 		defer cancel()
 
-		deepestDepth, _ := startingNode.Search(ctx, 22, 22, ruleset, nil)
+		deepestDepth, _ := startingNode.Search(ctx, 35, 35, ruleset, nil)
 		fmt.Println("got to depth", deepestDepth)
 		fmt.Println("got startingnode children", len(startingNode.Children))
 		fmt.Println("got score", *startingNode.Score)
@@ -176,17 +204,7 @@ func TestMinimaxNode(t *testing.T) {
 
 		// }
 
-		nextChild := startingNode
-		for {
-			// fmt.Println("got score of", *nextChild.Score)
-			temp := nextChild.FindBestChild()
-			if temp == nil {
-				break
-			}
-			nextChild = temp
-			nextChild.Print()
-			generator.PrintMap(nextChild.State)
-		}
+		startingNode.ExploreBestPath()
 		// generator.PrintMap(bestChild)
 	}
 }
