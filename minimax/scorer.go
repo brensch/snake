@@ -140,5 +140,17 @@ func GameFinishedBits(snake1, snake2 int) float64 {
 
 func HeuristicAnalysis(board *rules.BoardState) float64 {
 
+	healthScore := 1.0
+	if board.Snakes[0].Health < 20 {
+		healthScore = 0.5
+	}
+
+	percentLengthOfOtherSnake := float64(len(board.Snakes[0].Body) / len(board.Snakes[1].Body))
+	lengthScore := percentLengthOfOtherSnake
+	if lengthScore > 1.1 {
+		lengthScore = 1.1
+	}
+
+	return PercentageOfBoardControlled(board) * lengthScore * healthScore
 	return PercentageOfBoardControlled(board)
 }

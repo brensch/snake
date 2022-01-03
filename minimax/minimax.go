@@ -139,6 +139,8 @@ func (n *Node) FindBestChild() *Node {
 		generator.PrintMap(child.State)
 	}
 
+	fmt.Println("what does this mean")
+
 	return nil
 }
 
@@ -167,18 +169,18 @@ func (n *Node) CopyNode() *Node {
 func (n *Node) DeepeningSearch(ctx context.Context, ruleset rules.Ruleset) rules.BoardState {
 
 	// start with a modest check
+	// startingNode :=
 
-	depth := 10
+	depth := 13
 	n.Search(ctx, depth, depth, ruleset, nil)
-
-	var bestState rules.BoardState
+	bestChild := n.FindBestChild()
+	bestState := *bestChild.State
 
 	for {
 		// get best move before each round, only
 		depth++
-		bestChild := n.FindBestChild()
-		bestState = *bestChild.State
 		deepestDepth, err := n.Search(ctx, depth, depth, ruleset, nil)
+		// fmt.Printf("checking depth %d, deepest: %d\n", depth, deepestDepth)
 		if err != nil {
 			break
 		}
@@ -190,6 +192,26 @@ func (n *Node) DeepeningSearch(ctx context.Context, ruleset rules.Ruleset) rules
 		if deepestDepth > 0 {
 			break
 		}
+		bestChild = n.FindBestChild()
+		bestState = *bestChild.State
+
+		// nextChild := n
+		// for {
+		// 	// fmt.Println("got score of", *nextChild.Score)
+		// 	temp := nextChild.FindBestChild()
+		// 	if temp == nil {
+		// 		break
+		// 	}
+		// 	nextChild = temp
+		// 	nextChild.Print()
+		// 	generator.PrintMap(nextChild.State)
+		// }
+
+		// remove all work as a test
+		// n.Children = nil
+		// n.Score = nil
+		// n.Alpha = math.Inf(-1)
+		// n.Beta = math.Inf(1)
 
 	}
 	fmt.Println("got to depth", depth-1)
@@ -202,8 +224,11 @@ func (n *Node) Search(ctx context.Context, depth, deepestDepth int, ruleset rule
 	// fmt.Println("player", player)
 
 	if ctx.Err() != nil {
-		// fmt.Println("context finished")
+		fmt.Println("context finished")
 		return depth, ctx.Err()
+	}
+	if depth < deepestDepth {
+		deepestDepth = depth
 	}
 
 	finishedScore := GameFinished(n.State)
@@ -230,9 +255,7 @@ func (n *Node) Search(ctx context.Context, depth, deepestDepth int, ruleset rule
 
 		// n.Score = &control
 		// fmt.Println("hit bottom", control, n.player)
-		if depth < deepestDepth {
-			return depth, nil
-		}
+
 		return deepestDepth, nil
 	}
 
@@ -270,13 +293,13 @@ func (n *Node) Search(ctx context.Context, depth, deepestDepth int, ruleset rule
 		}
 		n.Children = append(n.Children, childNode)
 
-		newDepth, err := childNode.Search(ctx, depth-1, deepestDepth, ruleset, n)
-		if err != nil {
-			return nil, err
-		}
+		deepestDepth, err = childNode.Search(ctx, depth-1, deepestDepth, ruleset, n)
 
-		if newDepth < deepestDepth {
-			deepestDepth = newDepth
+		// if newDepth < deepestDepth {
+		// 	deepestDepth = newDepth
+		// }
+		if err != nil {
+			return deepestDepth, err
 		}
 
 		if n.Alpha >= n.Beta {
@@ -288,9 +311,9 @@ func (n *Node) Search(ctx context.Context, depth, deepestDepth int, ruleset rule
 			// n.PropagateScore(n.Beta)
 
 			// fmt.Println("pruning", n.Alpha, n.Beta)
-			if depth < deepestDepth {
-				return depth, err
-			}
+			// if depth < deepestDepth {
+			// 	return depth, err
+			// }
 			return deepestDepth, err
 		}
 

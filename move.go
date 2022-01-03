@@ -418,19 +418,19 @@ func Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, y
 	defer cancel()
 
 	// startingNode.Search(ctx, 14, ruleset)
-	startingNode.DeepeningSearch(ctx, ruleset)
+	bestNextState := startingNode.DeepeningSearch(ctx, ruleset)
 
-	bestChild := startingNode.FindBestChild()
+	// bestChild := startingNode.FindBestChild()
 
 	// generator.PrintMap(bestChild)
 	// get the direction that the child moved in
-	direction := generator.DirectionToPoint(you.Body[0], bestChild.State.Snakes[0].Body[0])
+	direction := generator.DirectionToPoint(you.Body[0], bestNextState.Snakes[0].Body[0])
 
 	// _ = score
 	_ = skipper
 	// if !skipper {
 
-	fmt.Println("got score of next move", *startingNode.Score, direction.String())
+	// fmt.Println("got score of next move", *startingNode.Score, direction.String())
 	// fmt.Println(state)
 	generator.PrintMap(state)
 	stateJSON, _ := json.Marshal(state)
