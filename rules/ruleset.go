@@ -34,8 +34,8 @@ const (
 )
 
 type Point struct {
-	X int32
-	Y int32
+	X byte
+	Y byte
 }
 
 type Direction uint8
@@ -60,7 +60,7 @@ const (
 type Snake struct {
 	ID               string
 	Body             []Point
-	Health           int32
+	Health           byte
 	EliminatedCause  string
 	EliminatedOnTurn int32
 	EliminatedBy     string

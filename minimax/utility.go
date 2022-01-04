@@ -38,8 +38,24 @@ func (n *Node) ExploreBestPath() {
 // 	return snakeString
 // }
 
-func Hash(snake rules.Snake) []byte {
+func Hash(board *rules.BoardState) []byte {
 	var b bytes.Buffer
-	gob.NewEncoder(&b).Encode(snake)
+	gob.NewEncoder(&b).Encode(board)
 	return b.Bytes()
+}
+
+func QuickHash(board *rules.BoardState) {
+
+	buffer := make([]byte, 1000000)
+
+	offset := 0
+	// var thi
+	var thing rules.Point
+
+	for _, snake := range board.Snakes {
+		for _, bodyPiece := range snake.Body {
+
+			buffer[offset : offset+2] = []byte{bodyPiece.X, bodyPiece.Y}
+		}
+	}
 }

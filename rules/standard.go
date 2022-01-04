@@ -101,6 +101,40 @@ func (r *StandardRuleset) ApplySingleMove(prevState *BoardState, move SnakeMoveI
 
 }
 
+// func (r *StandardRuleset) ApplyMultipleMoves(prevState *BoardState, snakeIndex int, moves []SnakeMove) (*BoardState, error) {
+
+// 	// nextState := prevState.Clone()
+// 	// nextState := prevState
+
+// 	err := r.MoveSnake(nextState, move)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	// lower health
+// 	nextState.Snakes[move.Index].Health = nextState.Snakes[move.Index].Health - 1
+
+// 	// check if we ate
+// 	head := nextState.Snakes[move.Index].Body[0]
+// 	for index, snack := range prevState.Food {
+// 		if head.X == snack.X && head.Y == snack.Y {
+// 			nextState.Snakes[move.Index].Health = 100
+// 			// add one piece to tail
+// 			nextState.Snakes[move.Index].Body = append(nextState.Snakes[move.Index].Body, nextState.Snakes[move.Index].Body[len(nextState.Snakes[move.Index].Body)-1])
+
+// 			// remove snack
+// 			// replace index with final point then truncate array
+// 			nextState.Food[index] = snack
+// 			nextState.Food = nextState.Food[:len(nextState.Food)-1]
+
+// 			break
+// 		}
+// 	}
+
+// 	return nextState, nil
+
+// }
+
 func (r *StandardRuleset) checkAllSnakesHaveMoves(b *BoardState, moves []SnakeMove) error {
 	// Sanity check that all non-eliminated snakes have moves and bodies.
 	for i := 0; i < len(b.Snakes); i++ {
@@ -126,6 +160,48 @@ func (r *StandardRuleset) checkAllSnakesHaveMoves(b *BoardState, moves []SnakeMo
 
 	return nil
 }
+
+// func (r *StandardRuleset) MoveSnakeMultipleTimes(b *BoardState, snakeIndex int, moves []SnakeMove) error {
+
+// 	snake := &b.Snakes[move.Index]
+
+// 	var newHead = Point{}
+// 	switch move.Move {
+// 	case DirectionDown:
+// 		newHead.X = snake.Body[0].X
+// 		newHead.Y = snake.Body[0].Y - 1
+// 	case DirectionLeft:
+// 		newHead.X = snake.Body[0].X - 1
+// 		newHead.Y = snake.Body[0].Y
+// 	case DirectionRight:
+// 		newHead.X = snake.Body[0].X + 1
+// 		newHead.Y = snake.Body[0].Y
+// 	case DirectionUp:
+// 		newHead.X = snake.Body[0].X
+// 		newHead.Y = snake.Body[0].Y + 1
+// 	default:
+// 		// Default to UP
+// 		var dX int32 = 0
+// 		var dY int32 = 1
+// 		// If neck is available, use neck to determine last direction
+// 		if len(snake.Body) >= 2 {
+// 			dX = snake.Body[0].X - snake.Body[1].X
+// 			dY = snake.Body[0].Y - snake.Body[1].Y
+// 			if dX == 0 && dY == 0 {
+// 				dY = 1 // Move up if no last move was made
+// 			}
+// 		}
+// 		// Apply
+// 		newHead.X = snake.Body[0].X + dX
+// 		newHead.Y = snake.Body[0].Y + dY
+// 	}
+
+// 	// Append new head, pop old tail
+// 	snake.Body = append([]Point{newHead}, snake.Body[:len(snake.Body)-1]...)
+
+// 	return nil
+
+// }
 
 func (r *StandardRuleset) MoveSnake(b *BoardState, move SnakeMoveIndex) error {
 

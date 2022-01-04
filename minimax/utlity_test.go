@@ -34,7 +34,7 @@ func TestHash(t *testing.T) {
 
 	fmt.Println("yo", mappo[s2])
 
-	fmt.Println(Hash(s.Snakes[0]))
+	fmt.Println(Hash(s))
 
 }
 
@@ -52,7 +52,7 @@ func BenchmarkHash(b *testing.B) {
 
 	for n := 0; n < b.N; n++ {
 
-		Hash(s.Snakes[0])
+		Hash(s)
 	}
 
 }
