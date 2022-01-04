@@ -416,7 +416,7 @@ func Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, y
 		State:        state,
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, 50*time.Millisecond)
+	ctx, cancel := context.WithTimeout(ctx, 400*time.Millisecond)
 	defer cancel()
 
 	// startingNode.Search(ctx, 14, ruleset)

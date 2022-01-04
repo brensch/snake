@@ -143,17 +143,21 @@ func GameFinishedBits(snake1, snake2 int) float64 {
 
 func HeuristicAnalysis(board *rules.BoardState) float64 {
 
-	healthScore := 1.0
-	if board.Snakes[0].Health < 20 {
-		healthScore = 0.5
-	}
+	// healthScore := 1.0
+	// if board.Snakes[0].Health < 20 {
+	// 	healthScore = 0.5
+	// }
 
 	percentLengthOfOtherSnake := float64(len(board.Snakes[0].Body)) / float64(len(board.Snakes[1].Body))
 	lengthScore := percentLengthOfOtherSnake
+	if lengthScore > 1.2 {
+		lengthScore = 1.2
+	}
 
 	// return PercentageOfBoardControlled(board) * lengthScore
-	return PercentageOfBoardControlled(board) * lengthScore * healthScore
+	// return ShortestPathsBreadth(board) * lengthScore * healthScore
 	// return PercentageOfBoardControlled(board)
+	return ShortestPathsBreadth(board) * lengthScore
 }
 
 func ShortestPaths(board *rules.BoardState) {
@@ -308,7 +312,7 @@ func ExplorePoint2(graph, obstacles []int, x, y int) {
 
 }
 
-func ShortestPathsBreadth(board *rules.BoardState) {
+func ShortestPathsBreadth(board *rules.BoardState) float64 {
 
 	// var obstacleGrid [11][11]int
 
@@ -323,24 +327,37 @@ func ShortestPathsBreadth(board *rules.BoardState) {
 	}
 
 	// PrintShortestPath(obstacleGrid)
+	snakeRoutes := make([][]int, 2)
 
 	// iterate through each snake and do a dfs
 	for snakeCount, snake := range board.Snakes {
-		snakeRoute := make([]int, 11*11)
+		snakeRoutes[snakeCount] = make([]int, 11*11)
 
 		// start at head
 		head := snake.Body[0]
 
-		snakeRoute[head.Y*11+head.X] = 1
+		snakeRoutes[snakeCount][head.Y*11+head.X] = 1
 		_ = snakeCount
-		ExplorePoints(snakeRoute, obstacleGrid, [][2]int{{int(head.X), int(head.Y)}}, 1)
+		ExplorePoints(snakeRoutes[snakeCount], obstacleGrid, [][2]int{{int(head.X), int(head.Y)}}, 1)
 		// ExplorePoint(snakeRoute, int(head.X+1), int(head.Y))
 		// ExplorePoint(snakeRoute, int(head.X), int(head.Y+1))
 
 		// fmt.Println("snake ", snakeCount)
-		// PrintShortestPath(snakeRoute)
+		// PrintShortestPath(snakeRoutes[snakeCount])
 
 	}
+
+	controlledSquares := 0
+
+	for x := 0; x < 11; x++ {
+		for y := 0; y < 11; y++ {
+			if snakeRoutes[0][y*11+x] < snakeRoutes[1][y*11+x] {
+				controlledSquares++
+			}
+		}
+	}
+
+	return float64(controlledSquares) / float64(121)
 
 	// return obstacleGrid
 

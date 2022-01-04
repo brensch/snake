@@ -224,7 +224,7 @@ func (n *Node) DeepeningSearch(ctx context.Context, ruleset rules.Ruleset) rules
 		// fmt.Println("---------------------------------------- end depth", depth)
 
 	}
-	// fmt.Println("got to depth", depth-1)
+	fmt.Println("got to depth", depth-1)
 	return bestState
 
 }

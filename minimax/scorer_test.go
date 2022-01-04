@@ -2,6 +2,7 @@ package minimax
 
 import (
 	"encoding/json"
+	"fmt"
 	"testing"
 
 	log "github.com/sirupsen/logrus"
@@ -216,7 +217,8 @@ func TestShortestPathsBreadth(t *testing.T) {
 
 		generator.PrintMap(s)
 
-		ShortestPathsBreadth(s)
+		controlledPercent := ShortestPathsBreadth(s)
+		fmt.Println(controlledPercent)
 
 		// PrintShortestPath(graph)
 
