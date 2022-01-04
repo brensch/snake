@@ -61,36 +61,42 @@ func baseConvert(x int, snakes []rules.Snake) []rules.SnakeMove {
 	return r
 }
 
-func AllMovesForSnake(b *rules.BoardState, snakePosition int) [4]bool {
+func AllMovesForSnake(b *rules.BoardState, snakePosition int) ([4]bool, int) {
 	// get their neck
 	head := b.Snakes[snakePosition].Body[0]
 	neck := b.Snakes[snakePosition].Body[1]
 
 	positions := [4]bool{}
 
+	moveCount := 0
+
 	// go through each direction, check if it's ok
 
 	// left
 	if head.X > 0 && neck.X >= head.X {
 		positions[rules.DirectionLeft] = true
+		moveCount++
 	}
 
 	// right
 	if head.X < b.Width-1 && neck.X <= head.X {
 		positions[rules.DirectionRight] = true
+		moveCount++
 	}
 
 	// down
 	if head.Y > 0 && neck.Y >= head.Y {
 		positions[rules.DirectionDown] = true
+		moveCount++
 	}
 
 	// up
 	if head.Y < b.Height-1 && neck.Y <= head.Y {
 		positions[rules.DirectionUp] = true
+		moveCount++
 	}
 
-	return positions
+	return positions, moveCount
 
 }
 

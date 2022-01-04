@@ -143,21 +143,21 @@ func GameFinishedBits(snake1, snake2 int) float64 {
 
 func HeuristicAnalysis(board *rules.BoardState) float64 {
 
-	// healthScore := 1.0
-	// if board.Snakes[0].Health < 20 {
-	// 	healthScore = 0.5
-	// }
+	healthScore := 1.0
+	if board.Snakes[0].Health < 20 {
+		healthScore = 0.5
+	}
 
 	percentLengthOfOtherSnake := float64(len(board.Snakes[0].Body)) / float64(len(board.Snakes[1].Body))
 	lengthScore := percentLengthOfOtherSnake
-	if lengthScore > 1.2 {
-		lengthScore = 1.2
+	if lengthScore > 1.1 {
+		lengthScore = 1.1
 	}
 
 	// return PercentageOfBoardControlled(board) * lengthScore
 	// return ShortestPathsBreadth(board) * lengthScore * healthScore
 	// return PercentageOfBoardControlled(board)
-	return ShortestPathsBreadth(board) * lengthScore
+	return ShortestPathsBreadth(board) * lengthScore * healthScore
 }
 
 func ShortestPaths(board *rules.BoardState) {
@@ -348,10 +348,73 @@ func ShortestPathsBreadth(board *rules.BoardState) float64 {
 	}
 
 	controlledSquares := 0
+	reachableSquares := 0
 
 	for x := 0; x < 11; x++ {
 		for y := 0; y < 11; y++ {
-			if snakeRoutes[0][y*11+x] < snakeRoutes[1][y*11+x] {
+
+			if snakeRoutes[1][y*11+x] > 0 || snakeRoutes[0][y*11+x] > 0 {
+				reachableSquares++
+			}
+
+			if snakeRoutes[0][y*11+x] > 0 && snakeRoutes[0][y*11+x] < snakeRoutes[1][y*11+x] {
+				controlledSquares++
+			}
+		}
+	}
+
+	return float64(controlledSquares) / float64(121)
+
+	// return obstacleGrid
+
+}
+
+func ShortestPathsBreadthPrint(board *rules.BoardState) float64 {
+
+	// var obstacleGrid [11][11]int
+
+	obstacleGrid := make([]int, 11*11)
+
+	// snakeRoutes
+
+	for _, snake := range board.Snakes {
+		for snakePieceIndex, snakePiece := range snake.Body {
+			obstacleGrid[snakePiece.Y*11+snakePiece.X] = len(snake.Body) - snakePieceIndex
+		}
+	}
+
+	// PrintShortestPath(obstacleGrid)
+	snakeRoutes := make([][]int, 2)
+
+	// iterate through each snake and do a dfs
+	for snakeCount, snake := range board.Snakes {
+		snakeRoutes[snakeCount] = make([]int, 11*11)
+
+		// start at head
+		head := snake.Body[0]
+
+		snakeRoutes[snakeCount][head.Y*11+head.X] = 1
+		_ = snakeCount
+		ExplorePoints(snakeRoutes[snakeCount], obstacleGrid, [][2]int{{int(head.X), int(head.Y)}}, 1)
+		// ExplorePoint(snakeRoute, int(head.X+1), int(head.Y))
+		// ExplorePoint(snakeRoute, int(head.X), int(head.Y+1))
+
+		fmt.Println("snake ", snakeCount)
+		PrintShortestPath(snakeRoutes[snakeCount])
+
+	}
+
+	controlledSquares := 0
+	reachableSquares := 0
+
+	for x := 0; x < 11; x++ {
+		for y := 0; y < 11; y++ {
+
+			if snakeRoutes[1][y*11+x] > 0 || snakeRoutes[0][y*11+x] > 0 {
+				reachableSquares++
+			}
+
+			if snakeRoutes[0][y*11+x] > 0 && snakeRoutes[0][y*11+x] < snakeRoutes[1][y*11+x] {
 				controlledSquares++
 			}
 		}
@@ -367,7 +430,7 @@ func ExplorePoints(graph, obstacles []int, coords [][2]int, prevScore int) {
 
 	// the size selected it the largest possible size the next iteration can be.
 	// doing this doubles performance (!). appends are very slow. speed is critical in this function even if things get unidiomatic.
-	nextPoints := make([][2]int, len(coords)*3)
+	nextPoints := make([][2]int, len(coords)*3+1)
 	// use this to know where we are in the nextPoints array
 	pointCount := 0
 

@@ -20,6 +20,7 @@ func (n *Node) ExploreBestPath() {
 		nextChild = temp
 		nextChild.Print()
 		generator.PrintMap(nextChild.State)
+		ShortestPathsBreadthPrint(nextChild.State)
 	}
 }
 

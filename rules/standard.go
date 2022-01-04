@@ -70,6 +70,7 @@ func (r *StandardRuleset) CreateNextBoardState(prevState *BoardState, moves []Sn
 func (r *StandardRuleset) ApplySingleMove(prevState *BoardState, move SnakeMoveIndex) (*BoardState, error) {
 
 	nextState := prevState.Clone()
+	// nextState := prevState
 
 	err := r.MoveSnake(nextState, move)
 	if err != nil {

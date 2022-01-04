@@ -180,10 +180,10 @@ func TestMinimaxNode(t *testing.T) {
 
 		deepestDepth, _ := startingNode.Search(ctx, 15, 15, ruleset, nil)
 		fmt.Println("got to depth", deepestDepth)
-		fmt.Println("got startingnode children", len(startingNode.Children))
-		fmt.Println("got score", *startingNode.Score)
+		// fmt.Println("got startingnode children", len(startingNode.Children))
+		// fmt.Println("got score", *startingNode.Score)
 
-		generator.PrintMap(startingNode.FindBestChild().State)
+		// generator.PrintMap(startingNode.FindBestChild().State)
 
 		// currentNode := startingNode
 		// nextLevel := currentNode.Children
@@ -278,6 +278,37 @@ func TestDeepeningSearch(t *testing.T) {
 		// }
 		// generator.PrintMap(bestChild)
 	}
+}
+
+func BenchmarkSearch(b *testing.B) {
+
+	log.SetLevel(log.DebugLevel)
+	var s *rules.BoardState
+	err := json.Unmarshal(tests[0].state, &s)
+	if err != nil {
+		b.Error(err)
+		b.FailNow()
+	}
+
+	for n := 0; n < b.N; n++ {
+		ruleset := &rules.StandardRuleset{
+			FoodSpawnChance:     50,
+			MinimumFood:         0,
+			HazardDamagePerTurn: 16,
+		}
+
+		startingNode := &Node{
+			Alpha:        math.Inf(-1),
+			Beta:         math.Inf(1),
+			IsMaximising: true,
+			State:        s,
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 5000*time.Millisecond)
+		startingNode.Search(ctx, 1, 1, ruleset, nil)
+		cancel()
+		fmt.Println("finished")
+	}
+
 }
 
 func BenchmarkCopy(b *testing.B) {

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
-	"sort"
 
 	"github.com/brensch/snake/generator"
 	"github.com/brensch/snake/rules"
@@ -310,7 +309,10 @@ func (n *Node) Search(ctx context.Context, depth, deepestDepth int, ruleset rule
 	if !n.IsMaximising {
 		playerIndex = 1
 	}
-	safeMoves := generator.AllMovesForSnake(n.State, playerIndex)
+
+	safeMoves, count := generator.AllMovesForSnake(n.State, playerIndex)
+	n.Children = make([]*Node, count)
+	moveNumber := 0
 	for move, isOk := range safeMoves {
 		if !isOk {
 			continue
@@ -336,18 +338,56 @@ func (n *Node) Search(ctx context.Context, depth, deepestDepth int, ruleset rule
 			State:        nextState,
 		}
 
-		deepestDepth, err = childNode.Search(ctx, depth-1, deepestDepth, ruleset, n)
+		// fmt.Println("child", moveNumber)
+
+		n.Children[moveNumber] = childNode
+		moveNumber++
+
+		deepestDepth, err := childNode.Search(ctx, depth-1, deepestDepth, ruleset, n)
 		if err != nil {
 			return deepestDepth, err
 		}
 
 		if n.Alpha >= n.Beta {
+			fmt.Println("pruning")
 			return deepestDepth, err
 		}
 
-		n.Children = append(n.Children, childNode)
-
 	}
+
+	// if moveNumber != count {
+	// 	fmt.Println("crazy")
+	// }
+
+	// go through each and do a depth 0 search so we can sort them.
+	// this improves alpha beta pruning.
+
+	// if depth > 1 {
+
+	// 	for _, child := range n.Children {
+	// 		_, err := child.Search(ctx, 0, 0, ruleset, n)
+	// 		if err != nil {
+	// 			return deepestDepth, err
+	// 		}
+	// 	}
+
+	// 	sort.Sort(n.Children)
+
+	// }
+
+	// and now do the search
+	// for number, child := range n.Children {
+	// 	fmt.Println("child", number)
+
+	// 	deepestDepth, err := child.Search(ctx, depth-1, deepestDepth, ruleset, n)
+	// 	if err != nil {
+	// 		return deepestDepth, err
+	// 	}
+
+	// 	if n.Alpha >= n.Beta {
+	// 		return deepestDepth, err
+	// 	}
+	// }
 
 	// once all moves evaluated, figure out score from alpha and beta
 	score := n.Alpha
@@ -358,7 +398,7 @@ func (n *Node) Search(ctx context.Context, depth, deepestDepth int, ruleset rule
 	n.PropagateScore(parent, score)
 
 	// and sort so future iterations benefit
-	sort.Sort(n.Children)
+	// sort.Sort(n.Children)
 
 	return deepestDepth, nil
 }
