@@ -10,14 +10,14 @@ import (
 )
 
 type EngineCoord struct {
-	X int32 `json:"x"`
-	Y int32 `json:"y"`
+	X byte `json:"x"`
+	Y byte `json:"y"`
 }
 
 type EngineSnake struct {
 	ID      string        `json:"id"`
 	Name    string        `json:"name"`
-	Health  int32         `json:"health"`
+	Health  byte          `json:"health"`
 	Body    []EngineCoord `json:"body"`
 	Latency string        `json:"latency"`
 	Head    EngineCoord   `json:"head"`
@@ -48,15 +48,15 @@ func CoordsToPoints(coords []EngineCoord) []rules.Point {
 }
 
 type EngineBoard struct {
-	Height  int32         `json:"height"`
-	Width   int32         `json:"width"`
+	Height  byte          `json:"height"`
+	Width   byte          `json:"width"`
 	Food    []EngineCoord `json:"food"`
 	Hazards []EngineCoord `json:"hazards"`
 	Snakes  []EngineSnake `json:"snakes"`
 }
 
 type EngineRuleSetSettings struct {
-	HazardDamagePerTurn int32          `json:"hazardDamagePerTurn"`
+	HazardDamagePerTurn byte           `json:"hazardDamagePerTurn"`
 	FoodSpawnChance     int32          `json:"foodSpawnChance"`
 	MinimumFood         int32          `json:"minimumFood"`
 	RoyaleSettings      RoyaleSettings `json:"royale"`

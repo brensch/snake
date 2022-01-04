@@ -4,7 +4,7 @@ type WrappedRuleset struct {
 	StandardRuleset
 }
 
-func replace(value, min, max int32) int32 {
+func replace(value, min, max byte) byte {
 	if value < min {
 		return max
 	}

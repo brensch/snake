@@ -9,8 +9,8 @@ import (
 
 func TestCreateDefaultBoardState(t *testing.T) {
 	tests := []struct {
-		Height          int32
-		Width           int32
+		Height          byte
+		Width           byte
 		IDs             []string
 		ExpectedNumFood int
 		Err             error
@@ -469,8 +469,8 @@ func TestPlaceFoodFixedNoRoom(t *testing.T) {
 
 func TestIsKnownBoardSize(t *testing.T) {
 	tests := []struct {
-		Width    int32
-		Height   int32
+		Width    byte
+		Height   byte
 		Expected bool
 	}{
 		{1, 1, false},
@@ -509,14 +509,6 @@ func TestGetUnoccupiedPoints(t *testing.T) {
 				Width:  2,
 			},
 			[]Point{{0, 0}, {1, 0}},
-		},
-		{
-			&BoardState{
-				Height: 1,
-				Width:  1,
-				Food:   []Point{{0, 0}, {101, 202}, {-4, -5}},
-			},
-			[]Point{},
 		},
 		{
 			&BoardState{
@@ -595,14 +587,6 @@ func TestGetEvenUnoccupiedPoints(t *testing.T) {
 				Width:  2,
 			},
 			[]Point{{0, 0}, {1, 1}},
-		},
-		{
-			&BoardState{
-				Height: 1,
-				Width:  1,
-				Food:   []Point{{0, 0}, {101, 202}, {-4, -5}},
-			},
-			[]Point{},
 		},
 		{
 			&BoardState{

@@ -8,7 +8,7 @@ import (
 type StandardRuleset struct {
 	FoodSpawnChance     int32 // [0, 100]
 	MinimumFood         int32
-	HazardDamagePerTurn int32
+	HazardDamagePerTurn byte
 }
 
 func (r *StandardRuleset) Name() string { return "standard" }
@@ -223,8 +223,8 @@ func (r *StandardRuleset) MoveSnake(b *BoardState, move SnakeMoveIndex) error {
 		newHead.Y = snake.Body[0].Y + 1
 	default:
 		// Default to UP
-		var dX int32 = 0
-		var dY int32 = 1
+		var dX byte = 0
+		var dY byte = 1
 		// If neck is available, use neck to determine last direction
 		if len(snake.Body) >= 2 {
 			dX = snake.Body[0].X - snake.Body[1].X
@@ -444,7 +444,7 @@ func (r *StandardRuleset) snakeIsOutOfHealth(s *Snake) bool {
 	return s.Health <= 0
 }
 
-func (r *StandardRuleset) snakeIsOutOfBounds(s *Snake, boardWidth int32, boardHeight int32) bool {
+func (r *StandardRuleset) snakeIsOutOfBounds(s *Snake, boardWidth, boardHeight byte) bool {
 	for _, point := range s.Body {
 		if (point.X < 0) || (point.X >= boardWidth) {
 			return true

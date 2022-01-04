@@ -1,7 +1,7 @@
 package generator
 
 // Some int maths helpers to hopefully make things a bit faster
-func Abs(num int32) int32 {
+func Abs(num byte) byte {
 	if num < 0 {
 		return -num
 	}

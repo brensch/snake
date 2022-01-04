@@ -55,8 +55,8 @@ func (r *RoyaleRuleset) populateHazards(b *BoardState, turn int32) error {
 	randGenerator := rand.New(rand.NewSource(r.Seed))
 
 	numShrinks := turn / r.ShrinkEveryNTurns
-	minX, maxX := int32(0), b.Width-1
-	minY, maxY := int32(0), b.Height-1
+	minX, maxX := byte(0), b.Width-1
+	minY, maxY := byte(0), b.Height-1
 	for i := int32(0); i < numShrinks; i++ {
 		switch randGenerator.Intn(4) {
 		case 0:
@@ -70,8 +70,8 @@ func (r *RoyaleRuleset) populateHazards(b *BoardState, turn int32) error {
 		}
 	}
 
-	for x := int32(0); x < b.Width; x++ {
-		for y := int32(0); y < b.Height; y++ {
+	for x := byte(0); x < b.Width; x++ {
+		for y := byte(0); y < b.Height; y++ {
 			if x < minX || x > maxX || y < minY || y > maxY {
 				b.Hazards = append(b.Hazards, Point{x, y})
 			}

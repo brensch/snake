@@ -105,9 +105,10 @@ func TestAllMovesForSnake(t *testing.T) {
 
 		print(s.Height)
 
-		score := AllMovesForSnake(s, 0)
+		score, count := AllMovesForSnake(s, 0)
 
 		t.Log(score)
+		t.Log(count)
 
 		// if score > test.scoreMax {
 		// 	t.Log("score too high")

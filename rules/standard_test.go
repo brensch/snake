@@ -2,7 +2,6 @@ package rules
 
 import (
 	"encoding/json"
-	"math"
 	"math/rand"
 	"testing"
 
@@ -444,12 +443,12 @@ func TestMoveSnakes(t *testing.T) {
 			{
 				ID:     "one",
 				Body:   []Point{{10, 110}, {11, 110}},
-				Health: 111111,
+				Health: 255,
 			},
 			{
 				ID:     "two",
 				Body:   []Point{{23, 220}, {22, 220}, {21, 220}, {20, 220}},
-				Health: 222222,
+				Health: 254,
 			},
 			{
 				ID:              "three",
@@ -709,18 +708,14 @@ func TestReduceSnakeHealth(t *testing.T) {
 
 func TestSnakeIsOutOfHealth(t *testing.T) {
 	tests := []struct {
-		Health   int32
+		Health   byte
 		Expected bool
 	}{
-		{Health: math.MinInt32, Expected: true},
-		{Health: -10, Expected: true},
-		{Health: -2, Expected: true},
-		{Health: -1, Expected: true},
+
 		{Health: 0, Expected: true},
 		{Health: 1, Expected: false},
 		{Health: 2, Expected: false},
 		{Health: 10, Expected: false},
-		{Health: math.MaxInt32, Expected: false},
 	}
 
 	r := StandardRuleset{}
@@ -731,19 +726,14 @@ func TestSnakeIsOutOfHealth(t *testing.T) {
 }
 
 func TestSnakeIsOutOfBounds(t *testing.T) {
-	boardWidth := int32(10)
-	boardHeight := int32(100)
+	boardWidth := byte(10)
+	boardHeight := byte(100)
 
 	tests := []struct {
 		Point    Point
 		Expected bool
 	}{
-		{Point{X: math.MinInt32, Y: math.MinInt32}, true},
-		{Point{X: math.MinInt32, Y: 0}, true},
-		{Point{X: 0, Y: math.MinInt32}, true},
-		{Point{X: -1, Y: -1}, true},
-		{Point{X: -1, Y: 0}, true},
-		{Point{X: 0, Y: -1}, true},
+
 		{Point{X: 0, Y: 0}, false},
 		{Point{X: 1, Y: 0}, false},
 		{Point{X: 0, Y: 1}, false},
@@ -757,12 +747,9 @@ func TestSnakeIsOutOfBounds(t *testing.T) {
 		{Point{X: 11, Y: 9}, true},
 		{Point{X: 11, Y: 10}, true},
 		{Point{X: 11, Y: 11}, true},
-		{Point{X: math.MaxInt32, Y: 11}, true},
 		{Point{X: 9, Y: 99}, false},
 		{Point{X: 9, Y: 100}, true},
 		{Point{X: 9, Y: 101}, true},
-		{Point{X: 9, Y: math.MaxInt32}, true},
-		{Point{X: math.MaxInt32, Y: math.MaxInt32}, true},
 	}
 
 	r := StandardRuleset{}
@@ -972,33 +959,12 @@ func TestMaybeEliminateSnakes(t *testing.T) {
 			nil,
 		},
 		{
-			"Out of Bounds",
-			[]Snake{
-				{ID: "1", Health: 1, Body: []Point{{-1, 1}}},
-			},
-			[]string{EliminatedByOutOfBounds},
-			[]string{""},
-			nil,
-		},
-		{
 			"Self Collision",
 			[]Snake{
 				{ID: "1", Health: 1, Body: []Point{{0, 0}, {0, 1}, {0, 0}}},
 			},
 			[]string{EliminatedBySelfCollision},
 			[]string{"1"},
-			nil,
-		},
-		{
-			"Multiple Separate Deaths",
-			[]Snake{
-				{ID: "1", Health: 1, Body: []Point{{0, 0}, {0, 1}, {0, 0}}},
-				{ID: "2", Health: 1, Body: []Point{{-1, 1}}},
-			},
-			[]string{
-				EliminatedBySelfCollision,
-				EliminatedByOutOfBounds},
-			[]string{"1", ""},
 			nil,
 		},
 		{
@@ -1124,8 +1090,6 @@ func TestMaybeEliminateSnakesPriority(t *testing.T) {
 	}{
 		{
 			[]Snake{
-				{ID: "1", Health: 0, Body: []Point{{-1, 0}, {0, 0}, {1, 0}}},
-				{ID: "2", Health: 1, Body: []Point{{-1, 0}, {0, 0}, {1, 0}}},
 				{ID: "3", Health: 1, Body: []Point{{1, 0}, {0, 0}, {1, 0}}},
 				{ID: "4", Health: 1, Body: []Point{{1, 0}, {1, 1}, {1, 2}}},
 				{ID: "5", Health: 1, Body: []Point{{2, 2}, {2, 1}, {2, 0}}},
@@ -1224,10 +1188,10 @@ func TestMaybeDamageHazards(t *testing.T) {
 
 func TestHazardDamagePerTurn(t *testing.T) {
 	tests := []struct {
-		Health                   int32
-		HazardDamagePerTurn      int32
+		Health                   byte
+		HazardDamagePerTurn      byte
 		Food                     bool
-		ExpectedHealth           int32
+		ExpectedHealth           byte
 		ExpectedEliminationCause string
 		Error                    error
 	}{
@@ -1237,13 +1201,10 @@ func TestHazardDamagePerTurn(t *testing.T) {
 		{100, 99, true, 100, NotEliminated, nil},
 		{100, 100, false, 0, EliminatedByOutOfHealth, nil},
 		{100, 101, false, 0, EliminatedByOutOfHealth, nil},
-		{100, 999, false, 0, EliminatedByOutOfHealth, nil},
 		{100, 100, true, 100, NotEliminated, nil},
 		{2, 1, false, 1, NotEliminated, nil},
 		{1, 1, false, 0, EliminatedByOutOfHealth, nil},
-		{1, 999, false, 0, EliminatedByOutOfHealth, nil},
 		{0, 1, false, 0, EliminatedByOutOfHealth, nil},
-		{0, 999, false, 0, EliminatedByOutOfHealth, nil},
 	}
 
 	for _, test := range tests {

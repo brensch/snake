@@ -132,6 +132,6 @@ func Headsnaps(state *rules.BoardState) []rules.Direction {
 	return directions
 }
 
-func DistanceBetween(a, b rules.Point) int32 {
+func DistanceBetween(a, b rules.Point) byte {
 	return Abs(a.X-b.X) + Abs(a.Y-b.Y)
 }

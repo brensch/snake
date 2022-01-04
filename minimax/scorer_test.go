@@ -60,37 +60,6 @@ func TestPercentageOfBoardControlled(t *testing.T) {
 	}
 }
 
-func TestPercentageOfBoardControlledSmart(t *testing.T) {
-	log.SetLevel(log.DebugLevel)
-
-	for _, test := range tests {
-		t.Log("running test: ", test.explanation)
-
-		var s *rules.BoardState
-		err := json.Unmarshal(test.state, &s)
-		if err != nil {
-			t.Error(err)
-			t.FailNow()
-		}
-
-		generator.PrintMap(s)
-
-		score := PercentageOfBoardControlledSmart(s)
-
-		t.Log(score)
-
-		if score > test.scoreMax {
-			t.Log("score too high")
-			t.FailNow()
-		}
-
-		if score < test.scoreMin {
-			t.Log("score too low")
-			t.FailNow()
-		}
-	}
-}
-
 func BenchmarkPercentageOfBoardControlled(b *testing.B) {
 	log.SetLevel(log.DebugLevel)
 
@@ -104,23 +73,6 @@ func BenchmarkPercentageOfBoardControlled(b *testing.B) {
 	for n := 0; n < b.N; n++ {
 
 		PercentageOfBoardControlled(s)
-
-	}
-}
-
-func BenchmarkPercentageOfBoardControlledSmart(b *testing.B) {
-	log.SetLevel(log.DebugLevel)
-
-	var s *rules.BoardState
-	err := json.Unmarshal(tests[0].state, &s)
-	if err != nil {
-		b.Error(err)
-		b.FailNow()
-	}
-
-	for n := 0; n < b.N; n++ {
-
-		PercentageOfBoardControlledSmart(s)
 
 	}
 }

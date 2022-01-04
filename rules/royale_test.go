@@ -37,8 +37,8 @@ func TestRoyaleName(t *testing.T) {
 func TestRoyaleHazards(t *testing.T) {
 	seed := int64(25543234525)
 	tests := []struct {
-		Width             int32
-		Height            int32
+		Width             byte
+		Height            byte
 		Turn              int32
 		ShrinkEveryNTurns int32
 		Error             error

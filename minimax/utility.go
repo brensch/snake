@@ -50,12 +50,14 @@ func QuickHash(board *rules.BoardState) {
 
 	offset := 0
 	// var thi
-	var thing rules.Point
+	// var thing rules.Point
 
 	for _, snake := range board.Snakes {
 		for _, bodyPiece := range snake.Body {
 
-			buffer[offset : offset+2] = []byte{bodyPiece.X, bodyPiece.Y}
+			buffer[offset] = bodyPiece.X
+			buffer[offset+1] = bodyPiece.Y
+			offset += 2
 		}
 	}
 }

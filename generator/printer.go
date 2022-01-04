@@ -19,8 +19,8 @@ func PrintMap(state *rules.BoardState) {
 	for i := range board {
 		board[i] = make([]rune, state.Height)
 	}
-	for y := int32(0); y < state.Height; y++ {
-		for x := int32(0); x < state.Width; x++ {
+	for y := byte(0); y < state.Height; y++ {
+		for x := byte(0); x < state.Width; x++ {
 			board[x][y] = '◦'
 		}
 	}
@@ -42,7 +42,7 @@ func PrintMap(state *rules.BoardState) {
 		o.WriteString(fmt.Sprintf("%v %c: %v\n", state.Snakes[numSnake].ID, characters[numSnake], s))
 	}
 	for y := state.Height - 1; y >= 0; y-- {
-		for x := int32(0); x < state.Width; x++ {
+		for x := byte(0); x < state.Width; x++ {
 			o.WriteRune(board[x][y])
 		}
 		o.WriteString("\n")

@@ -6,7 +6,7 @@ import "github.com/brensch/snake/rules"
 func CentreMostPoint(s *rules.BoardState, points []rules.Point) rules.Point {
 	centrePoint := rules.Point{X: s.Width / 2, Y: s.Height / 2}
 
-	smallestDistance := int32(1000)
+	smallestDistance := byte(255)
 	var smallestDistancePoint rules.Point
 	for _, point := range points {
 		distance := DistanceBetween(centrePoint, point)
