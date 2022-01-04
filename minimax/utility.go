@@ -1,8 +1,7 @@
 package minimax
 
 import (
-	"bytes"
-	"encoding/gob"
+	"encoding/binary"
 
 	"github.com/brensch/snake/generator"
 	"github.com/brensch/snake/rules"
@@ -24,27 +23,7 @@ func (n *Node) ExploreBestPath() {
 	}
 }
 
-// func Hash(state *rules.BoardState) string {
-
-// 	// todo: figure out if food is necessary
-// 	// snakeString := fmt.Sprintf("%v-%d-%v-%d",
-// 	// 	state.Snakes[0].Body,
-// 	// 	state.Snakes[0].Health,
-// 	// 	state.Snakes[1].Body,
-// 	// 	state.Snakes[1].Health,
-// 	// )
-
-// 	snakeString := fmt.Sprint(state)
-// 	return snakeString
-// }
-
-func Hash(board *rules.BoardState) []byte {
-	var b bytes.Buffer
-	gob.NewEncoder(&b).Encode(board)
-	return b.Bytes()
-}
-
-func QuickHash(board *rules.BoardState) []byte {
+func Hash(board *rules.BoardState) uint64 {
 
 	// maximum possible size for two snakes
 	// 121*2 (for x and y of each location)
@@ -52,14 +31,13 @@ func QuickHash(board *rules.BoardState) []byte {
 	// 2 health
 	// 2 more delimiters
 	// at this length there can be no food, so don't take into account (snakes will have consumed)
-	buffer := make([]byte, 248)
+	// this totals 248 so 256 is laughing
+	buffer := make([]byte, 256)
 
 	// why not
 	delimiter := byte(69)
 
 	offset := 0
-	// var thi
-	// var thing rules.Point
 
 	for _, snake := range board.Snakes {
 		buffer[offset] = snake.Health
@@ -77,8 +55,7 @@ func QuickHash(board *rules.BoardState) []byte {
 
 	// todo: decide if we should include food
 	// for _, food := range board.Food {
-
 	// }
 
-	return buffer
+	return binary.BigEndian.Uint64(buffer)
 }
