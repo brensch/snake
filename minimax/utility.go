@@ -44,20 +44,41 @@ func Hash(board *rules.BoardState) []byte {
 	return b.Bytes()
 }
 
-func QuickHash(board *rules.BoardState) {
+func QuickHash(board *rules.BoardState) []byte {
 
-	buffer := make([]byte, 1000000)
+	// maximum possible size for two snakes
+	// 121*2 (for x and y of each location)
+	// 2 delimiters
+	// 2 health
+	// 2 more delimiters
+	// at this length there can be no food, so don't take into account (snakes will have consumed)
+	buffer := make([]byte, 248)
+
+	// why not
+	delimiter := byte(69)
 
 	offset := 0
 	// var thi
 	// var thing rules.Point
 
 	for _, snake := range board.Snakes {
+		buffer[offset] = snake.Health
+		buffer[offset+1] = delimiter
+		offset += 2
 		for _, bodyPiece := range snake.Body {
-
 			buffer[offset] = bodyPiece.X
 			buffer[offset+1] = bodyPiece.Y
 			offset += 2
 		}
+		buffer[offset] = delimiter
+		offset++
+
 	}
+
+	// todo: decide if we should include food
+	// for _, food := range board.Food {
+
+	// }
+
+	return buffer
 }
