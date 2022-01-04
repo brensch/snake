@@ -1,6 +1,8 @@
 package minimax
 
 import (
+	"fmt"
+
 	"github.com/brensch/snake/generator"
 	"github.com/brensch/snake/pather"
 	"github.com/brensch/snake/rules"
@@ -152,4 +154,251 @@ func HeuristicAnalysis(board *rules.BoardState) float64 {
 	// return PercentageOfBoardControlled(board) * lengthScore
 	return PercentageOfBoardControlled(board) * lengthScore * healthScore
 	// return PercentageOfBoardControlled(board)
+}
+
+func ShortestPaths(board *rules.BoardState) {
+
+	// var obstacleGrid [11][11]int
+
+	obstacleGrid := make([]int, 11*11)
+
+	// snakeRoutes
+
+	for _, snake := range board.Snakes {
+		for snakePieceIndex, snakePiece := range snake.Body {
+			obstacleGrid[snakePiece.Y*11+snakePiece.X] = len(snake.Body) - snakePieceIndex
+		}
+	}
+
+	// PrintShortestPath(obstacleGrid)
+
+	// iterate through each snake and do a dfs
+	for snakeCount, snake := range board.Snakes {
+		snakeRoute := make([]int, 11*11)
+
+		// start at head
+		head := snake.Body[0]
+
+		snakeRoute[head.Y*11+head.X] = 1
+		_ = snakeCount
+		ExplorePoint(snakeRoute, obstacleGrid, int(head.X), int(head.Y))
+		// ExplorePoint(snakeRoute, int(head.X+1), int(head.Y))
+		// ExplorePoint(snakeRoute, int(head.X), int(head.Y+1))
+
+		// fmt.Println("snake ", snakeCount)
+		// PrintShortestPath(snakeRoute)
+		// 	if
+
+	}
+
+	// return obstacleGrid
+
+}
+
+func ExplorePoint(graph, obstacles []int, x, y int) {
+	// fmt.Println(x, y)
+	// PrintShortestPath(graph)
+	originScore := graph[y*11+x]
+	// _ = originScore
+	var directions [4]bool
+	if x > 0 && (graph[y*11+(x-1)] > originScore+1 || graph[y*11+(x-1)] == 0) && obstacles[y*11+(x-1)] == 0 {
+		graph[y*11+(x-1)] = originScore + 1
+		directions[0] = true
+		// ExplorePoint(graph, obstacles, x-1, y)
+	}
+
+	if x < 10 && (graph[y*11+(x+1)] > originScore+1 || graph[y*11+(x+1)] == 0) && obstacles[y*11+(x+1)] == 0 {
+		graph[y*11+(x+1)] = originScore + 1
+		directions[1] = true
+
+		// ExplorePoint(graph, obstacles, x+1, y)
+	}
+
+	if y > 0 && (graph[(y-1)*11+x] > originScore+1 || graph[(y-1)*11+x] == 0) && obstacles[(y-1)*11+x] == 0 {
+		graph[(y-1)*11+x] = originScore + 1
+		directions[2] = true
+
+		// ExplorePoint(graph, obstacles, x, y-1)
+	}
+
+	if y < 10 && (graph[(y+1)*11+x] > originScore+1 || graph[(y+1)*11+x] == 0) && obstacles[(y+1)*11+x] == 0 {
+		graph[(y+1)*11+x] = originScore + 1
+		directions[3] = true
+
+		// ExplorePoint(graph, obstacles, x, y+1)
+	}
+
+	if directions[0] {
+		ExplorePoint(graph, obstacles, x-1, y)
+	}
+	if directions[1] {
+		ExplorePoint(graph, obstacles, x+1, y)
+	}
+	if directions[2] {
+		ExplorePoint(graph, obstacles, x, y-1)
+	}
+	if directions[3] {
+		ExplorePoint(graph, obstacles, x, y+1)
+	}
+}
+
+func ShortestPaths2(board *rules.BoardState) {
+
+	// var obstacleGrid [11][11]int
+
+	obstacleGrid := make([]int, 11*11)
+
+	// snakeRoutes
+
+	for _, snake := range board.Snakes {
+		for snakePieceIndex, snakePiece := range snake.Body {
+			obstacleGrid[snakePiece.Y*11+snakePiece.X] = len(snake.Body) - snakePieceIndex
+		}
+	}
+
+	// PrintShortestPath(obstacleGrid)
+
+	// iterate through each snake and do a dfs
+	for snakeCount, snake := range board.Snakes {
+		snakeRoute := make([]int, 11*11)
+
+		// start at head
+		head := snake.Body[0]
+
+		snakeRoute[head.Y*11+head.X] = 1
+		_ = snakeCount
+		ExplorePoint2(snakeRoute, obstacleGrid, int(head.X), int(head.Y))
+		// ExplorePoint(snakeRoute, int(head.X+1), int(head.Y))
+		// ExplorePoint(snakeRoute, int(head.X), int(head.Y+1))
+
+		// fmt.Println("snake ", snakeCount)
+		// PrintShortestPath(snakeRoute)
+		// 	if
+
+	}
+
+	// return obstacleGrid
+
+}
+
+func ExplorePoint2(graph, obstacles []int, x, y int) {
+	// fmt.Println(x, y)
+	// PrintShortestPath(graph)
+	originScore := graph[y*11+x]
+	// _ = originScore
+	if x > 0 && (graph[y*11+(x-1)] > originScore+1 || graph[y*11+(x-1)] == 0) && obstacles[y*11+(x-1)] == 0 {
+		graph[y*11+(x-1)] = originScore + 1
+		ExplorePoint(graph, obstacles, x-1, y)
+	}
+
+	if x < 10 && (graph[y*11+(x+1)] > originScore+1 || graph[y*11+(x+1)] == 0) && obstacles[y*11+(x+1)] == 0 {
+		graph[y*11+(x+1)] = originScore + 1
+		ExplorePoint(graph, obstacles, x+1, y)
+	}
+
+	if y > 0 && (graph[(y-1)*11+x] > originScore+1 || graph[(y-1)*11+x] == 0) && obstacles[(y-1)*11+x] == 0 {
+		graph[(y-1)*11+x] = originScore + 1
+		ExplorePoint(graph, obstacles, x, y-1)
+	}
+
+	if y < 10 && (graph[(y+1)*11+x] > originScore+1 || graph[(y+1)*11+x] == 0) && obstacles[(y+1)*11+x] == 0 {
+		graph[(y+1)*11+x] = originScore + 1
+		ExplorePoint(graph, obstacles, x, y+1)
+	}
+
+}
+
+func ShortestPathsBreadth(board *rules.BoardState) {
+
+	// var obstacleGrid [11][11]int
+
+	obstacleGrid := make([]int, 11*11)
+
+	// snakeRoutes
+
+	for _, snake := range board.Snakes {
+		for snakePieceIndex, snakePiece := range snake.Body {
+			obstacleGrid[snakePiece.Y*11+snakePiece.X] = len(snake.Body) - snakePieceIndex
+		}
+	}
+
+	// PrintShortestPath(obstacleGrid)
+
+	// iterate through each snake and do a dfs
+	for snakeCount, snake := range board.Snakes {
+		snakeRoute := make([]int, 11*11)
+
+		// start at head
+		head := snake.Body[0]
+
+		snakeRoute[head.Y*11+head.X] = 1
+		_ = snakeCount
+		ExplorePoints(snakeRoute, obstacleGrid, [][2]int{{int(head.X), int(head.Y)}}, 1)
+		// ExplorePoint(snakeRoute, int(head.X+1), int(head.Y))
+		// ExplorePoint(snakeRoute, int(head.X), int(head.Y+1))
+
+		// fmt.Println("snake ", snakeCount)
+		// PrintShortestPath(snakeRoute)
+
+	}
+
+	// return obstacleGrid
+
+}
+
+func ExplorePoints(graph, obstacles []int, coords [][2]int, prevScore int) {
+
+	// the size selected it the largest possible size the next iteration can be.
+	// doing this doubles performance (!). appends are very slow. speed is critical in this function even if things get unidiomatic.
+	nextPoints := make([][2]int, len(coords)*3)
+	// use this to know where we are in the nextPoints array
+	pointCount := 0
+
+	for _, coord := range coords {
+		x := coord[0]
+		y := coord[1]
+
+		// _ = originScore
+		if x > 0 && (graph[y*11+(x-1)] > prevScore+1 || graph[y*11+(x-1)] == 0) && obstacles[y*11+(x-1)] < prevScore+1 {
+			graph[y*11+(x-1)] = prevScore + 1
+			nextPoints[pointCount] = [2]int{x - 1, y}
+			pointCount++
+		}
+
+		if x < 10 && (graph[y*11+(x+1)] > prevScore+1 || graph[y*11+(x+1)] == 0) && obstacles[y*11+(x+1)] < prevScore+1 {
+			graph[y*11+(x+1)] = prevScore + 1
+			nextPoints[pointCount] = [2]int{x + 1, y}
+			pointCount++
+		}
+
+		if y > 0 && (graph[(y-1)*11+x] > prevScore+1 || graph[(y-1)*11+x] == 0) && obstacles[(y-1)*11+x] < prevScore+1 {
+			graph[(y-1)*11+x] = prevScore + 1
+			nextPoints[pointCount] = [2]int{x, y - 1}
+			pointCount++
+
+		}
+
+		if y < 10 && (graph[(y+1)*11+x] > prevScore+1 || graph[(y+1)*11+x] == 0) && obstacles[(y+1)*11+x] < prevScore+1 {
+			graph[(y+1)*11+x] = prevScore + 1
+			nextPoints[pointCount] = [2]int{x, y + 1}
+			pointCount++
+
+		}
+	}
+
+	if pointCount > 0 {
+		ExplorePoints(graph, obstacles, nextPoints[:pointCount], prevScore+1)
+	}
+
+}
+
+func PrintShortestPath(graph []int) {
+
+	for y := 10; y >= 0; y-- {
+		for x := 0; x < 11; x++ {
+			fmt.Printf("%3d", graph[y*11+x])
+		}
+		fmt.Println()
+	}
+
 }

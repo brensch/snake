@@ -157,3 +157,119 @@ func BenchmarkGameFinishedBits(b *testing.B) {
 
 	}
 }
+
+func TestShortestPaths(t *testing.T) {
+	log.SetLevel(log.DebugLevel)
+
+	for _, test := range tests {
+		t.Log("running test: ", test.explanation)
+
+		var s *rules.BoardState
+		err := json.Unmarshal(test.state, &s)
+		if err != nil {
+			t.Error(err)
+			t.FailNow()
+		}
+
+		generator.PrintMap(s)
+
+		ShortestPaths(s)
+
+		// PrintShortestPath(graph)
+
+	}
+}
+func TestShortestPaths2(t *testing.T) {
+	log.SetLevel(log.DebugLevel)
+
+	for _, test := range tests {
+		t.Log("running test: ", test.explanation)
+
+		var s *rules.BoardState
+		err := json.Unmarshal(test.state, &s)
+		if err != nil {
+			t.Error(err)
+			t.FailNow()
+		}
+
+		generator.PrintMap(s)
+
+		ShortestPaths2(s)
+
+		// PrintShortestPath(graph)
+
+	}
+}
+
+func TestShortestPathsBreadth(t *testing.T) {
+	log.SetLevel(log.DebugLevel)
+
+	for _, test := range tests {
+		t.Log("running test: ", test.explanation)
+
+		var s *rules.BoardState
+		err := json.Unmarshal(test.state, &s)
+		if err != nil {
+			t.Error(err)
+			t.FailNow()
+		}
+
+		generator.PrintMap(s)
+
+		ShortestPathsBreadth(s)
+
+		// PrintShortestPath(graph)
+
+	}
+}
+
+func BenchmarkShortestPaths(b *testing.B) {
+	log.SetLevel(log.DebugLevel)
+
+	var s *rules.BoardState
+	err := json.Unmarshal(tests[0].state, &s)
+	if err != nil {
+		b.Error(err)
+		b.FailNow()
+	}
+
+	for n := 0; n < b.N; n++ {
+
+		ShortestPaths(s)
+
+	}
+}
+
+func BenchmarkShortestPaths2(b *testing.B) {
+	log.SetLevel(log.DebugLevel)
+
+	var s *rules.BoardState
+	err := json.Unmarshal(tests[0].state, &s)
+	if err != nil {
+		b.Error(err)
+		b.FailNow()
+	}
+
+	for n := 0; n < b.N; n++ {
+
+		ShortestPaths2(s)
+
+	}
+}
+
+func BenchmarkShortestPathsBreadth(b *testing.B) {
+	log.SetLevel(log.DebugLevel)
+
+	var s *rules.BoardState
+	err := json.Unmarshal(tests[0].state, &s)
+	if err != nil {
+		b.Error(err)
+		b.FailNow()
+	}
+
+	for n := 0; n < b.N; n++ {
+
+		ShortestPathsBreadth(s)
+
+	}
+}
