@@ -178,7 +178,9 @@ func TestMinimaxNode(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 5000*time.Millisecond)
 		defer cancel()
 
-		deepestDepth, _ := startingNode.Search(ctx, 15, 15, ruleset, nil)
+		previousHeuristicScores := make(map[uint64]float64)
+
+		deepestDepth, _ := startingNode.Search(ctx, 15, 15, ruleset, nil, previousHeuristicScores)
 		fmt.Println("got to depth", deepestDepth)
 		// fmt.Println("got startingnode children", len(startingNode.Children))
 		// fmt.Println("got score", *startingNode.Score)
@@ -304,7 +306,9 @@ func BenchmarkSearch(b *testing.B) {
 			State:        s,
 		}
 		ctx, cancel := context.WithTimeout(context.Background(), 5000*time.Millisecond)
-		startingNode.Search(ctx, 1, 1, ruleset, nil)
+		previousHeuristicScores := make(map[uint64]float64)
+
+		startingNode.Search(ctx, 1, 1, ruleset, nil, previousHeuristicScores)
 		cancel()
 		fmt.Println("finished")
 	}
@@ -341,8 +345,9 @@ func BenchmarkCopy(b *testing.B) {
 
 		ctx, cancel := context.WithTimeout(context.Background(), 400*time.Millisecond)
 		defer cancel()
+		previousHeuristicScores := make(map[uint64]float64)
 
-		startingNode.Search(ctx, 19, 19, ruleset, nil)
+		startingNode.Search(ctx, 19, 19, ruleset, nil, previousHeuristicScores)
 		fmt.Println("got startingnode children", len(startingNode.Children))
 		fmt.Println("got score", *startingNode.Score)
 
