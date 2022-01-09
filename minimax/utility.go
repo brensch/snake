@@ -20,9 +20,9 @@ func (n *Node) ExploreBestPath() {
 		}
 		nextChild = temp
 		odd = !odd
-		// if odd {
-		// 	continue
-		// }
+		if odd {
+			continue
+		}
 		fmt.Println("-----------move", move)
 		move++
 		nextChild.Print()

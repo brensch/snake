@@ -73,11 +73,15 @@ func GameFinished(board *rules.BoardState, isMax bool) float64 {
 	minHead := minSnake.Body[0]
 
 	if maxHead.X == minHead.X && maxHead.Y == minHead.Y {
+
+		if !isMax {
+			return 0
+		}
 		// maxer can only win if the head collision happens on the min turn.
 		// game is always calculated with maxer going first and taking turns, when in reality
 		// the turns are made simultaneously.
 		// we also want to avoid draws, so making draw state a loss
-		if isMax || len(maxSnake.Body) <= len(minSnake.Body) {
+		if len(maxSnake.Body) <= len(minSnake.Body) {
 			return -1
 		}
 
@@ -135,25 +139,25 @@ func GameFinishedBits(snake1, snake2 int) float64 {
 
 func HeuristicAnalysis(board *rules.BoardState) float64 {
 
-	// healthScore := 1.0
-	// if board.Snakes[0].Health < 20 {
-	// 	healthScore = 0.5
-	// }
+	healthScore := 1.0
+	if board.Snakes[0].Health < 20 {
+		healthScore = 0.5
+	}
 
-	// percentLengthOfOtherSnake := float64(len(board.Snakes[0].Body)) / float64(len(board.Snakes[1].Body))
-	// lengthScore := percentLengthOfOtherSnake
-	// if lengthScore > 1.1 {
-	// 	lengthScore = 1.1
-	// }
+	percentLengthOfOtherSnake := float64(len(board.Snakes[0].Body)) / float64(len(board.Snakes[1].Body))
+	lengthScore := percentLengthOfOtherSnake
+	if lengthScore > 1.1 {
+		lengthScore = 1.1
+	}
 
 	areacontrol := ShortestPathsBreadth(board)
 
-	// return areacontrol * lengthScore * healthScore
+	return areacontrol * lengthScore * healthScore
 
 	// return PercentageOfBoardControlled(board) * lengthScore
 	// return ShortestPathsBreadth(board) * lengthScore * healthScore
 	// return PercentageOfBoardControlled(board)
-	return areacontrol
+	// return areacontrol
 }
 
 func ShortestPaths(board *rules.BoardState) {
@@ -368,6 +372,11 @@ func ShortestPathsBreadth(board *rules.BoardState) float64 {
 				// matrix[y*11+x] = 1
 				continue
 			}
+
+			// TODO: determine if we should check
+			// snakeRoutes[0][y*11+x] > snakeRoutes[1][y*11+x]
+			reachableSquares++
+
 		}
 	}
 
@@ -445,6 +454,12 @@ func ShortestPathsBreadthPrint(board *rules.BoardState) float64 {
 				matrix[y*11+x] = 1
 				continue
 			}
+
+			reachableSquares++
+			// if snakeRoutes[0][y*11+x] > snakeRoutes[1][y*11+x] {
+			// 	matrix[y*11+x] = 2
+			// 	continue
+			// }
 		}
 	}
 
