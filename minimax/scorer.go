@@ -1,6 +1,7 @@
 package minimax
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/brensch/snake/generator"
@@ -59,7 +60,7 @@ func PercentageOfBoardControlled(board *rules.BoardState) float64 {
 // +1: maxer won
 // -1: maxer lost
 // 0: not finished
-func GameFinished(board *rules.BoardState) float64 {
+func GameFinished(board *rules.BoardState, isMax bool) float64 {
 
 	// the cli starts at 1 but the online servers start at 0
 	if board.Turn == 1 || board.Turn == 0 {
@@ -72,12 +73,14 @@ func GameFinished(board *rules.BoardState) float64 {
 	minHead := minSnake.Body[0]
 
 	if maxHead.X == minHead.X && maxHead.Y == minHead.Y {
-		if len(maxSnake.Body) < len(minSnake.Body) {
+		// maxer can only win if the head collision happens on the min turn.
+		// game is always calculated with maxer going first and taking turns, when in reality
+		// the turns are made simultaneously.
+		// we also want to avoid draws, so making draw state a loss
+		if isMax || len(maxSnake.Body) <= len(minSnake.Body) {
 			return -1
 		}
-		if len(maxSnake.Body) == len(minSnake.Body) {
-			return -1
-		}
+
 		return 1
 	}
 
@@ -132,21 +135,25 @@ func GameFinishedBits(snake1, snake2 int) float64 {
 
 func HeuristicAnalysis(board *rules.BoardState) float64 {
 
-	healthScore := 1.0
-	if board.Snakes[0].Health < 20 {
-		healthScore = 0.5
-	}
+	// healthScore := 1.0
+	// if board.Snakes[0].Health < 20 {
+	// 	healthScore = 0.5
+	// }
 
-	percentLengthOfOtherSnake := float64(len(board.Snakes[0].Body)) / float64(len(board.Snakes[1].Body))
-	lengthScore := percentLengthOfOtherSnake
-	if lengthScore > 1.1 {
-		lengthScore = 1.1
-	}
+	// percentLengthOfOtherSnake := float64(len(board.Snakes[0].Body)) / float64(len(board.Snakes[1].Body))
+	// lengthScore := percentLengthOfOtherSnake
+	// if lengthScore > 1.1 {
+	// 	lengthScore = 1.1
+	// }
+
+	areacontrol := ShortestPathsBreadth(board)
+
+	// return areacontrol * lengthScore * healthScore
 
 	// return PercentageOfBoardControlled(board) * lengthScore
 	// return ShortestPathsBreadth(board) * lengthScore * healthScore
 	// return PercentageOfBoardControlled(board)
-	return ShortestPathsBreadth(board) * lengthScore * healthScore
+	return areacontrol
 }
 
 func ShortestPaths(board *rules.BoardState) {
@@ -342,17 +349,36 @@ func ShortestPathsBreadth(board *rules.BoardState) float64 {
 	for x := 0; x < 11; x++ {
 		for y := 0; y < 11; y++ {
 
-			if snakeRoutes[1][y*11+x] > 0 || snakeRoutes[0][y*11+x] > 0 {
+			if snakeRoutes[0][y*11+x] == 0 && snakeRoutes[1][y*11+x] > 0 {
+				// matrix[y*11+x] = 2
 				reachableSquares++
+				continue
 			}
 
-			if snakeRoutes[0][y*11+x] > 0 && snakeRoutes[0][y*11+x] < snakeRoutes[1][y*11+x] {
+			if snakeRoutes[1][y*11+x] == 0 && snakeRoutes[0][y*11+x] > 0 {
+				// matrix[y*11+x] = 1
+				reachableSquares++
 				controlledSquares++
+				continue
+			}
+
+			if snakeRoutes[0][y*11+x] < snakeRoutes[1][y*11+x] {
+				reachableSquares++
+				controlledSquares++
+				// matrix[y*11+x] = 1
+				continue
 			}
 		}
 	}
 
-	return float64(controlledSquares) / float64(121)
+	// if 1-(float64(controlledSquares)/float64(121)+0.5) == 0.12809917355371903 {
+	// 	fmt.Println(float64(controlledSquares), float64(121))
+	// }
+
+	if controlledSquares == 0 {
+		return 0.0000001
+	}
+	return float64(controlledSquares) / float64(reachableSquares)
 
 	// return obstacleGrid
 
@@ -395,21 +421,43 @@ func ShortestPathsBreadthPrint(board *rules.BoardState) float64 {
 
 	controlledSquares := 0
 	reachableSquares := 0
+	matrix := make([]int, 121)
 
 	for x := 0; x < 11; x++ {
 		for y := 0; y < 11; y++ {
 
-			if snakeRoutes[1][y*11+x] > 0 || snakeRoutes[0][y*11+x] > 0 {
+			if snakeRoutes[0][y*11+x] == 0 && snakeRoutes[1][y*11+x] > 0 {
+				matrix[y*11+x] = 2
 				reachableSquares++
+				continue
 			}
 
-			if snakeRoutes[0][y*11+x] > 0 && snakeRoutes[0][y*11+x] < snakeRoutes[1][y*11+x] {
+			if snakeRoutes[1][y*11+x] == 0 && snakeRoutes[0][y*11+x] > 0 {
+				matrix[y*11+x] = 1
+				reachableSquares++
 				controlledSquares++
+				continue
+			}
+
+			if snakeRoutes[0][y*11+x] < snakeRoutes[1][y*11+x] {
+				reachableSquares++
+				controlledSquares++
+				matrix[y*11+x] = 1
+				continue
 			}
 		}
 	}
 
-	return float64(controlledSquares) / float64(121)
+	fmt.Println("controlled area by us", float64(controlledSquares)/float64(reachableSquares))
+	PrintShortestPath(matrix)
+	boardbytes, _ := json.Marshal(board)
+	fmt.Println(string(boardbytes))
+
+	if controlledSquares == 0 {
+		fmt.Println("got no square")
+		return 0.0000001
+	}
+	return float64(controlledSquares) / float64(reachableSquares)
 
 	// return obstacleGrid
 

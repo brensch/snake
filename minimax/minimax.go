@@ -95,6 +95,12 @@ func (n *Node) PropagateScore(parent *Node, score float64) {
 
 	if n.Score == nil {
 		n.Score = &score
+		// if score == 0.39669421487603307 {
+		// 	fmt.Println(score)
+		// }
+		// if score == 0.39669421487603307 {
+		// 	fmt.Println(score)
+		// }
 
 	}
 
@@ -106,14 +112,20 @@ func (n *Node) PropagateScore(parent *Node, score float64) {
 	if !n.IsMaximising {
 		if parent.Alpha <= score {
 			parent.Alpha = score
-			n.Score = &score
+			// parent.Score = &score
+			// if score == 0.39669421487603307 {
+			// 	fmt.Println("alpha", score)
+			// }
 		}
 		return
 	}
 
 	if parent.Beta >= score {
 		parent.Beta = score
-		n.Score = &score
+		// parent.Score = &score
+		// if score == 0.39669421487603307 {
+		// 	fmt.Println("beta", score)
+		// }
 	}
 }
 
@@ -124,14 +136,30 @@ func (n *Node) FindBestChild() *Node {
 	}
 
 	if len(n.Children) == 0 {
-		fmt.Println("reached bottom of tree")
+		fmt.Println("reached bottom of tree. ")
+
 		return nil
 	}
+	var matchingChildren []*Node
 	for _, child := range n.Children {
 
 		if child.Score != nil && *child.Score == *n.Score {
-			return child
+			matchingChildren = append(matchingChildren, child)
 		}
+	}
+
+	if len(matchingChildren) == 1 {
+		return matchingChildren[0]
+
+	}
+
+	if len(matchingChildren) > 1 {
+		fmt.Println("got more than one matching child")
+		for _, matchingChild := range matchingChildren {
+			matchingChild.Print()
+			generator.PrintMap(matchingChild.State)
+		}
+		return matchingChildren[0]
 	}
 
 	fmt.Println("didn't find matching node", n.Alpha, n.Beta, *n.Score, len(n.Children))
@@ -202,7 +230,7 @@ func (n *Node) DeepeningSearch(ctx context.Context, ruleset rules.Ruleset) rules
 		// fmt.Printf("checking depth %d, deepest: %d\n", depth, deepestDepth)
 		if err != nil {
 			// fmt.Println("---------------------------------------- end depth", depth)
-			fmt.Println(err)
+			// fmt.Println(err)
 			break
 		}
 		// if ctx.Err() != nil {
@@ -211,7 +239,7 @@ func (n *Node) DeepeningSearch(ctx context.Context, ruleset rules.Ruleset) rules
 		// }
 		// this means we fully explored the tree and should give up.
 		if deepestDepth > 0 {
-			fmt.Println("incomplete search", deepestDepth)
+			// fmt.Println("incomplete search", deepestDepth)
 			// fmt.Println("---------------------------------------- end depth", depth)
 			break
 
@@ -228,7 +256,7 @@ func (n *Node) DeepeningSearch(ctx context.Context, ruleset rules.Ruleset) rules
 		// fmt.Println("---------------------------------------- end depth", depth)
 
 	}
-	fmt.Println("got to depth", depth-1)
+	// fmt.Println("got to depth", depth-1)
 	return bestState
 
 }
@@ -247,7 +275,7 @@ func (n *Node) Search(ctx context.Context, depth, deepestDepth int, ruleset rule
 		deepestDepth = depth
 	}
 
-	finishedScore := GameFinished(n.State)
+	finishedScore := GameFinished(n.State, n.IsMaximising)
 	if finishedScore != 0 {
 		// fmt.Println("got score", finishedScore)
 		n.PropagateScore(parent, finishedScore)
@@ -260,14 +288,26 @@ func (n *Node) Search(ctx context.Context, depth, deepestDepth int, ruleset rule
 
 		// check if we've seen the answer to this move before
 		// TODO: do proper transposition with alpha and beta and shizzzzzzzzzz
-		hash := Hash(n.State)
-		control, ok := hashTable[hash]
-		if !ok {
-			control = HeuristicAnalysis(n.State)
-			hashTable[hash] = control
-		}
+		// hash := Hash(n.State)
+		// control, ok := hashTable[hash]
+		// if !ok {
+		control := HeuristicAnalysis(n.State)
+		// 	hashTable[hash] = control
+		// }
+
+		// fmt.Println("got heuristic at depth 0", control)
+		// generator.PrintMap(n.State)
+		// ShortestPathsBreadthPrint(n.State)
 
 		n.PropagateScore(parent, control)
+
+		// if control == 0.628099173553719 {
+		// 	fmt.Println("sup")
+		// 	n.Print()
+		// 	generator.PrintMap(n.State)
+		// 	ShortestPathsBreadthPrint(n.State)
+		// 	panic("yoo")
+		// }
 
 		// n.Score = &control
 		// fmt.Println("hit bottom", control, n.player)
@@ -298,8 +338,6 @@ func (n *Node) Search(ctx context.Context, depth, deepestDepth int, ruleset rule
 
 		nextState, err := ruleset.ApplySingleMove(n.State, snakeMove)
 		if err != nil {
-			print(err)
-			print(n.State)
 			panic(err)
 		}
 
@@ -376,82 +414,96 @@ func (nl NodeList) Less(i, j int) bool {
 }
 func (nl NodeList) Swap(i, j int) { nl[i], nl[j] = nl[j], nl[i] }
 
-// // New returns a new minimax structure
-// func New() Node {
-// 	n := Node{isOpponent: false}
-// 	return n
-// }
+func Search2(state *rules.BoardState, depth uint, alpha, beta float64, isMaxer bool, ruleset rules.Ruleset) (*rules.BoardState, float64) {
 
-// // GetBestChildNode returns the first child node with the matching score
-// func (node *Node) GetBestChildNode() *Node {
-// 	for _, cn := range node.children {
-// 		if cn.Score == node.Score {
-// 			return cn
-// 		}
-// 	}
+	finishedScore := GameFinished(state, isMaxer)
+	if finishedScore != 0 {
+		// fmt.Println("got score", finishedScore)
+		// n.Score = &finishedScore
 
-// 	return nil
-// }
+		if isMaxer {
+			return state, finishedScore
+		}
+		return state, -finishedScore
+	}
+	// ending, heuristic := state.Evaluate()
+	// switch ending {
+	// case LOSS:
+	// 	return state, math.Inf(-1)
+	// case TIE:
+	// 	return state, 0
+	// case WIN:
+	// 	return state, math.Inf(1)
+	// }
 
-// Evaluate runs through the tree and caculates the score from the terminal nodes
-// all the the way up to the root node
-// func (node *Node) Evaluate() {
-// 	for _, cn := range node.children {
-// 		if !cn.isTerminal() {
-// 			cn.Evaluate()
-// 		}
+	if depth == 0 {
+		heuristic := HeuristicAnalysis(state)
+		fmt.Println("got heuristic", heuristic)
+		generator.PrintMap(state)
+		ShortestPathsBreadthPrint(state)
 
-// 		if cn.parent.Score == nil {
-// 			cn.parent.Score = cn.Score
-// 		} else if cn.isOpponent && *cn.Score > *cn.parent.Score {
-// 			cn.parent.Score = cn.Score
-// 		} else if !cn.isOpponent && *cn.Score < *cn.parent.Score {
-// 			cn.parent.Score = cn.Score
-// 		}
-// 	}
-// }
+		if heuristic == 0.12809917355371903 {
+			generator.PrintMap(state)
+		}
+		return state, heuristic
+	}
+	index := 0
+	if !isMaxer {
+		index = 1
+	}
 
-// // Print the node for debugging purposes
-// func (node *Node) Print(level int) {
-// 	var padding = ""
-// 	for j := 0; j < level; j++ {
-// 		padding += " "
-// 	}
+	// children := state.Children()
+	safeMoves, _ := generator.AllMovesForSnake(state, index)
+	// children = make([]*Node, count)
 
-// 	var s = ""
-// 	if node.Score != nil {
-// 		s = strconv.Itoa(*node.Score)
-// 	}
+	// moveScores := make(moveScores, len(children))
+	// for i := range children {
+	// 	moveScores[i] = moveScore{i, 0.0}
+	// }
+	var tmpScore float64
+	// if depth > 1 {
+	// 	// Pre-sort the possible moves by their score to speed up the pruning
+	// 	for i, child := range children {
+	// 		// Depth-0 search to force heuristic scoring
+	// 		_, tmpScore = Search(child, 0, -beta, -alpha)
+	// 		moveScores[i].moveScore = -tmpScore
+	// 	}
+	// 	sort.Sort(moveScores)
+	// }
+	var bestChild *rules.BoardState
+	for move, isOk := range safeMoves {
+		if !isOk {
+			continue
+		}
 
-// 	fmt.Println(padding, node.isOpponent, node.Board, "["+s+"]")
+		snakeMove := rules.SnakeMoveIndex{
+			Index: index,
+			Move:  rules.Direction(move),
+		}
 
-// 	for _, cn := range node.children {
-// 		level += 2
-// 		cn.Print(level)
-// 		level -= 2
-// 	}
-// }
+		child, err := ruleset.ApplySingleMove(state, snakeMove)
+		if err != nil {
+			panic(err)
+		}
+		// child := children[moveScore.moveIndex]
 
-// // AddTerminal adds a terminal node (or leaf node).  These nodes
-// // should contain a score and no children
-// func (node *Node) AddTerminal(score int, board *rules.BoardState) *Node {
-// 	return node.add(&score, board)
-// }
-
-// // Add a new node to structure, this node should have children and
-// // an unknown score
-// func (node *Node) Add(board *rules.BoardState) *Node {
-// 	return node.add(nil, board)
-// }
-
-// func (node *Node) add(score *int, state *rules.BoardState) *Node {
-// 	childNode := Node{parent: node, Score: score, State: state}
-
-// 	childNode.player = (node.player + 1) % 2
-// 	node.children = append(node.children, &childNode)
-// 	return &childNode
-// }
-
-// func (node *Node) isTerminal() bool {
-// 	return len(node.children) == 0
-// }
+		_, tmpScore = Search2(child, depth-1, -beta, -alpha, !isMaxer, ruleset)
+		tmpScore = -tmpScore
+		if tmpScore > alpha {
+			alpha = tmpScore
+			bestChild = child
+			if beta <= alpha {
+				return bestChild, beta
+			}
+		}
+		if bestChild == nil {
+			// Take the first child, in case all the children are terrible.
+			bestChild = child
+		}
+	}
+	if bestChild == nil {
+		// No possible moves, so return the current state.
+		bestChild = state
+	}
+	return bestChild, alpha
+}

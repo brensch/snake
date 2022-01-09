@@ -2,6 +2,7 @@ package minimax
 
 import (
 	"encoding/binary"
+	"fmt"
 
 	"github.com/brensch/snake/generator"
 	"github.com/brensch/snake/rules"
@@ -9,14 +10,21 @@ import (
 
 func (n *Node) ExploreBestPath() {
 
+	move := 0
 	nextChild := n
+	odd := false
 	for {
-		// fmt.Println("got score of", *nextChild.Score)
 		temp := nextChild.FindBestChild()
 		if temp == nil {
 			break
 		}
 		nextChild = temp
+		odd = !odd
+		// if odd {
+		// 	continue
+		// }
+		fmt.Println("-----------move", move)
+		move++
 		nextChild.Print()
 		generator.PrintMap(nextChild.State)
 		ShortestPathsBreadthPrint(nextChild.State)

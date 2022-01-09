@@ -111,10 +111,38 @@ var (
 		// 	`),
 		// 	// okMoves:     []rules.Direction{rules.DirectionDown},
 		// },
+		// {
+		// 	explanation: "doom on the left",
+		// 	state: []byte(`
+		// 	{"Turn":392,"Height":11,"Width":11,"Food":[{"X":1,"Y":0},{"X":0,"Y":0},{"X":1,"Y":6},{"X":9,"Y":5},{"X":1,"Y":1}],"Snakes":[{"ID":"gs_XTH4t36GjgDWYxH68cWkc3Cc","Body":[{"X":6,"Y":0},{"X":6,"Y":1},{"X":6,"Y":2},{"X":7,"Y":2},{"X":7,"Y":3},{"X":6,"Y":3},{"X":5,"Y":3},{"X":5,"Y":4},{"X":6,"Y":4},{"X":6,"Y":5},{"X":6,"Y":6},{"X":5,"Y":6},{"X":4,"Y":6},{"X":3,"Y":6},{"X":3,"Y":7},{"X":4,"Y":7},{"X":5,"Y":7},{"X":6,"Y":7},{"X":7,"Y":7},{"X":7,"Y":6},{"X":7,"Y":5},{"X":7,"Y":4},{"X":8,"Y":4},{"X":9,"Y":4},{"X":9,"Y":3},{"X":8,"Y":3},{"X":8,"Y":2},{"X":9,"Y":2},{"X":10,"Y":2},{"X":10,"Y":1},{"X":9,"Y":1},{"X":8,"Y":1},{"X":8,"Y":1}],"Health":100,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""},{"ID":"gs_3WTmFGhBX6jHPqQ7TF799cg4","Body":[{"X":1,"Y":9},{"X":1,"Y":10},{"X":2,"Y":10},{"X":3,"Y":10},{"X":4,"Y":10},{"X":5,"Y":10},{"X":6,"Y":10},{"X":7,"Y":10},{"X":8,"Y":10},{"X":9,"Y":10},{"X":10,"Y":10},{"X":10,"Y":9},{"X":9,"Y":9},{"X":9,"Y":8},{"X":8,"Y":8},{"X":7,"Y":8},{"X":7,"Y":9},{"X":6,"Y":9},{"X":5,"Y":9},{"X":4,"Y":9},{"X":3,"Y":9},{"X":3,"Y":8},{"X":2,"Y":8},{"X":2,"Y":7},{"X":2,"Y":6},{"X":2,"Y":5},{"X":2,"Y":4},{"X":2,"Y":3},{"X":2,"Y":2},{"X":3,"Y":2}],"Health":93,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""}],"Hazards":null}
+		// 	`),
+		// 	// okMoves: []rules.Direction{rules.DirectionRight},
+		// },
+		// {
+		// 	explanation: "should head up to recentre",
+		// 	state: []byte(`
+		// 	{"Turn":46,"Height":11,"Width":11,"Food":[{"X":1,"Y":6},{"X":1,"Y":1},{"X":10,"Y":4},{"X":5,"Y":9}],"Snakes":[{"ID":"gs_HWVDtQ9mv4v3vTtv6rypBXw9","Body":[{"X":1,"Y":5},{"X":2,"Y":5},{"X":2,"Y":6},{"X":2,"Y":7},{"X":3,"Y":7}],"Health":74,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""},{"ID":"gs_Xmyjx79YYfxXSyTxJDHxc9Qc","Body":[{"X":3,"Y":5},{"X":3,"Y":6},{"X":4,"Y":6},{"X":5,"Y":6},{"X":5,"Y":5},{"X":5,"Y":4}],"Health":91,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""}],"Hazards":null}
+		// 	`),
+		// 	// okMoves: []rules.Direction{rules.DirectionRight},
+		// },
+		// {
+		// 	explanation: "should head up to recentre",
+		// 	state: []byte(`
+		// 	{"Turn":239,"Height":11,"Width":11,"Food":[{"X":2,"Y":6},{"X":9,"Y":10}],"Snakes":[{"ID":"gs_HWVDtQ9mv4v3vTtv6rypBXw9","Body":[{"X":5,"Y":6},{"X":6,"Y":6},{"X":7,"Y":6},{"X":7,"Y":5},{"X":7,"Y":4},{"X":6,"Y":4},{"X":5,"Y":4},{"X":5,"Y":3},{"X":6,"Y":3},{"X":7,"Y":3},{"X":7,"Y":2},{"X":6,"Y":2},{"X":5,"Y":2},{"X":4,"Y":2},{"X":4,"Y":3},{"X":4,"Y":4},{"X":4,"Y":5},{"X":3,"Y":5}],"Health":66,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""},{"ID":"gs_Xmyjx79YYfxXSyTxJDHxc9Qc","Body":[{"X":0,"Y":5},{"X":0,"Y":4},{"X":0,"Y":3},{"X":0,"Y":2},{"X":0,"Y":1},{"X":1,"Y":1},{"X":2,"Y":1},{"X":2,"Y":0},{"X":3,"Y":0},{"X":3,"Y":1},{"X":4,"Y":1},{"X":4,"Y":0},{"X":5,"Y":0},{"X":5,"Y":1},{"X":6,"Y":1},{"X":7,"Y":1},{"X":8,"Y":1},{"X":8,"Y":2},{"X":8,"Y":3},{"X":8,"Y":4},{"X":8,"Y":5},{"X":8,"Y":6}],"Health":97,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""}],"Hazards":null}
+		// 	`),
+		// 	// okMoves: []rules.Direction{rules.DirectionRight},
+		// },
+		// {
+		// 	explanation: "should head up to recentre",
+		// 	state: []byte(`
+		// 	{"Turn":241,"Height":11,"Width":11,"Food":[{"X":2,"Y":6},{"X":9,"Y":10}],"Snakes":[{"ID":"gs_HWVDtQ9mv4v3vTtv6rypBXw9","Body":[{"X":5,"Y":8},{"X":5,"Y":7},{"X":5,"Y":6},{"X":6,"Y":6},{"X":7,"Y":6},{"X":7,"Y":5},{"X":7,"Y":4},{"X":6,"Y":4},{"X":5,"Y":4},{"X":5,"Y":3},{"X":6,"Y":3},{"X":7,"Y":3},{"X":7,"Y":2},{"X":6,"Y":2},{"X":5,"Y":2},{"X":4,"Y":2},{"X":4,"Y":3},{"X":4,"Y":4}],"Health":64,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""},{"ID":"gs_Xmyjx79YYfxXSyTxJDHxc9Qc","Body":[{"X":0,"Y":7},{"X":0,"Y":6},{"X":0,"Y":5},{"X":0,"Y":4},{"X":0,"Y":3},{"X":0,"Y":2},{"X":0,"Y":1},{"X":1,"Y":1},{"X":2,"Y":1},{"X":2,"Y":0},{"X":3,"Y":0},{"X":3,"Y":1},{"X":4,"Y":1},{"X":4,"Y":0},{"X":5,"Y":0},{"X":5,"Y":1},{"X":6,"Y":1},{"X":7,"Y":1},{"X":8,"Y":1},{"X":8,"Y":2},{"X":8,"Y":3},{"X":8,"Y":4}],"Health":95,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""}],"Hazards":null}
+		// 	`),
+		// 	// okMoves: []rules.Direction{rules.DirectionRight},
+		// },
 		{
-			explanation: "doom on the left",
+			explanation: "should head up to recentre",
 			state: []byte(`
-			{"Turn":392,"Height":11,"Width":11,"Food":[{"X":1,"Y":0},{"X":0,"Y":0},{"X":1,"Y":6},{"X":9,"Y":5},{"X":1,"Y":1}],"Snakes":[{"ID":"gs_XTH4t36GjgDWYxH68cWkc3Cc","Body":[{"X":6,"Y":0},{"X":6,"Y":1},{"X":6,"Y":2},{"X":7,"Y":2},{"X":7,"Y":3},{"X":6,"Y":3},{"X":5,"Y":3},{"X":5,"Y":4},{"X":6,"Y":4},{"X":6,"Y":5},{"X":6,"Y":6},{"X":5,"Y":6},{"X":4,"Y":6},{"X":3,"Y":6},{"X":3,"Y":7},{"X":4,"Y":7},{"X":5,"Y":7},{"X":6,"Y":7},{"X":7,"Y":7},{"X":7,"Y":6},{"X":7,"Y":5},{"X":7,"Y":4},{"X":8,"Y":4},{"X":9,"Y":4},{"X":9,"Y":3},{"X":8,"Y":3},{"X":8,"Y":2},{"X":9,"Y":2},{"X":10,"Y":2},{"X":10,"Y":1},{"X":9,"Y":1},{"X":8,"Y":1},{"X":8,"Y":1}],"Health":100,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""},{"ID":"gs_3WTmFGhBX6jHPqQ7TF799cg4","Body":[{"X":1,"Y":9},{"X":1,"Y":10},{"X":2,"Y":10},{"X":3,"Y":10},{"X":4,"Y":10},{"X":5,"Y":10},{"X":6,"Y":10},{"X":7,"Y":10},{"X":8,"Y":10},{"X":9,"Y":10},{"X":10,"Y":10},{"X":10,"Y":9},{"X":9,"Y":9},{"X":9,"Y":8},{"X":8,"Y":8},{"X":7,"Y":8},{"X":7,"Y":9},{"X":6,"Y":9},{"X":5,"Y":9},{"X":4,"Y":9},{"X":3,"Y":9},{"X":3,"Y":8},{"X":2,"Y":8},{"X":2,"Y":7},{"X":2,"Y":6},{"X":2,"Y":5},{"X":2,"Y":4},{"X":2,"Y":3},{"X":2,"Y":2},{"X":3,"Y":2}],"Health":93,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""}],"Hazards":null}
+			{"Turn":270,"Height":11,"Width":11,"Food":[{"X":9,"Y":2},{"X":5,"Y":1},{"X":4,"Y":0},{"X":10,"Y":3}],"Snakes":[{"ID":"gs_HWVDtQ9mv4v3vTtv6rypBXw9","Body":[{"X":9,"Y":9},{"X":9,"Y":10},{"X":8,"Y":10},{"X":7,"Y":10},{"X":6,"Y":10},{"X":5,"Y":10},{"X":4,"Y":10},{"X":4,"Y":9},{"X":5,"Y":9},{"X":6,"Y":9},{"X":6,"Y":8},{"X":5,"Y":8},{"X":5,"Y":7},{"X":5,"Y":6},{"X":5,"Y":5},{"X":5,"Y":4},{"X":6,"Y":4},{"X":7,"Y":4},{"X":8,"Y":4},{"X":8,"Y":5}],"Health":99,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""},{"ID":"gs_Xmyjx79YYfxXSyTxJDHxc9Qc","Body":[{"X":6,"Y":2},{"X":6,"Y":3},{"X":5,"Y":3},{"X":4,"Y":3},{"X":4,"Y":4},{"X":4,"Y":5},{"X":4,"Y":6},{"X":3,"Y":6},{"X":3,"Y":7},{"X":4,"Y":7},{"X":4,"Y":8},{"X":3,"Y":8},{"X":2,"Y":8},{"X":2,"Y":7},{"X":2,"Y":6},{"X":2,"Y":5},{"X":3,"Y":5},{"X":3,"Y":4},{"X":2,"Y":4},{"X":2,"Y":3},{"X":2,"Y":2},{"X":1,"Y":2},{"X":1,"Y":3},{"X":1,"Y":4},{"X":1,"Y":5},{"X":1,"Y":6}],"Health":96,"EliminatedCause":"","EliminatedOnTurn":0,"EliminatedBy":""}],"Hazards":null}
 			`),
 			// okMoves: []rules.Direction{rules.DirectionRight},
 		},
@@ -169,19 +197,103 @@ func TestMinimaxNode(t *testing.T) {
 			HazardDamagePerTurn: 16,
 		}
 
+		ctx, cancel := context.WithTimeout(context.Background(), 30000*time.Millisecond)
+		defer cancel()
+
+		previousHeuristicScores := make(map[uint64]float64)
+		// for i := 10; i < 20; i += 2 {
+		i := 20
+		fmt.Println("---------------------------------------iteration", i)
 		startingNode := &Node{
 			Alpha:        math.Inf(-1),
 			Beta:         math.Inf(1),
 			IsMaximising: true,
 			State:        s,
 		}
-		ctx, cancel := context.WithTimeout(context.Background(), 5000*time.Millisecond)
-		defer cancel()
 
-		previousHeuristicScores := make(map[uint64]float64)
+		deepestDepth, _ := startingNode.Search(ctx, i, i, ruleset, nil, previousHeuristicScores)
+		_ = deepestDepth
+		bestChild := startingNode.FindBestChild().State
+		generator.PrintMap(bestChild)
+		startingNode.ExploreBestPath()
 
-		deepestDepth, _ := startingNode.Search(ctx, 15, 15, ruleset, nil, previousHeuristicScores)
-		fmt.Println("got to depth", deepestDepth)
+		startingNode.Print()
+		// }
+		// 	fmt.Println("got to depth", deepestDepth)
+		// startingNode.Print()
+		// fmt.Println("got startingnode children", len(startingNode.Children))
+		// fmt.Println("got score", *startingNode.Score)
+
+		// generator.PrintMap(startingNode.FindBestChild().State)
+
+		// currentNode := startingNode
+		// nextLevel := currentNode.Children
+		// level := 0
+		// for len(nextLevel) > 0 {
+		// 	fmt.Println("------------------------LEVEL", level)
+
+		// 	var newNextLevel []*Node
+		// 	for _, child := range nextLevel {
+		// 		child.Print()
+		// 		generator.PrintMap(child.State)
+		// 		newNextLevel = append(newNextLevel, child.Children...)
+
+		// 	}
+
+		// 	nextLevel = newNextLevel
+		// 	level++
+
+		// }
+
+		// startingNode.ExploreBestPath()
+		// generator.PrintMap(bestChild)
+
+		// fmt.Println("best child")
+		// bestChild := startingNode.FindBestChild().State
+		// generator.PrintMap(bestChild)
+		// ShortestPathsBreadthPrint(bestChild)
+		// fmt.Println("got score", *startingNode.Score)
+
+	}
+}
+
+func TestMinimaxNode2(t *testing.T) {
+
+	log.SetLevel(log.DebugLevel)
+
+	for _, test := range testsMinimax {
+		t.Log("running test: ", test.explanation)
+
+		var s *rules.BoardState
+		err := json.Unmarshal(test.state, &s)
+		if err != nil {
+			t.Error(err)
+			t.FailNow()
+		}
+
+		generator.PrintMap(s)
+		ruleset := &rules.StandardRuleset{
+			FoodSpawnChance:     50,
+			MinimumFood:         0,
+			HazardDamagePerTurn: 16,
+		}
+
+		// startingNode := &Node{
+		// 	Alpha:        math.Inf(-1),
+		// 	Beta:         math.Inf(1),
+		// 	IsMaximising: true,
+		// 	State:        s,
+		// }
+		// ctx, cancel := context.WithTimeout(context.Background(), 5000*time.Millisecond)
+		// defer cancel()
+
+		// previousHeuristicScores := make(map[uint64]float64)
+
+		bestChild, score := Search2(s, 2, math.Inf(-1), math.Inf(1), true, ruleset)
+		generator.PrintMap(bestChild)
+		fmt.Println("got score of", score)
+		// fmt.Println("got to depth", deepestDepth)
+		// startingNode.Print()
 		// fmt.Println("got startingnode children", len(startingNode.Children))
 		// fmt.Println("got score", *startingNode.Score)
 

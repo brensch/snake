@@ -33,8 +33,12 @@ func PrintMap(state *rules.BoardState) {
 	}
 	o.WriteString(fmt.Sprintf("Food ⚕: %v\n", state.Food))
 	for numSnake, s := range state.Snakes {
-		for _, b := range s.Body {
+		for bodyPiece, b := range s.Body {
 			if b.X >= 0 && b.X < state.Width && b.Y >= 0 && b.Y < state.Height {
+				if bodyPiece == 0 {
+					board[b.X][b.Y] = characters[(numSnake+4)%8]
+					continue
+				}
 				board[b.X][b.Y] = characters[numSnake]
 			}
 		}
@@ -43,6 +47,7 @@ func PrintMap(state *rules.BoardState) {
 	}
 	for y := int32(state.Height) - 1; y >= 0; y-- {
 		for x := int32(0); x < int32(state.Width); x++ {
+			o.WriteString("  ")
 			o.WriteRune(board[x][y])
 		}
 		o.WriteString("\n")
