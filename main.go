@@ -29,10 +29,14 @@ func main() {
 	// for {
 	// 	stress()
 	// }
+	heuristicCatalog := make(map[string]map[uint64]float64)
+	s := &server{
+		heuristicCatalog: heuristicCatalog,
+	}
 
 	http.HandleFunc("/", HandleIndex)
 	http.HandleFunc("/start", HandleStart)
-	http.HandleFunc("/move", HandleMove)
+	http.HandleFunc("/move", HandleMove(s))
 	http.HandleFunc("/end", HandleEnd)
 
 	log.Info("welcome to snake")
@@ -160,11 +164,11 @@ func end(req EngineRequest) {
 
 }
 
-func move(ctx context.Context, req EngineRequest) EngineResponse {
+func (s *server) move(ctx context.Context, req EngineRequest) EngineResponse {
 
 	state, ruleset, you := req.ToState()
 
-	move, reason := Move(ctx, state, ruleset, you, req.Turn, req.Game.ID)
+	move, reason := s.Move(ctx, state, ruleset, you, req.Turn, req.Game.ID)
 
 	return EngineResponse{
 		Move:  move.String(),

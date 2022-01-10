@@ -418,8 +418,69 @@ func Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, y
 	ctx, cancel := context.WithTimeout(ctx, 400*time.Millisecond)
 	defer cancel()
 
+	// emergencyMove, err := startingNode.Search(context.Background(), 0, 0, ruleset, nil, previousHeuristicScores)
+	// return n.FindBestChild().State, nil
+
 	// startingNode.Search(ctx, 14, ruleset)
-	bestNextState := startingNode.DeepeningSearch(ctx, ruleset)
+	bestNextState, _ := startingNode.DeepeningSearch(ctx, ruleset)
+
+	// bestChild := startingNode.FindBestChild()
+
+	// generator.PrintMap(bestChild)
+	// get the direction that the child moved in
+	direction := generator.DirectionToPoint(you.Body[0], bestNextState.Snakes[0].Body[0])
+
+	// _ = score
+	// _ = skipper
+	// if !skipper {
+
+	// fmt.Println("got score of next move", *startingNode.Score, direction.String())
+	// fmt.Println(state)
+	// generator.PrintMap(state)
+
+	// }
+
+	return direction, "yeet kang"
+
+}
+
+func (s *server) Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, turn int32, gameID string) (rules.Direction, string) {
+
+	stateJSON, _ := json.Marshal(state)
+	fmt.Println(string(stateJSON))
+	// put you as snake 0
+	// skipper := false
+	if state.Snakes[0].ID != you.ID {
+		// fmt.Println("swapping snakes")
+		state.Snakes[1] = state.Snakes[0]
+		state.Snakes[0] = you
+		// skipper = true
+	}
+
+	catalog, ok := s.heuristicCatalog[gameID]
+	if !ok {
+		catalog = make(map[uint64]float64)
+		s.heuristicCatalog[gameID] = catalog
+	}
+
+	startingNode := &minimax.Node{
+		Alpha:        math.Inf(-1),
+		Beta:         math.Inf(1),
+		IsMaximising: true,
+		State:        state,
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, 400*time.Millisecond)
+	defer cancel()
+
+	_, err := startingNode.Search(context.Background(), 1, 1, ruleset, nil, catalog)
+	emergencyChild := startingNode.FindBestChild()
+
+	// startingNode.Search(ctx, 14, ruleset)
+	bestNextState, err := startingNode.DeepeningSearch(ctx, ruleset)
+	if err != nil {
+		bestNextState = emergencyChild.State
+	}
 
 	// bestChild := startingNode.FindBestChild()
 

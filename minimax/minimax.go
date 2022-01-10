@@ -140,37 +140,13 @@ func (n *Node) FindBestChild() *Node {
 
 		return nil
 	}
-	var matchingChildren []*Node
+
 	for _, child := range n.Children {
 
 		if child.Score != nil && *child.Score == *n.Score {
-			matchingChildren = append(matchingChildren, child)
+			return child
 		}
 	}
-
-	return matchingChildren[0]
-
-	if len(matchingChildren) == 1 {
-		return matchingChildren[0]
-
-	}
-
-	if len(matchingChildren) > 1 {
-		fmt.Println("got more than one matching child")
-		for _, matchingChild := range matchingChildren {
-			matchingChild.Print()
-			generator.PrintMap(matchingChild.State)
-		}
-		return matchingChildren[0]
-	}
-
-	fmt.Println("didn't find matching node", n.Alpha, n.Beta, *n.Score, len(n.Children))
-	for _, child := range n.Children {
-		fmt.Println("child:", child.Alpha, child.Beta)
-		// generator.PrintMap(child.State)
-	}
-
-	fmt.Println("what does this mean")
 
 	return nil
 }
@@ -197,26 +173,31 @@ func (n *Node) CopyNode() *Node {
 }
 
 // Cancelling context is handled outside this functions
-func (n *Node) DeepeningSearch(ctx context.Context, ruleset rules.Ruleset) *rules.BoardState {
+func (n *Node) DeepeningSearch(ctx context.Context, ruleset rules.Ruleset) (*rules.BoardState, error) {
 
 	// i think there's a better way to do transposition tables.
-	// currently heuristic scores are taking about 6000ns so if we can replace that with a 40ns lookup
-	// our iterative deepening may actually do as i expect.
+	// currently heuristic scores are taking about 6000ns so if we can replace that with a 40ns we will see vast improvements
 	previousHeuristicScores := make(map[uint64]float64)
 
 	// 8 seems like a good tradeoff - if we don't finish at least one it's very bad
-	depth := 8
-	// fmt.Println("---------------------------------------- start depth", depth)
-
-	// fmt.Println("best score was", *bestChild.Score)
-
-	// generator.PrintMap(n.FindBestChild().State)
-	// fmt.Println("---------------------------------------- end depth", depth)
+	depth := 10
 
 	var bestState *rules.BoardState
 	var bestScore float64
 
 	for {
+		// reset nodes for each search
+		// currentNode := &Node{
+		// 	Alpha:        math.Inf(1),
+		// 	Beta:         math.Inf(-1),
+		// 	State:        n.State,
+		// 	IsMaximising: true,
+		// }
+		n.Score = nil
+		n.Children = nil
+		n.Alpha = math.Inf(-1)
+		n.Beta = math.Inf(1)
+
 		deepestDepth, err := n.Search(ctx, depth, depth, ruleset, nil, previousHeuristicScores)
 		if err != nil {
 			break
@@ -229,63 +210,23 @@ func (n *Node) DeepeningSearch(ctx context.Context, ruleset rules.Ruleset) *rule
 			break
 		}
 
-		// set score to nil since i only set the child score to nil when retracing
-		// so this would be missed on the first node.
-		n.Score = nil
-		n.Children = nil
-		n.Alpha = math.Inf(-1)
-		n.Beta = math.Inf(1)
-
-		// get best move before each round, only
 		depth++
-		// fmt.Println("---------------------------------------- start depth", depth)
-		// deepestDepth, err := n.Search(ctx, depth, depth, ruleset, nil, previousHeuristicScores)
-		// // fmt.Printf("checking depth %d, deepest: %d\n", depth, deepestDepth)
-		// if err != nil {
-		// 	break
-		// }
-		// // if ctx.Err() != nil {
-		// // 	fmt.Println("error not picked up in search")
-		// // 	break
-		// // }
-		// // this means we fully explored the tree and should give up.
-		// if deepestDepth > 0 {
-		// 	// fmt.Println("incomplete search", deepestDepth)
-		// 	// fmt.Println("---------------------------------------- end depth", depth)
-		// 	break
-
-		// }
-		// bestChild = n.FindBestChild()
-		// bestState = *bestChild.State
-		// fmt.Println("best score was", *bestChild.Score)
-
-		// generator.PrintMap(n.FindBestChild().State)
-		// fmt.Println("deepest depth", deepestDepth)
-
-		// n.ExploreBestPath()
-
-		// fmt.Println("---------------------------------------- end depth", depth)
 
 	}
+
+	fmt.Println("got to depth", depth-1)
 
 	// if we have a best score of -1, then our best child is garbage. do an reassessment with no
 	// lookahead and just submit that.
-	if bestState != nil && bestScore != -1 {
-		return bestState
+	if bestState == nil {
+		return nil, fmt.Errorf("didn't finish a single loop")
+	}
+	if bestScore == -1 {
+		return nil, fmt.Errorf("only got losing moves")
 	}
 
-	fmt.Println("emergency")
+	return bestState, nil
 
-	n.Score = nil
-	n.Children = nil
-	n.Alpha = math.Inf(-1)
-	n.Beta = math.Inf(1)
-	// if we didn't finish a single loop in the given time, do an emergency check of depth 0 and return
-	// the best immediate child.
-	n.Search(context.Background(), 0, 0, ruleset, nil, previousHeuristicScores)
-	return n.FindBestChild().State
-
-	// fmt.Println("got to depth", depth-1)
 	// return bestState
 
 }
@@ -321,12 +262,12 @@ func (n *Node) Search(ctx context.Context, depth, deepestDepth int, ruleset rule
 
 		// check if we've seen the answer to this move before
 		// TODO: do proper transposition with alpha and beta and shizzzzzzzzzz
-		// hash := Hash(n.State)
-		// control, ok := hashTable[hash]
-		// if !ok {
-		control := HeuristicAnalysis(n.State)
-		// 	hashTable[hash] = control
-		// }
+		hash := Hash(n.State)
+		control, ok := hashTable[hash]
+		if !ok {
+			control := HeuristicAnalysis(n.State)
+			hashTable[hash] = control
+		}
 
 		// fmt.Println("got heuristic at depth 0", control)
 		// generator.PrintMap(n.State)

@@ -27,21 +27,23 @@ func HandleStart(w http.ResponseWriter, r *http.Request) {
 	start(req)
 }
 
-func HandleMove(w http.ResponseWriter, r *http.Request) {
-	var req EngineRequest
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
-		fmt.Printf("ERROR: Failed to decode move json, %s", err)
-		return
-	}
+func HandleMove(s *server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req EngineRequest
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			fmt.Printf("ERROR: Failed to decode move json, %s", err)
+			return
+		}
 
-	res := move(r.Context(), req)
+		res := s.move(r.Context(), req)
 
-	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(res)
-	if err != nil {
-		fmt.Printf("ERROR: Failed to encode move response, %s", err)
-		return
+		w.Header().Set("Content-Type", "application/json")
+		err = json.NewEncoder(w).Encode(res)
+		if err != nil {
+			fmt.Printf("ERROR: Failed to encode move response, %s", err)
+			return
+		}
 	}
 }
 
