@@ -29,15 +29,15 @@ func main() {
 	// for {
 	// 	stress()
 	// }
-	heuristicCatalog := make(map[string]map[uint64]float64)
+	// heuristicCatalog := make(map[string]map[uint64]float64)
 	s := &server{
-		heuristicCatalog: heuristicCatalog,
+		// heuristicCatalog: heuristicCatalog,
 	}
 
 	http.HandleFunc("/", HandleIndex)
 	http.HandleFunc("/start", HandleStart)
 	http.HandleFunc("/move", HandleMove(s))
-	http.HandleFunc("/end", HandleEnd)
+	http.HandleFunc("/end", HandleEnd(s))
 
 	log.Info("welcome to snake")
 	log.Fatal(http.ListenAndServe(":"+port, nil))
@@ -129,7 +129,7 @@ func start(req EngineRequest) {
 
 }
 
-func end(req EngineRequest) {
+func (s *server) end(req EngineRequest) {
 	state, ruleset, you := req.ToState()
 	victoryStatus := "LOST"
 	if len(state.Snakes) == 0 {
@@ -161,6 +161,8 @@ func end(req EngineRequest) {
 	}
 
 	entry.Warning("won game")
+
+	// delete(s.heuristicCatalog, req.Game.ID)
 
 }
 

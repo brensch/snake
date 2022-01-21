@@ -1,13 +1,6 @@
 package main
 
 import (
-	"context"
-	"encoding/json"
-	"testing"
-
-	log "github.com/sirupsen/logrus"
-
-	"github.com/brensch/snake/generator"
 	"github.com/brensch/snake/rules"
 )
 
@@ -184,123 +177,123 @@ var (
 	}
 )
 
-func TestSingleMove(t *testing.T) {
-	log.SetLevel(log.DebugLevel)
+// func TestSingleMove(t *testing.T) {
+// 	log.SetLevel(log.DebugLevel)
 
-	youID := "you"
+// 	youID := "you"
 
-	test := tests[0]
+// 	test := tests[0]
 
-	// if test.explanation != "don't go into tomb of you after chasing tail in pursuit of snak" {
-	// 	continue
-	// }
+// 	// if test.explanation != "don't go into tomb of you after chasing tail in pursuit of snak" {
+// 	// 	continue
+// 	// }
 
-	t.Log("running test: ", test.explanation)
+// 	t.Log("running test: ", test.explanation)
 
-	var s *rules.BoardState
-	err := json.Unmarshal(test.state, &s)
-	if err != nil {
-		t.Error(err)
-		t.FailNow()
-	}
+// 	var s *rules.BoardState
+// 	err := json.Unmarshal(test.state, &s)
+// 	if err != nil {
+// 		t.Error(err)
+// 		t.FailNow()
+// 	}
 
-	you, err := generator.GetYou(s, youID)
-	if err != nil {
-		t.Error(err)
-		t.FailNow()
-	}
+// 	you, err := generator.GetYou(s, youID)
+// 	if err != nil {
+// 		t.Error(err)
+// 		t.FailNow()
+// 	}
 
-	ruleset := &rules.StandardRuleset{
-		FoodSpawnChance: 0,
-		MinimumFood:     1,
-	}
+// 	ruleset := &rules.StandardRuleset{
+// 		FoodSpawnChance: 0,
+// 		MinimumFood:     1,
+// 	}
 
-	move, reason := Move(context.Background(), s, ruleset, you, s.Turn, "test")
-	if reason == "yeet todo logic" {
-		generator.PrintMap(s)
-		t.Log("got todo logic")
-		t.Fail()
-		return
-	}
+// 	move, reason := Move(context.Background(), s, ruleset, you, s.Turn, "test")
+// 	if reason == "yeet todo logic" {
+// 		generator.PrintMap(s)
+// 		t.Log("got todo logic")
+// 		t.Fail()
+// 		return
+// 	}
 
-	moveOk := false
-	for _, okMove := range test.okMoves {
-		if move == okMove {
-			moveOk = true
-			break
-		}
-	}
+// 	moveOk := false
+// 	for _, okMove := range test.okMoves {
+// 		if move == okMove {
+// 			moveOk = true
+// 			break
+// 		}
+// 	}
 
-	if moveOk {
-		return
-	}
+// 	if moveOk {
+// 		return
+// 	}
 
-	generator.PrintMap(s)
+// 	generator.PrintMap(s)
 
-	t.Logf("%s FAILED: got %s because %s. ok moves: %+v", test.explanation, move.String(), reason, test.okMoves)
-	t.Fail()
+// 	t.Logf("%s FAILED: got %s because %s. ok moves: %+v", test.explanation, move.String(), reason, test.okMoves)
+// 	t.Fail()
 
-}
+// }
 
-func TestMove(t *testing.T) {
-	log.SetLevel(log.DebugLevel)
+// func TestMove(t *testing.T) {
+// 	log.SetLevel(log.DebugLevel)
 
-	youID := "you"
+// 	youID := "you"
 
-	for _, test := range tests {
+// 	for _, test := range tests {
 
-		// if test.explanation != "don't go into tomb of you after chasing tail in pursuit of snak" {
-		// 	continue
-		// }
+// 		// if test.explanation != "don't go into tomb of you after chasing tail in pursuit of snak" {
+// 		// 	continue
+// 		// }
 
-		t.Log("running test: ", test.explanation)
+// 		t.Log("running test: ", test.explanation)
 
-		var s *rules.BoardState
-		err := json.Unmarshal(test.state, &s)
-		if err != nil {
-			t.Error(err)
-			t.FailNow()
-		}
+// 		var s *rules.BoardState
+// 		err := json.Unmarshal(test.state, &s)
+// 		if err != nil {
+// 			t.Error(err)
+// 			t.FailNow()
+// 		}
 
-		you, err := generator.GetYou(s, youID)
-		if err != nil {
-			t.Error(err)
-			t.FailNow()
-		}
+// 		you, err := generator.GetYou(s, youID)
+// 		if err != nil {
+// 			t.Error(err)
+// 			t.FailNow()
+// 		}
 
-		ruleset := &rules.StandardRuleset{
-			FoodSpawnChance: 0,
-			MinimumFood:     1,
-		}
+// 		ruleset := &rules.StandardRuleset{
+// 			FoodSpawnChance: 0,
+// 			MinimumFood:     1,
+// 		}
 
-		move, reason := Move(context.Background(), s, ruleset, you, s.Turn, "test")
-		if reason == "yeet todo logic" {
-			generator.PrintMap(s)
-			t.Log("got todo logic")
-			t.Fail()
-			continue
-		}
+// 		move, reason := Move(context.Background(), s, ruleset, you, s.Turn, "test")
+// 		if reason == "yeet todo logic" {
+// 			generator.PrintMap(s)
+// 			t.Log("got todo logic")
+// 			t.Fail()
+// 			continue
+// 		}
 
-		moveOk := false
-		for _, okMove := range test.okMoves {
-			if move == okMove {
-				moveOk = true
-				break
-			}
-		}
+// 		moveOk := false
+// 		for _, okMove := range test.okMoves {
+// 			if move == okMove {
+// 				moveOk = true
+// 				break
+// 			}
+// 		}
 
-		if moveOk {
-			continue
-		}
+// 		if moveOk {
+// 			continue
+// 		}
 
-		generator.PrintMap(s)
+// 		generator.PrintMap(s)
 
-		t.Logf("%s FAILED: got %s because %s. ok moves: %+v", test.explanation, move.String(), reason, test.okMoves)
-		t.Fail()
+// 		t.Logf("%s FAILED: got %s because %s. ok moves: %+v", test.explanation, move.String(), reason, test.okMoves)
+// 		t.Fail()
 
-	}
+// 	}
 
-}
+// }
 
 // https://play.battlesnake.com/g/3f16d94d-b6a4-4c6d-940b-e6137db33789/
 

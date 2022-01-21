@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 func HandleIndex(w http.ResponseWriter, r *http.Request) {
@@ -29,6 +31,9 @@ func HandleStart(w http.ResponseWriter, r *http.Request) {
 
 func HandleMove(s *server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, cancel := context.WithTimeout(r.Context(), 300*time.Millisecond)
+		defer cancel()
+		start := time.Now()
 		var req EngineRequest
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
@@ -36,7 +41,7 @@ func HandleMove(s *server) http.HandlerFunc {
 			return
 		}
 
-		res := s.move(r.Context(), req)
+		res := s.move(ctx, req)
 
 		w.Header().Set("Content-Type", "application/json")
 		err = json.NewEncoder(w).Encode(res)
@@ -44,18 +49,21 @@ func HandleMove(s *server) http.HandlerFunc {
 			fmt.Printf("ERROR: Failed to encode move response, %s", err)
 			return
 		}
+		fmt.Println("total time", time.Since(start).Milliseconds())
 	}
 }
 
-func HandleEnd(w http.ResponseWriter, r *http.Request) {
-	var state EngineRequest
-	err := json.NewDecoder(r.Body).Decode(&state)
-	if err != nil {
-		fmt.Printf("ERROR: Failed to decode end json, %s", err)
-		return
+func HandleEnd(s *server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var state EngineRequest
+		err := json.NewDecoder(r.Body).Decode(&state)
+		if err != nil {
+			fmt.Printf("ERROR: Failed to decode end json, %s", err)
+			return
+		}
+
+		s.end(state)
+
+		// Nothing to respond with here
 	}
-
-	end(state)
-
-	// Nothing to respond with here
 }

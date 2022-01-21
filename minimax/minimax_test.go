@@ -373,7 +373,11 @@ func TestDeepeningSearch(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 400*time.Millisecond)
 		defer cancel()
 
+		start := time.Now()
+
 		bestState, _ := startingNode.DeepeningSearch(ctx, ruleset)
+
+		fmt.Println("since start 1", time.Since(start).Milliseconds())
 		// fmt.Println("got startingnode children", len(startingNode.Children))
 		// fmt.Println("got score", *startingNode.Score)
 

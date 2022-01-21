@@ -91,7 +91,11 @@ import (
 
 // }
 
-func (n *Node) PropagateScore(parent *Node, score float64) {
+func (n *Node) PropagateScore(ctx context.Context, parent *Node, score float64) {
+
+	if ctx.Err() != nil {
+		return
+	}
 
 	if n.Score == nil {
 		n.Score = &score
@@ -173,7 +177,7 @@ func (n *Node) CopyNode() *Node {
 }
 
 // Cancelling context is handled outside this functions
-func (n *Node) DeepeningSearch(ctx context.Context, ruleset rules.Ruleset) (*rules.BoardState, error) {
+func (n *Node) DeepeningSearch(ctx context.Context, ruleset rules.Ruleset, boardCHAN chan *rules.BoardState) {
 
 	// i think there's a better way to do transposition tables.
 	// currently heuristic scores are taking about 6000ns so if we can replace that with a 40ns we will see vast improvements
@@ -182,10 +186,13 @@ func (n *Node) DeepeningSearch(ctx context.Context, ruleset rules.Ruleset) (*rul
 	// 8 seems like a good tradeoff - if we don't finish at least one it's very bad
 	depth := 10
 
-	var bestState *rules.BoardState
-	var bestScore float64
+	// var bestState *rules.BoardState
+	// var bestScore float64
 
 	for {
+		if ctx.Err() != nil {
+			return
+		}
 		// reset nodes for each search
 		// currentNode := &Node{
 		// 	Alpha:        math.Inf(1),
@@ -200,32 +207,37 @@ func (n *Node) DeepeningSearch(ctx context.Context, ruleset rules.Ruleset) (*rul
 
 		deepestDepth, err := n.Search(ctx, depth, depth, ruleset, nil, previousHeuristicScores)
 		if err != nil {
-			break
+			return
 		}
 		bestChild := n.FindBestChild()
-		bestState = bestChild.State
-		bestScore = *bestChild.Score
+		if *bestChild.Score == -1 {
+			return
+		}
+		// fmt.Println("reached depth", depth)
+		boardCHAN <- bestChild.State
+		// bestState = bestChild.State
+		// bestScore = *bestChild.Score
 
 		if deepestDepth > 0 {
-			break
+			return
 		}
 
 		depth++
 
 	}
 
-	fmt.Println("got to depth", depth-1)
+	// fmt.Println("got to depth", depth-1)
 
 	// if we have a best score of -1, then our best child is garbage. do an reassessment with no
 	// lookahead and just submit that.
-	if bestState == nil {
-		return nil, fmt.Errorf("didn't finish a single loop")
-	}
-	if bestScore == -1 {
-		return nil, fmt.Errorf("only got losing moves")
-	}
+	// if bestState == nil {
+	// 	return nil, fmt.Errorf("didn't finish a single loop")
+	// }
+	// if bestScore == -1 {
+	// 	return nil, fmt.Errorf("only got losing moves")
+	// }
 
-	return bestState, nil
+	// return bestState, nil
 
 	// return bestState
 
@@ -252,7 +264,7 @@ func (n *Node) Search(ctx context.Context, depth, deepestDepth int, ruleset rule
 		// fmt.Println(string(gamebytes))
 		// generator.PrintMap(n.State)
 		// fmt.Println("got score", finishedScore)
-		n.PropagateScore(parent, finishedScore)
+		n.PropagateScore(ctx, parent, finishedScore)
 		// n.Score = &finishedScore
 
 		return deepestDepth, nil
@@ -273,7 +285,7 @@ func (n *Node) Search(ctx context.Context, depth, deepestDepth int, ruleset rule
 		// generator.PrintMap(n.State)
 		// ShortestPathsBreadthPrint(n.State)
 
-		n.PropagateScore(parent, control)
+		n.PropagateScore(ctx, parent, control)
 
 		// if control == 0.628099173553719 {
 		// 	fmt.Println("sup")
@@ -343,7 +355,7 @@ func (n *Node) Search(ctx context.Context, depth, deepestDepth int, ruleset rule
 		score = n.Beta
 	}
 
-	n.PropagateScore(parent, score)
+	n.PropagateScore(ctx, parent, score)
 
 	return deepestDepth, nil
 }

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
-	"time"
 
 	"github.com/brensch/snake/generator"
 	"github.com/brensch/snake/minimax"
@@ -395,54 +394,54 @@ const LargestCost = 10000
 
 // }
 
-func Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, turn int32, gameID string) (rules.Direction, string) {
+// func Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, turn int32, gameID string) (rules.Direction, string) {
 
-	stateJSON, _ := json.Marshal(state)
-	fmt.Println(string(stateJSON))
-	// put you as snake 0
-	// skipper := false
-	if state.Snakes[0].ID != you.ID {
-		// fmt.Println("swapping snakes")
-		state.Snakes[1] = state.Snakes[0]
-		state.Snakes[0] = you
-		// skipper = true
-	}
+// 	stateJSON, _ := json.Marshal(state)
+// 	fmt.Println(string(stateJSON))
+// 	// put you as snake 0
+// 	// skipper := false
+// 	if state.Snakes[0].ID != you.ID {
+// 		// fmt.Println("swapping snakes")
+// 		state.Snakes[1] = state.Snakes[0]
+// 		state.Snakes[0] = you
+// 		// skipper = true
+// 	}
 
-	startingNode := &minimax.Node{
-		Alpha:        math.Inf(-1),
-		Beta:         math.Inf(1),
-		IsMaximising: true,
-		State:        state,
-	}
+// 	startingNode := &minimax.Node{
+// 		Alpha:        math.Inf(-1),
+// 		Beta:         math.Inf(1),
+// 		IsMaximising: true,
+// 		State:        state,
+// 	}
 
-	ctx, cancel := context.WithTimeout(ctx, 400*time.Millisecond)
-	defer cancel()
+// 	ctx, cancel := context.WithTimeout(ctx, 400*time.Millisecond)
+// 	defer cancel()
 
-	// emergencyMove, err := startingNode.Search(context.Background(), 0, 0, ruleset, nil, previousHeuristicScores)
-	// return n.FindBestChild().State, nil
+// emergencyMove, err := startingNode.Search(context.Background(), 0, 0, ruleset, nil, previousHeuristicScores)
+// return n.FindBestChild().State, nil
 
-	// startingNode.Search(ctx, 14, ruleset)
-	bestNextState, _ := startingNode.DeepeningSearch(ctx, ruleset)
+// 	// startingNode.Search(ctx, 14, ruleset)
+// 	bestNextState, _ := startingNode.DeepeningSearch(ctx, ruleset)
 
-	// bestChild := startingNode.FindBestChild()
+// 	// bestChild := startingNode.FindBestChild()
 
-	// generator.PrintMap(bestChild)
-	// get the direction that the child moved in
-	direction := generator.DirectionToPoint(you.Body[0], bestNextState.Snakes[0].Body[0])
+// 	// generator.PrintMap(bestChild)
+// 	// get the direction that the child moved in
+// 	direction := generator.DirectionToPoint(you.Body[0], bestNextState.Snakes[0].Body[0])
 
-	// _ = score
-	// _ = skipper
-	// if !skipper {
+// 	// _ = score
+// 	// _ = skipper
+// 	// if !skipper {
 
-	// fmt.Println("got score of next move", *startingNode.Score, direction.String())
-	// fmt.Println(state)
-	// generator.PrintMap(state)
+// 	// fmt.Println("got score of next move", *startingNode.Score, direction.String())
+// 	// fmt.Println(state)
+// 	// generator.PrintMap(state)
 
-	// }
+// 	// }
 
-	return direction, "yeet kang"
+// 	return direction, "yeet kang"
 
-}
+// }
 
 func (s *server) Move(ctx context.Context, state *rules.BoardState, ruleset rules.Ruleset, you rules.Snake, turn int32, gameID string) (rules.Direction, string) {
 
@@ -457,11 +456,11 @@ func (s *server) Move(ctx context.Context, state *rules.BoardState, ruleset rule
 		// skipper = true
 	}
 
-	catalog, ok := s.heuristicCatalog[gameID]
-	if !ok {
-		catalog = make(map[uint64]float64)
-		s.heuristicCatalog[gameID] = catalog
-	}
+	// catalog, ok := s.heuristicCatalog[gameID]
+	// if !ok {
+	catalog := make(map[uint64]float64)
+	// s.heuristicCatalog[gameID] = catalog
+	// }
 
 	startingNode := &minimax.Node{
 		Alpha:        math.Inf(-1),
@@ -470,23 +469,30 @@ func (s *server) Move(ctx context.Context, state *rules.BoardState, ruleset rule
 		State:        state,
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, 400*time.Millisecond)
-	defer cancel()
+	startingNode.Search(context.Background(), 1, 1, ruleset, nil, catalog)
+	bestDirection := generator.DirectionToPoint(you.Body[0], startingNode.FindBestChild().State.Snakes[0].Body[0])
 
-	_, err := startingNode.Search(context.Background(), 1, 1, ruleset, nil, catalog)
-	emergencyChild := startingNode.FindBestChild()
+	boardCHAN := make(chan *rules.BoardState)
 
 	// startingNode.Search(ctx, 14, ruleset)
-	bestNextState, err := startingNode.DeepeningSearch(ctx, ruleset)
-	if err != nil {
-		bestNextState = emergencyChild.State
+	go startingNode.DeepeningSearch(ctx, ruleset, boardCHAN)
+
+	for {
+		select {
+		case receivedBoard := <-boardCHAN:
+			// bestState = receivedBoard
+			bestDirection = generator.DirectionToPoint(you.Body[0], receivedBoard.Snakes[0].Body[0])
+
+		case <-ctx.Done():
+			return bestDirection, "swag"
+		}
 	}
 
 	// bestChild := startingNode.FindBestChild()
 
 	// generator.PrintMap(bestChild)
 	// get the direction that the child moved in
-	direction := generator.DirectionToPoint(you.Body[0], bestNextState.Snakes[0].Body[0])
+	// direction := generator.DirectionToPoint(you.Body[0], bestState.Snakes[0].Body[0])
 
 	// _ = score
 	// _ = skipper
@@ -498,7 +504,7 @@ func (s *server) Move(ctx context.Context, state *rules.BoardState, ruleset rule
 
 	// }
 
-	return direction, "yeet kang"
+	// return direction, "yeet kang"
 
 }
 
