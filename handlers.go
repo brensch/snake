@@ -31,7 +31,7 @@ func HandleStart(w http.ResponseWriter, r *http.Request) {
 
 func HandleMove(s *server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		ctx, cancel := context.WithTimeout(r.Context(), 300*time.Millisecond)
+		ctx, cancel := context.WithTimeout(r.Context(), 400*time.Millisecond)
 		defer cancel()
 		start := time.Now()
 		var req EngineRequest
